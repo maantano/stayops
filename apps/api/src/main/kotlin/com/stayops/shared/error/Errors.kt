@@ -13,6 +13,7 @@ enum class ErrorCode(val status: HttpStatus, val title: String) {
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다"),
     NOT_FOUND(HttpStatus.NOT_FOUND, "대상을 찾을 수 없습니다"),
     REQUEST_NOT_SUPPORTED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 요청 형식입니다"),
+    PAYLOAD_TOO_LARGE(HttpStatus.CONTENT_TOO_LARGE, "요청 본문이 너무 큽니다"),
     INVALID_STATE(HttpStatus.CONFLICT, "현재 상태에서 수행할 수 없는 요청입니다"),
     ROOM_NOT_AVAILABLE(HttpStatus.CONFLICT, "사용할 수 없는 객실입니다"),
     ACTIVE_BLOCKER_EXISTS(HttpStatus.CONFLICT, "해제되지 않은 차단 사유가 있습니다"),

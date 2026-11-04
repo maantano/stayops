@@ -1,0 +1,6 @@
+# cp terraform.tfvars.example terraform.tfvars  (terraform.tfvars는 git 제외)
+region          = "ap-northeast-2"
+environment     = "demo"
+image_tag       = "replace-with-git-sha"
+web_origin      = "https://stayops-demo.vercel.app"
+certificate_arn = "" # ACM 인증서 ARN. 공개 데모라면 지정해 HTTPS로만 서비스한다

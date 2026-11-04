@@ -1,0 +1,36 @@
+# 클라우드 배포용 (P12, 구성만). 값은 모두 환경 변수/Secrets Manager로 주입한다 — 기본값을 두지 않아 누락 시 시작에 실패한다.
+#
+# 주의 (ADR-005): 인증은 여전히 X-Demo-Staff-Id 데모 헤더다. 이 profile은 "합성 데이터 공개 데모" 배포용이며
+# 실제 운영 데이터를 다루는 배포가 아니다. 실제 인증(OIDC 등) 도입 전에는 운영 데이터를 넣지 않는다.
+spring:
+  datasource:
+    url: ${STAYOPS_DB_URL}
+    username: ${STAYOPS_DB_USER}
+    password: ${STAYOPS_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: ${STAYOPS_DB_POOL_SIZE:10}
+  flyway:
+    # 스키마 변경은 서버 시작이 아니라 별도 migration task(aws,migrate)에서만 한다 — 여러 task가 동시에 migrate하지 않게.
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: validate # 스키마가 migration보다 앞서 배포되면 시작에 실패한다
+
+server:
+  shutdown: graceful
+  forward-headers-strategy: framework # ALB의 X-Forwarded-* 를 신뢰
+
+logging:
+  structured:
+    format:
+      console: ecs # CloudWatch Logs에서 필드로 검색. MDC의 correlationId도 함께 나간다
+
+springdoc:
+  api-docs:
+    enabled: ${STAYOPS_API_DOCS_ENABLED:false}
+
+stayops:
+  demo-mode: ${STAYOPS_DEMO_MODE:true} # 합성 데이터 데모. 실제 인증 전까지 true로만 운영한다(위 주의 참고)
+  web:
+    allowed-origins: ${STAYOPS_WEB_ALLOWED_ORIGINS}
+    max-request-size: ${STAYOPS_MAX_REQUEST_SIZE:5MB}

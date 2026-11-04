@@ -1,0 +1,7 @@
+# 일회성 migration task: `SPRING_PROFILES_ACTIVE=aws,migrate`. 웹 서버 없이 Flyway만 실행하고 종료한다.
+# 데모 데이터가 필요하면 `aws,migrate,demo`로 실행한다(DemoSeeder는 이미 있으면 건너뛴다).
+spring:
+  main:
+    web-application-type: none
+  flyway:
+    enabled: true

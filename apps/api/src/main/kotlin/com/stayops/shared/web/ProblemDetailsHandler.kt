@@ -99,6 +99,16 @@ class ProblemDetailsHandler(meterRegistry: MeterRegistry) : ResponseEntityExcept
         statusCode: HttpStatusCode,
         request: WebRequest,
     ): ResponseEntity<Any>? {
+        generateSequence(ex as Throwable) { it.cause }.filterIsInstance<RequestTooLargeException>().firstOrNull()?.let { tooLarge ->
+            val code = ErrorCode.PAYLOAD_TOO_LARGE
+            val problem = ProblemDetail.forStatusAndDetail(code.status, "request body exceeds ${tooLarge.maxBytes / 1024} KB")
+            problem.type = code.type
+            problem.title = code.title
+            problem.setProperty("code", code.name)
+            problem.setProperty("correlationId", correlationId(request))
+            problem.setProperty("maxBytes", tooLarge.maxBytes)
+            return super.handleExceptionInternal(ex, problem, HttpHeaders(), code.status, request)
+        }
         val problem = (body as? ProblemDetail) ?: ProblemDetail.forStatus(statusCode)
         val code = codeForStatus(statusCode)
         problem.type = code.type

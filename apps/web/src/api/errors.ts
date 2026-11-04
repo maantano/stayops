@@ -8,6 +8,7 @@ export const PROBLEM_CODES = [
   "FORBIDDEN",
   "NOT_FOUND",
   "REQUEST_NOT_SUPPORTED",
+  "PAYLOAD_TOO_LARGE",
   "INVALID_STATE",
   "ROOM_NOT_AVAILABLE",
   "ACTIVE_BLOCKER_EXISTS",
@@ -93,6 +94,7 @@ export type ErrorAction =
 export function errorAction(error: ApiError): ErrorAction {
   switch (error.code) {
     case "VALIDATION_ERROR":
+    case "PAYLOAD_TOO_LARGE": // 서버 설명(detail)에 상한이 들어 있다
       return "show-field-errors";
     case "UNAUTHENTICATED":
     case NO_DEMO_ACTOR:

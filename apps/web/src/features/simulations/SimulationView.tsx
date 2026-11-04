@@ -12,6 +12,9 @@ import { useCommandRunner } from "../commands";
 
 type Metrics = SimulationRunView["scenarios"][number]["metrics"];
 
+/** API 기본 본문 상한(`stayops.web.max-request-size`, 5MB)과 같다. */
+export const MAX_DATASET_BYTES = 5 * 1024 * 1024;
+
 const POLICIES: { value: SimPolicy; label: string }[] = [
   { value: "BASELINE_FIFO", label: "기준: 먼저 생긴 작업부터 · 교대 시작 분산" },
   { value: "DEADLINE_FIRST", label: "대안 A: 준비 마감이 급한 객실부터" },
@@ -108,6 +111,11 @@ function RunPanel({ onRun }: { onRun: (runId: string) => void }) {
   const onFile = async (file: File | undefined) => {
     setFileError(null);
     if (!file) return;
+    if (file.size > MAX_DATASET_BYTES) {
+      // 서버도 같은 상한으로 거절한다(413 PAYLOAD_TOO_LARGE). 미리 막아 큰 파일을 읽고 보내지 않는다.
+      setFileError(`파일이 너무 큽니다 (${Math.ceil(file.size / 1024 / 1024)}MB). ${MAX_DATASET_BYTES / 1024 / 1024}MB 이하만 올릴 수 있습니다.`);
+      return;
+    }
     let parsed: unknown;
     try {
       parsed = JSON.parse(await file.text());

@@ -22,7 +22,8 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | P9 운영 화면 | 완료 — 데모 seed(`demo` profile, 실제 command로 상태 구성)·데모 사용자 API, 화면 6개, 명령 dialog(RHF+Zod), 오류 안내, Kotlin non-null → OpenAPI required. live smoke로 readiness 반올림 결함 발견·수정. 백엔드 209 + FE 26(+live 1). 브라우저 확장 미연결로 화면 육안 확인은 미실시 |
 | P10 합성 데이터 generator | 완료 — `tools/simulator` (표준 라이브러리만), TOML 가정값, 용도별 난수 스트림·UUIDv5 id, 바이트 단위 재현성, 불변식 검증, 수요 요약, CLI(generate/validate/summarize). pytest 21개. 형식: `docs/simulation/DATASET.md` |
 | P11 시뮬레이션 | 완료 — V5(데이터셋·실행), 데이터셋 import(검증·중복 방지), Kotlin 결정적 엔진, 정책 3종 비교·기준 대비 차이, 조회 API, `/simulations` 화면, Python↔Kotlin 계약 fixture. 백엔드 227 · FE 29 · Python 22 |
-| 다음 | P12 — Playwright E2E, 접근성·보안 점검, 배포 구성(Vercel·AWS ECS·Terraform), 실제 인증 결정 |
+| P12 E2E·점검·배포 구성 | 완료 (실제 배포 없음) — Playwright E2E 7개(e2e profile·전용 DB, production build, 핵심 흐름 202호 배정→차단→검사 실패→재청소→통과→체크인, stayover 체크아웃 거부, OOS 체크인 차단·재개, 시뮬레이션, 키보드 dialog, axe serious/critical 0, 보안 헤더). **결함 2건 발견·수정**: dialog unmount 시 포커스 미복귀, 요청 본문 무제한 파싱(→ 413 `PAYLOAD_TOO_LARGE`). gitleaks·pnpm audit·checkov(121/0/19 skip). API Dockerfile(로컬 실행 검증)·`aws`/`migrate` profile·Terraform(validate)·Next 보안 헤더/CSP. 인증은 ADR-007(데모 헤더 유지, 도입 단계 기록). 백엔드 230 · FE 31 · Python 22 · E2E 7 |
+| 남은 일 | 실제 배포(AWS 자격 증명·인증서·Vercel), 실제 인증(ADR-007 단계), CI 파이프라인, 화면 낭독기 수동 점검, 02 §11 OPEN 항목 |
 
 ## 2. 필수 원칙
 - Phase 0은 read-only.

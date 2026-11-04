@@ -6,6 +6,9 @@
 
 - 설계 문서: [`docs/README.md`](docs/README.md) (현재 기준 v4.1)
 - 설계 결정(ADR): [`docs/decisions/`](docs/decisions/)
+- 배포 구성(실제 배포 안 함): [`docs/deploy/DEPLOYMENT.md`](docs/deploy/DEPLOYMENT.md) · 보안·접근성 점검: [`docs/deploy/SECURITY_REVIEW.md`](docs/deploy/SECURITY_REVIEW.md)
+
+> **인증은 데모용입니다.** `X-Demo-Staff-Id` 헤더로 직원을 고르는 방식이며 보안 수단이 아닙니다 (ADR-005, ADR-007).
 
 ## 구조
 
@@ -13,6 +16,7 @@
 apps/web          Next.js (App Router, TypeScript strict, Tailwind) — pnpm
 apps/api          Spring Boot 4 + Kotlin, JPA, Flyway, PostgreSQL — Gradle wrapper
 tools/simulator   합성 데이터·오프라인 시뮬레이션 — Python + uv
+infra/terraform   AWS 배포 구성 (ECS Fargate·RDS·ALB) — 코드만, apply 안 함
 docs/             설계 문서와 ADR
 ```
 
@@ -76,6 +80,15 @@ cd apps/web && pnpm dev                                                   # http
 | API | `cd apps/api && ./gradlew build` (단위·통합 테스트 포함, Testcontainers로 PostgreSQL을 띄우므로 Docker 실행 필요) |
 | Web | `cd apps/web && pnpm lint && pnpm typecheck && pnpm test && pnpm build` |
 | Simulator | `cd tools/simulator && uv run ruff check . && uv run ruff format --check . && uv run pytest` |
+| E2E (Playwright) | `cd apps/web && pnpm exec playwright install chromium && pnpm test:e2e` — 아래 참고 |
+| 이미지 | `docker build -t stayops-api apps/api` |
+| Terraform | `cd infra/terraform && terraform init -backend=false && terraform validate` |
+
+E2E는 API를 `e2e` profile(포트 8081, **전용 DB `stayops_e2e`를 매번 비우고** migration + 데모 seed)로, 웹을 production build(포트 3200)로 직접 띄운 뒤 화면으로 핵심 흐름·예외 흐름·시뮬레이션·접근성(axe serious/critical 0)·보안 헤더를 확인한다. 처음 한 번 DB를 만든다:
+```bash
+docker compose exec -T postgres createdb -U stayops stayops_e2e
+```
+e2e profile은 DB 이름이 `_e2e`로 끝나지 않으면 시작을 거부한다.
 
 ## API 계약
 

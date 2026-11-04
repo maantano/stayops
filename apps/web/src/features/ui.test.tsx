@@ -1,7 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
+import { useState } from "react";
 import { fireEvent, render as renderPlain, screen, waitFor, within } from "@testing-library/react";
 import type { TaskListItem } from "@/api/endpoints";
 import { ApiError } from "@/api/errors";
+import { Dialog } from "@/components/Dialog";
 import { ErrorNotice } from "@/components/ErrorNotice";
 import { Badge } from "@/components/ui";
 import { formatInstant, formatRisk } from "@/lib/format";
@@ -184,5 +186,33 @@ describe("DashboardView", () => {
     expect(list.textContent).toContain("청소 · 검사");
     expect(list.textContent).toContain("판정 불가");
     expect(list.textContent).toContain("차단 해제 예상 시각 없음");
+  });
+});
+
+describe("Dialog", () => {
+  function Harness() {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <button onClick={() => setOpen(true)}>열기</button>
+        {open ? (
+          <Dialog open title="확인" onClose={() => setOpen(false)}>
+            <button onClick={() => setOpen(false)}>취소</button>
+          </Dialog>
+        ) : null}
+      </>
+    );
+  }
+
+  test("focus returns to the trigger when the parent unmounts the dialog", async () => {
+    renderPlain(<Harness />);
+    const trigger = screen.getByRole("button", { name: "열기" });
+    trigger.focus();
+    fireEvent.click(trigger);
+    const cancel = await screen.findByRole("button", { name: "취소" });
+    cancel.focus(); // 브라우저의 showModal()은 포커스를 dialog 안으로 옮긴다 (jsdom polyfill은 하지 않음)
+    expect(document.activeElement).toBe(cancel);
+    fireEvent.click(cancel);
+    await waitFor(() => expect(document.activeElement).toBe(trigger));
   });
 });

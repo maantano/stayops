@@ -33,6 +33,17 @@ export function Dialog({ open, title, onClose, children }: { open: boolean; titl
     return () => dialog.removeEventListener("close", handleClose);
   }, [onClose]);
 
+  // ×·취소 버튼이나 제출 성공으로 부모가 dialog를 unmount하면 close 이벤트가 오지 않는다 — 이때도 포커스를 되돌린다 (P12 E2E에서 발견).
+  useEffect(() => {
+    const dialog = ref.current;
+    const restore = restoreFocus;
+    return () => {
+      if (dialog?.open) dialog.close();
+      const target = restore.current;
+      if (target?.isConnected) target.focus();
+    };
+  }, []);
+
   return (
     <dialog
       ref={ref}

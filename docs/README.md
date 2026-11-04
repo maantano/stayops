@@ -23,8 +23,10 @@
 변경 관리: `APPROVED`, `PROPOSED`, `OPEN`, `REJECTED`
 내용: `FACT`, `EVIDENCE`, `INTERPRETATION`, `HYPOTHESIS`, `ASSUMPTION`, `DECISION`, `IMPLEMENTED`, `VERIFIED`
 
-## 다음 실행
-`docs/v4.1/06_CLAUDE_CODE_HARNESS.md` §7.1 (P1: ADR + scaffold).
+## 구현 문서
+- 진행 현황: `docs/v4.1/06_CLAUDE_CODE_HARNESS.md` §1.1 (P1~P12 완료)
+- 스키마 `docs/schema/SCHEMA.md` · API 계약 `docs/api/openapi.json` · 합성 데이터 `docs/simulation/DATASET.md`
+- 배포 구성 `docs/deploy/DEPLOYMENT.md` · 보안·접근성 점검 `docs/deploy/SECURITY_REVIEW.md` (실제 배포 안 함)
 
 ## 버전 이력
 | 버전 | 내용 |

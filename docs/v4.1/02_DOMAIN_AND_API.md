@@ -489,6 +489,7 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 | STAYOVER_IN_PROGRESS | 409 | started stayover 때문에 checkout 불가 |
 | STATE_INCONSISTENT | 409 | 저장 상태 모순, 보정하지 않음 |
 | REQUEST_NOT_SUPPORTED | 405/406/415 | 지원하지 않는 method·media type `[P2.5]` |
+| PAYLOAD_TOO_LARGE | 413 | 요청 본문이 상한(`stayops.web.max-request-size`, 기본 5MB)을 넘음. 파싱 전에 거절, `maxBytes` 확장 필드 `[P12]` |
 | INTERNAL_ERROR | 500 | 예상하지 못한 오류, 매핑되지 않은 DB 제약 위반(서비스 검증 누락 버그). 내부 정보 미노출 `[P2.5]` |
 
 `PROPERTY_SCOPE_VIOLATION`은 사용하지 않는다(REJECTED). scope 위반은 서버 로그에만 기록한다.
@@ -591,7 +592,7 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 
 ## 11. 아직 결정이 필요한 항목 (OPEN)
 - ~~PostgreSQL exclusion constraint vs transaction lock (예약 중복)~~ → ADR-004에서 exclusion constraint로 결정.
-- 실제 auth 방식(데모 로그인/외부 IdP).
+- 실제 auth 방식(데모 로그인/외부 IdP). `[P12]` ADR-007: MVP는 데모 헤더 유지, 공개 배포는 합성 데이터 데모로만. 실제 인증 도입 조건과 순서를 기록.
 - 작업자 동시 작업 가능 여부 및 travel/setup time.
 - stayover 검사 필요 조건.
 - 시설 OOS 중 작업 진행/취소 정책 상세.

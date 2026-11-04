@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { renderWithApp, session } from "@/test/render";
-import { describeDiff, KPI_ROWS, SimulationView } from "./SimulationView";
+import { describeDiff, KPI_ROWS, MAX_DATASET_BYTES, SimulationView } from "./SimulationView";
 
 const metrics = (onTime: number, late: number, meanLate: number) => ({
   turnovers: 10, evaluatedArrivals: 8, onTime: Math.round(onTime * 8), late, notReadyByHorizonEnd: 0, onTimeReadinessRate: onTime,
@@ -66,5 +66,18 @@ describe("SimulationView", () => {
 
     expect(await screen.findByText(/JSON 파일이 아닙니다/)).toBeDefined();
     await waitFor(() => expect(importSimulationDataset).not.toHaveBeenCalled());
+  });
+
+  test("a file over the size limit is rejected before it is read or sent", async () => {
+    const importSimulationDataset = vi.fn();
+    const api = { simulationDatasets: vi.fn().mockResolvedValue([]), simulations: vi.fn().mockResolvedValue([]), commands: { importSimulationDataset } };
+    renderWithApp(<SimulationView />, { as: session("MANAGER", "mgr"), api: api as never });
+
+    const big = new File(["{}"], "big.json", { type: "application/json" });
+    Object.defineProperty(big, "size", { value: MAX_DATASET_BYTES + 1 });
+    fireEvent.change(await screen.findByLabelText("합성 데이터셋 올리기 (gen-v1 JSON)"), { target: { files: [big] } });
+
+    expect(await screen.findByText(/파일이 너무 큽니다/)).toBeDefined();
+    expect(importSimulationDataset).not.toHaveBeenCalled();
   });
 });

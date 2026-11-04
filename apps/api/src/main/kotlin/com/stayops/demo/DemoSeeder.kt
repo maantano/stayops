@@ -47,7 +47,7 @@ import java.util.UUID
  * 대량·재현 가능한 합성 데이터는 P10 Python generator가 담당한다.
  */
 @Component
-@Profile("demo")
+@Profile("demo", "e2e")
 class DemoSeeder(
     private val properties: PropertyRepository,
     private val rooms: RoomRepository,

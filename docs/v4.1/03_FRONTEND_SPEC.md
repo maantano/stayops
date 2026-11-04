@@ -96,6 +96,7 @@
 | code | FE 처리 |
 |---|---|
 | VALIDATION_ERROR | 필드 오류 표시 |
+| PAYLOAD_TOO_LARGE | 서버 설명(상한) 표시. 데이터셋 업로드는 같은 상한으로 파일 크기를 먼저 확인해 보내지 않음 `[P12]` |
 | NOT_FOUND | "찾을 수 없음" 화면, 목록으로 이동 |
 | FORBIDDEN | 권한 안내. UI에서 숨겼더라도 처리 |
 | VERSION_CONFLICT | 최신 데이터 fetch, 사용자가 새 상태를 보고 다시 행동 |
