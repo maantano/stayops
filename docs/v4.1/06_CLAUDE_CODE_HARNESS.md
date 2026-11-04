@@ -8,7 +8,7 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 |---|---|
 | Phase 0 저장소 조사 | 완료 (v1~v4 문서만 존재, 코드 없음) |
 | 문서 v4 → v4.1 | 승인 완료 (`08_V4.1_CHANGE_LOG.md`) |
-| 개발 환경 | OrbStack(Docker 29.8.2, Compose v5.5.0), uv 0.13.7, JDK 21 설치는 사용자 sudo 필요 |
+| 개발 환경 | OrbStack(Docker 29.8.2, Compose v5.5.0), uv 0.13.7, OpenJDK 21.0.13 (Homebrew `openjdk@21`, `~/Library/Java/JavaVirtualMachines`에 등록) |
 | Git | `handys/`에서 `git init -b main`, `.gitignore` 작성, 문서 baseline 커밋 |
 | 다음 | P1 — ADR 작성 및 scaffold |
 
