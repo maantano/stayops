@@ -34,3 +34,9 @@
 3. **순서 강제:** `RoomLockScope`가 Room → Reservation → Task 순서를 어기면 `IllegalStateException`(500)으로 즉시 실패한다. 코드 버그를 운영 전에 드러내기 위함이다.
 4. **Idempotency-Key 직렬화:** 같은 key의 동시 요청은 `pg_advisory_xact_lock(hash(actor, endpoint, key))`으로 직렬화한다. 도메인 잠금이 아니라 중복 요청 처리용이므로 위 "advisory lock 기각"과 충돌하지 않는다.
 5. **검증:** `CommandInfrastructureTests`(같은 객실 command 직렬화, 같은 key 동시 요청 1회 실행), `LockTimeoutTests`(lock_timeout 초과 → 409, 부분 반영 없음).
+
+## 개정 2 (2026-11-04, P6에서 발견한 결함)
+6. **command 시각은 잠금 이후에 정한다.** `CommandContext.now`는 처음 읽을 때 한 번 정해지며, 서비스는 객실 잠금을 잡은 뒤에만 읽는다.
+   - 발견: 무작위 동시 실행 테스트(seed 101, 102)에서 같은 task에 대한 동시 재배정이 500을 냈다. 늦게 잠금을 얻은 command가 잠금 대기 전 시각으로 앞선 배정을 종료해 `unassigned_at < assigned_at`(`assignment_interval_valid`) 위반.
+   - 원칙: 잠금으로 직렬화된 실행 순서와 기록 시각의 순서가 일치해야 한다. 이벤트 `occurredAt`, 상태 전이 시각, 이력 구간 모두 이 시각을 쓴다.
+   - 검증: `TaskLifecycleTests$Concurrency` 회귀 테스트(수정을 되돌리면 실패, 적용하면 통과 확인), 모든 command 함수가 잠금 호출 뒤에 시각을 읽는지 점검.

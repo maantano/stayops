@@ -43,6 +43,8 @@
 
 오류 시 전체 rollback. 동일 idempotency key + 동일 request hash는 기존 응답을 반환. 같은 키에 다른 request hash는 409.
 
+`[P6]` command 시각(`CommandContext.now`)은 3번(잠금) 이후 처음 읽을 때 정해진다. 잠금 전에 시각을 읽지 않는다 (ADR-003 개정 2).
+
 ## 4. 동시성
 - `[v4.1 확정]` room workflow command는 Room 행 pessimistic lock(`SELECT … FOR UPDATE`)으로 객실 단위 직렬화. 잠금 순서는 Room → Reservation → Task → Assignment/Blocker로 고정해 교착을 방지한다.
 - 그 외 aggregate는 optimistic `version`. 클라이언트가 보낸 stale version은 409 `VERSION_CONFLICT`.

@@ -165,6 +165,13 @@ H2/HSQL 등 PostgreSQL과 동작이 다른 DB만으로 제약 테스트를 대�
 
 무작위 테스트 실패 seed와 command sequence를 artifact로 남긴다.
 
+`[P6 구현]` `WorkflowInvariantTests` (외부 property-based 라이브러리 없이 seed 고정 생성기)
+- 생성기(`RandomCommands`): 70%는 현재 상태에 맞는 다음 행동, 30%는 완전 무작위(권한 없는 역할·맞지 않는 상태·무효 담당자 포함). 객실 3개(투숙 중 / READY+확정 예약 / 청소 대기)에서 시작하고 예약을 보충해 체크인→체크아웃 순환을 이어 간다.
+- 실행: 순차 12 seed × 60단계, 동시 6 seed × 20묶음(3개 동시), deadlock 1회(25라운드 × 8개 동시).
+- 판정: 응답은 2xx 또는 400/403/404/409이어야 하고 `STATE_INCONSISTENT`·5xx·401은 실패. 매 단계(묶음) 후 DB 불변식 I1~I6(`InvariantChecker`): 객실당 active task ≤ 1, BLOCKED ⇔ 활성 blocker, 활성 assignment 수 ↔ 상태, Room × active task matrix, OCCUPIED ⇔ CHECKED_IN 예약 1개, 이벤트 version ≤ aggregate version. deadlock은 `pg_stat_database.deadlocks` 증가량 0.
+- 실패 시 `apps/api/build/invariant-failures/<mode>-seed-<seed>.log`에 seed와 command 기록. 재현: `STAYOPS_INVARIANT_SEEDS=<seed> ./gradlew test --tests '*WorkflowInvariantTests*'`.
+- 발견 결함: 동시 재배정 시 command 시각 역전(ADR-003 개정 2). 회귀 테스트 추가.
+
 ## 7. FE QA
 - loading/empty/error/unknown/stale 별도 렌더링.
 - 403/404/409/422/500 처리.

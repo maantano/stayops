@@ -551,6 +551,24 @@ class TaskLifecycleTests(
             assertEquals(listOf("TASK_STARTED"), eventTypes(task.getId()))
         }
 
+        /**
+         * P6 회귀: command 시각을 잠금 대기 전에 정하면, 늦게 잠금을 얻은 재배정이 앞선 배정보다 과거 시각으로
+         * 종료를 기록해 `assignment_interval_valid` 위반(500)이 났다. 시각은 잠금 이후에 정해져야 한다.
+         */
+        @Test
+        fun `concurrent reassignments record a non-decreasing assignment history`() {
+            val (_, task) = hotel.turnover()
+            val other = hotel.staff(StaffRole.HOUSEKEEPER, "HK-02").also { hotel.onShift(it) }
+            repeat(5) { round ->
+                val results = runConcurrently(2) { i -> assign(task, if (i == 0) hotel.housekeeper else other) }
+                assertTrue(results.all { it.status == 200 }, "round $round bodies=${results.map { it.body }}")
+            }
+            val history = assignments.findByTaskIdOrderByAssignedAtAsc(task.getId())
+            history.filter { !it.isActive }.forEach { assertTrue(!it.unassignedAt!!.isBefore(it.assignedAt), "interval of ${it.getId()}") }
+            history.zipWithNext().forEach { (a, b) -> assertTrue(!b.assignedAt.isBefore(a.unassignedAt ?: a.assignedAt)) }
+            assertEquals(1, history.count { it.isActive })
+        }
+
         @Test
         fun `stayover start racing checkout ends in one consistent outcome`() {
             val (room, reservation) = hotel.stay()

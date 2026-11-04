@@ -52,7 +52,7 @@ class IdempotentCommandExecutor(
             jdbc.query("SELECT pg_advisory_xact_lock(?)", { _ -> }, lockKey(actor, request))
             findRecord(actor, request)?.let { return@execute replay(it, requestHash, responseType) }
 
-            val context = CommandContext(actor, request.correlationId, request.idempotencyKey, clock.instant())
+            val context = CommandContext(actor, request.correlationId, request.idempotencyKey, clock)
             val result = command(context)
             records.save(
                 IdempotencyRecord(
