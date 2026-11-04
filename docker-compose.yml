@@ -1,0 +1,22 @@
+# 로컬 개발용 PostgreSQL (ADR-002). 테스트는 Testcontainers가 별도 컨테이너를 띄우므로 이 서비스가 필요 없다.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: stayops-postgres
+    environment:
+      POSTGRES_DB: ${STAYOPS_DB_NAME:-stayops}
+      POSTGRES_USER: ${STAYOPS_DB_USER:-stayops}
+      POSTGRES_PASSWORD: ${STAYOPS_DB_PASSWORD:-stayops}
+      TZ: UTC
+    ports:
+      - "${STAYOPS_DB_PORT:-5432}:5432"
+    volumes:
+      - stayops-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  stayops-pgdata:

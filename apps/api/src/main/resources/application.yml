@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: stayops-api
+  datasource:
+    url: ${STAYOPS_DB_URL:jdbc:postgresql://localhost:5432/stayops}
+    username: ${STAYOPS_DB_USER:stayops}
+    password: ${STAYOPS_DB_PASSWORD:stayops}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate # 스키마는 Flyway만 변경한다
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: ${STAYOPS_API_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true # /actuator/health/liveness, /actuator/health/readiness 분리
+      show-details: never
+
+stayops:
+  # 데모 모드 표시 (v4.1 04 §11). 실제 운영 데이터가 아님을 명시한다.
+  demo-mode: true
