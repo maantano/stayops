@@ -171,6 +171,20 @@ class QueryApiTests(
             assertEquals(listOf(soon.getId().toString()), items(response.body).map { it.get("reservationId").asString() })
             assertProblem(api.get("$base/reservations", hotel.housekeeper.getId()), 403, "FORBIDDEN")
         }
+
+        @Test
+        fun `each reservation carries its room's workflow stage and availability so the UI can explain check-in`() {
+            val ready = hotel.room()
+            val outOfService = hotel.room(availability = RoomAvailabilityStatus.OUT_OF_SERVICE)
+            val dirty = hotel.room(RoomOperationalStatus.VACANT_DIRTY)
+            listOf(ready, outOfService, dirty).forEachIndexed { i, room -> hotel.reservation(room, checkIn = hours(2L + i), checkOut = hours(26L + i)) }
+
+            val rows = items(api.get("$base/reservations?status=CONFIRMED", hotel.frontDesk.getId()).body)
+                .associate { it.get("roomId").asString() to (it.get("roomWorkflowStage").asString() to it.get("roomAvailabilityStatus").asString()) }
+            assertEquals("READY" to "AVAILABLE", rows[ready.getId().toString()])
+            assertEquals("READY" to "OUT_OF_SERVICE", rows[outOfService.getId().toString()])
+            assertEquals("NEEDS_CLEANING" to "AVAILABLE", rows[dirty.getId().toString()])
+        }
     }
 
     // ============================================================ workloads

@@ -208,6 +208,8 @@ active -> CANCELLED
 - `[v4.1]` 담당자 무효로 PENDING이 된 started task는 Room이 진행 상태로 남는다(OPEN-5 결정: 유지). 대시보드는 "담당자 없음 · 진행 중단" 경고를 표시한다.
 
 ### 3.4 Reservation lifecycle
+
+`[사용성 후속]` 예약 목록(`GET /properties/{id}/reservations`)의 각 행은 `roomWorkflowStage`·`roomAvailabilityStatus`를 함께 반환한다. 화면은 이것으로 체크인 가능 여부와 남은 단계를 미리 안내할 뿐이며, 최종 판단은 check-in command가 한다.
 | 현재 | 명령 | 조건 | 다음 |
 |---|---|---|---|
 | CONFIRMED | check-in | Room READY + AVAILABLE, 예약 유효, 시간/권한 검증 | CHECKED_IN |

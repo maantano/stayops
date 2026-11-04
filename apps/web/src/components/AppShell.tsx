@@ -56,6 +56,9 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
               ))}
             </nav>
             <div className="ml-auto flex items-center gap-3 text-sm">
+              <Link href="/guide" className="text-zinc-700 underline-offset-2 hover:underline">
+                사용법
+              </Link>
               <span className="text-zinc-600">
                 {session.propertyName} · <strong className="text-zinc-900">{session.displayName}</strong> ({roleLabels[session.role] ?? session.role}) ·{" "}
                 <span title="시각은 호텔 시간대로 표시합니다">{session.timezone}</span>

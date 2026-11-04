@@ -681,9 +681,13 @@ export interface components {
             guestCount: number;
             /** Format: uuid */
             reservationId: string;
+            /** @enum {string} */
+            roomAvailabilityStatus: "AVAILABLE" | "OUT_OF_SERVICE";
             /** Format: uuid */
             roomId: string;
             roomNumber: string;
+            /** @enum {string} */
+            roomWorkflowStage: "NEEDS_CLEANING" | "CLEANING" | "AWAITING_INSPECTION" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
             /** Format: date-time */
             scheduledCheckInAt: string;
             /** Format: date-time */

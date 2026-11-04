@@ -35,13 +35,14 @@ test("checkout is refused while a stayover cleaning is in progress, then succeed
   await expectToast(page, "104호 체크아웃했습니다");
 });
 
-/** 02 §5: 판매 중단 객실은 체크인할 수 없다. 관리자가 판매를 재개하면 체크인된다. */
+/** 02 §5: 판매 중단 객실은 체크인할 수 없다(화면이 미리 안내). 관리자가 판매를 재개하면 체크인된다. */
 test("check-in to an out-of-service room is blocked until the manager restores it", async ({ page }) => {
   await loginAs(page, STAFF.frontDesk);
   await page.getByRole("navigation", { name: "주 메뉴" }).getByRole("link", { name: "예약" }).click();
   const arrival = () => page.getByRole("region", { name: "도착 예정" }).getByRole("listitem").filter({ hasText: "102호" });
-  await arrival().getByRole("button", { name: "체크인" }).click();
-  await expect(arrival().getByRole("alert")).toBeVisible();
+  // 누르기 전에 막고 이유를 보여 준다 (서버도 같은 조건으로 거부한다 — API 테스트에서 확인)
+  await expect(arrival().getByRole("button", { name: "체크인" })).toBeDisabled();
+  await expect(arrival()).toContainText("판매 중단된 객실이라 체크인할 수 없습니다");
 
   await loginAs(page, STAFF.manager);
   await page.goto("/rooms");

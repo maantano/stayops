@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -41,6 +42,13 @@ export function DemoLogin({ baseUrl }: { baseUrl: string }) {
         </div>
         <p className="text-sm text-zinc-600">
           실제 로그인 대신 직원을 골라 그 역할로 화면을 봅니다. 보안 수단이 아닌 합성 데이터 데모용입니다.
+        </p>
+        <p className="text-sm">
+          처음이라면{" "}
+          <Link href="/guide" className="font-medium underline underline-offset-2">
+            사용 설명서
+          </Link>
+          에서 역할별로 할 수 있는 일과 객실·작업 상태별 사용법을 먼저 보세요.
         </p>
       </header>
 

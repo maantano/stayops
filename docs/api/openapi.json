@@ -697,11 +697,19 @@
             "format" : "uuid",
             "type" : "string"
           },
+          "roomAvailabilityStatus" : {
+            "enum" : [ "AVAILABLE", "OUT_OF_SERVICE" ],
+            "type" : "string"
+          },
           "roomId" : {
             "format" : "uuid",
             "type" : "string"
           },
           "roomNumber" : {
+            "type" : "string"
+          },
+          "roomWorkflowStage" : {
+            "enum" : [ "NEEDS_CLEANING", "CLEANING", "AWAITING_INSPECTION", "INSPECTING", "READY", "OCCUPIED", "STAYOVER_CLEANING" ],
             "type" : "string"
           },
           "scheduledCheckInAt" : {
@@ -721,7 +729,7 @@
             "type" : "integer"
           }
         },
-        "required" : [ "guestCount", "reservationId", "roomId", "roomNumber", "scheduledCheckInAt", "scheduledCheckOutAt", "status", "version" ],
+        "required" : [ "guestCount", "reservationId", "roomAvailabilityStatus", "roomId", "roomNumber", "roomWorkflowStage", "scheduledCheckInAt", "scheduledCheckOutAt", "status", "version" ],
         "type" : "object"
       },
       "ResolveBlockerRequest" : {

@@ -42,6 +42,8 @@ cd apps/web && nvm use && pnpm install && pnpm dev
 
 브라우저에서 http://localhost:3000 을 열고 직원을 고릅니다. `MGR-01 관리자`로 시작하면 모든 화면을 볼 수 있습니다.
 
+**처음이라면 사용 설명서부터:** 앱의 http://localhost:3000/guide (첫 화면과 상단 '사용법' 링크) 또는 [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md). 역할별로 할 수 있는 일, 객실·작업 상태별로 다음에 할 일, 메뉴별 사용법, 자주 만나는 거부·오류와 해결 방법을 정리했습니다.
+
 **데모 데이터:** 데모 데이터는 실제 command(체크아웃·배정·시작·차단·완료·검사)로 만들었으므로 이벤트 이력이 남아 있습니다. 준비 위험 5등급이 모두 나옵니다.
 
 | 객실 | 상태 | 확인해 볼 것 |
@@ -75,8 +77,8 @@ cd apps/web && nvm use && pnpm install && pnpm dev
 
 | 대상 | 테스트 | 내용 |
 |---|---|---|
-| API | 230 | 스키마 제약, 상태 전이 판정 표, 동시 요청, 장애 주입 rollback, seed 고정 무작위 command 시퀀스 + DB 불변식 6종, 준비 위험 계산, OpenAPI 계약 |
-| Web | 32 (+ 실행 중인 API 대상 smoke 1) | API 클라이언트, 오류 코드별 처리, 역할별 버튼, 화면 컴포넌트 |
+| API | 231 | 스키마 제약, 상태 전이 판정 표, 동시 요청, 장애 주입 rollback, seed 고정 무작위 command 시퀀스 + DB 불변식 6종, 준비 위험 계산, OpenAPI 계약 |
+| Web | 39 (+ 실행 중인 API 대상 smoke 1) | API 클라이언트, 오류 코드별 처리, 역할별 버튼, 화면 컴포넌트 |
 | Simulator | 22 | 재현성, 난수 스트림 독립성, 시간대(DST), 언어 간 계약 fixture |
 | E2E | 8 | 핵심 흐름(배정 → 차단·해제 → 검사 실패 → 재청소 → 통과 → 체크인), 체크아웃 거부, 판매 중단 체크인 차단, 시뮬레이션, 키보드 dialog, axe(라이트·다크 모두 serious/critical 0), 보안 헤더 |
 
@@ -87,6 +89,7 @@ cd apps/web && nvm use && pnpm install && pnpm dev
 - 요청 본문이 크기 제한 없이 파싱됨: 보안 점검에서 발견, 413 `PAYLOAD_TOO_LARGE`로 거절
 - OS 다크 모드에서 카드 글자가 안 보임: 사람이 화면을 직접 보고 발견 → 다크 모드 axe 검사 추가
 - 개발 모드에서 dialog가 열리지 않음(위 확인 중 발견, React StrictMode)
+- 준비 안 된 객실도 체크인 버튼이 눌리고 서버의 영어 설명이 그대로 보임: 사람이 직접 써 보고 발견 → 예약에 객실 상태를 함께 내려 미리 안내, 오류 문구 한국어화
 
 ## 시뮬레이션 결과 (참고)
 
@@ -161,5 +164,6 @@ docs/             설계 문서(v4.1이 현재 기준), ADR, 스키마, 배포·
 | [`docs/README.md`](docs/README.md) | 문서 인덱스, 버전 정책 |
 | [`docs/v4.1/`](docs/v4.1/) | 01 제품·범위 · 02 도메인·API(규칙의 단일 기준) · 03 FE · 04 BE · 05 QA · 06 진행 현황 · 07 교차 검토 · 08 변경 이력 |
 | [`docs/decisions/`](docs/decisions/) | ADR-001~007 |
+| [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | **사용 설명서** (앱의 `/guide`와 같은 원본에서 생성) |
 | [`docs/schema/SCHEMA.md`](docs/schema/SCHEMA.md) | DB 스키마와 제약 |
 | [`docs/process/AI_DEVELOPMENT_PROCESS.md`](docs/process/AI_DEVELOPMENT_PROCESS.md) | **AI 활용 개발 과정** — 단계별 작업, 사람·AI 역할 분담, 검증 방법, AI 오류 교정 사례 |

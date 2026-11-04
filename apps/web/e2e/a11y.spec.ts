@@ -12,6 +12,12 @@ test("main screens have no serious or critical axe violations", async ({ page })
   await expect(page.getByRole("button", { name: /^MGR-01/ })).toBeVisible();
   await expectNoSeriousA11yViolations(page);
 
+  // 사용 설명서: 로그인 없이 열리고, 목차로 이동할 수 있다
+  await page.getByRole("link", { name: "사용 설명서" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "StayOps 사용 설명서" })).toBeVisible();
+  await expectNoSeriousA11yViolations(page);
+  await page.getByRole("link", { name: "← StayOps로 돌아가기" }).click();
+
   await loginAs(page, STAFF.manager);
   for (const [link, heading] of [
     ["대시보드", "대시보드"],

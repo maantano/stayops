@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { errorAction, isApiError } from "@/api/errors";
-import { blockerTypeLabels, labelOf, reservationStatusLabels, taskStatusLabels } from "@/lib/labels";
+import { blockerTypeLabels, labelOf, operationalStatusLabels, reservationStatusLabels, taskStatusLabels } from "@/lib/labels";
 import { Button } from "./ui";
 
 type BlockingTask = {
@@ -37,7 +37,7 @@ export function ErrorNotice({ error, onRetry }: { error: unknown; onRetry?: () =
 
   return (
     <div role="alert" className={box}>
-      <p className="font-medium">{message(action, error.problem.detail)}</p>
+      <p className="font-medium">{message(action, error.code)}</p>
 
       {action === "show-field-errors" && error.problem.fieldErrors?.length ? (
         <ul className="list-disc pl-5">
@@ -51,6 +51,10 @@ export function ErrorNotice({ error, onRetry }: { error: unknown; onRetry?: () =
 
       {action === "refetch-and-explain" && error.extension<string>("currentStatus") ? (
         <p>현재 상태: {statusText(error.extension<string>("currentStatus")!)}</p>
+      ) : null}
+
+      {error.extension<string>("roomOperationalStatus") ? (
+        <p>객실 상태: {labelOf(operationalStatusLabels, error.extension<string>("roomOperationalStatus")!).label}</p>
       ) : null}
 
       {action === "show-blockers" ? (
@@ -77,6 +81,7 @@ export function ErrorNotice({ error, onRetry }: { error: unknown; onRetry?: () =
         </Button>
       ) : null}
 
+      {error.problem.detail && action !== "show-field-errors" ? <p className="text-xs text-rose-700">서버 설명: {error.problem.detail}</p> : null}
       {error.correlationId ? <p className="text-xs text-rose-700">추적 ID: {error.correlationId}</p> : null}
     </div>
   );
@@ -111,7 +116,11 @@ function statusText(status: string): string {
   return taskStatusLabels[status]?.label ?? reservationStatusLabels[status]?.label ?? status;
 }
 
-function message(action: ReturnType<typeof errorAction>, detail?: string): string {
+/**
+ * 사용자에게 보여 줄 한국어 안내. 서버의 detail은 개발용 영어 설명이라 본문에 쓰지 않고 아래 "서버 설명"으로만 남긴다
+ * (수동 확인에서 "room is not ready"가 그대로 노출된 것을 발견).
+ */
+function message(action: ReturnType<typeof errorAction>, code: string): string {
   switch (action) {
     case "show-field-errors":
       return "입력 값을 확인하세요.";
@@ -124,11 +133,14 @@ function message(action: ReturnType<typeof errorAction>, detail?: string): strin
     case "refetch-and-retry":
       return "다른 변경과 충돌했습니다. 최신 상태를 불러왔으니 확인 후 다시 시도하세요.";
     case "refetch-and-explain":
-      return `현재 상태에서 할 수 없는 요청입니다. ${detail ?? ""}`.trim();
+      if (code === "ROOM_NOT_AVAILABLE") return "판매 중단된 객실이라 할 수 없습니다. 관리자가 객실 상세에서 판매를 재개해야 합니다.";
+      if (code === "SCHEDULE_CONFLICT") return "예약 시간이 이 객실의 다른 투숙과 겹칩니다.";
+      return "현재 상태에서는 할 수 없는 요청입니다. 화면을 최신 상태로 다시 불러왔으니 상태를 확인하세요.";
     case "show-blockers":
       return "해제되지 않은 차단 사유가 있습니다.";
     case "go-to-assignment":
-      return `담당자 배정을 확인하세요. ${detail ?? ""}`.trim();
+      if (code === "SHIFT_CONFLICT") return "선택한 직원이 작업 예정 시각에 근무하지 않습니다. 근무 중인 직원을 고르세요.";
+      return "담당자 배정이 유효하지 않습니다. 담당자가 없거나 역할이 맞지 않습니다 — 배정을 확인하세요.";
     case "go-to-existing-task":
       return "이 객실에 진행 중인 작업이 이미 있습니다.";
     case "stayover-blocks-checkout":
