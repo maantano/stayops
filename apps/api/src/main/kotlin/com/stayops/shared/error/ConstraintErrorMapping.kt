@@ -1,7 +1,5 @@
 package com.stayops.shared.error
 
-import org.springframework.dao.DataIntegrityViolationException
-
 /**
  * DB 제약 위반을 API 오류 코드로 변환한다 (docs/schema/SCHEMA.md).
  *
@@ -25,7 +23,7 @@ object ConstraintErrorMapping {
 
     data class Mapped(val code: ErrorCode, val constraint: String?)
 
-    fun map(ex: DataIntegrityViolationException): Mapped {
+    fun map(ex: Throwable): Mapped {
         val constraint = constraintName(ex)
         return Mapped(constraint?.let { codes[it] } ?: ErrorCode.INTERNAL_ERROR, constraint)
     }

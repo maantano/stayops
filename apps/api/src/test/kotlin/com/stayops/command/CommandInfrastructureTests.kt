@@ -6,6 +6,7 @@ import com.stayops.property.infrastructure.PropertyRepository
 import com.stayops.room.infrastructure.RoomRepository
 import com.stayops.shared.command.IdempotencyRecordRepository
 import com.stayops.staff.infrastructure.StaffRepository
+import com.stayops.support.ApiClient
 import io.micrometer.core.instrument.MeterRegistry
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -55,13 +56,7 @@ class CommandInfrastructureTests(
 
     private fun roomEvents() = events.findByAggregateIdOrderByOccurredAtAscIdAsc(world.room.getId())
 
-    private fun assertProblem(response: ProbeClient.Response, status: Int, code: String) {
-        assertEquals(status, response.status, "body=${response.body}")
-        assertEquals(code, response.code)
-        assertTrue(response.contentType!!.startsWith("application/problem+json"), "content-type=${response.contentType}")
-        assertNotNull(response.body.get("correlationId")?.asString(), "problem must carry correlationId")
-        assertEquals("urn:stayops:problem:" + code.lowercase().replace('_', '-'), response.body.get("type").asString())
-    }
+    private fun assertProblem(response: ApiClient.Response, status: Int, code: String) = ApiClient.assertProblem(response, status, code)
 
     // ------------------------------------------------------- success & event
 

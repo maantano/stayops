@@ -43,3 +43,10 @@ stayops:
   demo-mode: true
   db:
     lock-timeout: 5s
+  housekeeping:
+    # 예상 소요시간 기본값(분). 합성 시뮬레이션용 ASSUMPTION — 업계 표준·실측치가 아님 (v4.1 01 §8)
+    default-duration-minutes:
+      CHECKOUT_CLEANING: 45
+      RE_CLEANING: 30
+      INSPECTION: 10
+      STAYOVER_CLEANING: 25

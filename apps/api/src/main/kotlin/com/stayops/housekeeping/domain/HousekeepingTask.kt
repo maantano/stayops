@@ -1,6 +1,8 @@
 package com.stayops.housekeeping.domain
 
 import com.stayops.shared.domain.AuditedEntity
+import com.stayops.shared.error.ErrorCode
+import com.stayops.shared.error.StayOpsException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -117,4 +119,41 @@ class HousekeepingTask(
 
     val isStarted: Boolean
         get() = actualStartedAt != null
+
+    /**
+     * active → CANCELLED. 권한·Room 복귀 판단은 호출하는 서비스 책임이다.
+     * assignment 종료와 blocker 종결도 같은 transaction에서 서비스가 처리한다.
+     */
+    fun cancel(code: CancellationCode, reason: String?) {
+        if (!status.isActive) {
+            throw StayOpsException(ErrorCode.INVALID_STATE, "task is $status", mapOf("currentStatus" to status.name))
+        }
+        status = TaskStatus.CANCELLED
+        statusBeforeBlocked = null
+        cancellationCode = code
+        cancellationReason = reason
+    }
+
+    companion object {
+        /** 체크아웃 command 내부에서만 생성한다 (v4.1 02 §4 Task create). */
+        fun checkoutCleaning(
+            propertyId: UUID,
+            roomId: UUID,
+            reservationId: UUID,
+            scheduledAt: Instant,
+            estimatedDurationMinutes: Int,
+            durationSource: DurationSource,
+            createdBy: UUID,
+        ) = HousekeepingTask(
+            propertyId = propertyId,
+            roomId = roomId,
+            type = TaskType.CHECKOUT_CLEANING,
+            origin = TaskOrigin.CHECKOUT_COMMAND,
+            scheduledAt = scheduledAt,
+            estimatedDurationMinutes = estimatedDurationMinutes,
+            durationSource = durationSource,
+            createdBy = createdBy,
+            reservationId = reservationId,
+        )
+    }
 }

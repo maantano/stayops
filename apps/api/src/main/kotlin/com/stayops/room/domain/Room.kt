@@ -1,6 +1,8 @@
 package com.stayops.room.domain
 
 import com.stayops.shared.domain.AuditedEntity
+import com.stayops.shared.error.ErrorCode
+import com.stayops.shared.error.StayOpsException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -70,4 +72,29 @@ class Room(
     @Column(name = "availability_changed_at")
     var availabilityChangedAt: Instant? = null
         protected set
+
+    /** 체크인: READY이면서 AVAILABLE이어야 한다 (v4.1 02 §2 Room). OOS를 먼저 확인한다. */
+    fun admitGuest() {
+        if (availabilityStatus != RoomAvailabilityStatus.AVAILABLE) {
+            throw StayOpsException(
+                ErrorCode.ROOM_NOT_AVAILABLE,
+                "room is $availabilityStatus",
+                mapOf("availabilityStatus" to availabilityStatus.name, "availabilityReason" to availabilityReason),
+            )
+        }
+        if (operationalStatus != RoomOperationalStatus.READY) {
+            throw StayOpsException(
+                ErrorCode.INVALID_STATE,
+                "room is not ready",
+                mapOf("roomOperationalStatus" to operationalStatus.name),
+            )
+        }
+        operationalStatus = RoomOperationalStatus.OCCUPIED
+    }
+
+    /** 체크아웃: OCCUPIED → VACANT_DIRTY. 호출 전 서비스가 상태 일관성을 확인한다. */
+    fun releaseAfterCheckout() {
+        check(operationalStatus == RoomOperationalStatus.OCCUPIED) { "room must be OCCUPIED but was $operationalStatus" }
+        operationalStatus = RoomOperationalStatus.VACANT_DIRTY
+    }
 }

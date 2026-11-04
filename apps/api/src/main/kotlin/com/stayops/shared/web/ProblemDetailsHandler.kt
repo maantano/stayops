@@ -40,8 +40,12 @@ class ProblemDetailsHandler(meterRegistry: MeterRegistry) : ResponseEntityExcept
         return problem(ex.code, ex.detail, request, ex.extensions)
     }
 
-    @ExceptionHandler(DataIntegrityViolationException::class)
-    fun handleIntegrity(ex: DataIntegrityViolationException, request: NativeWebRequest): ResponseEntity<ProblemDetail> {
+    /**
+     * repository를 거친 위반은 Spring이 [DataIntegrityViolationException]으로 변환하지만,
+     * EntityManager flush(이벤트 기록·commit)에서 난 위반은 Hibernate 예외 그대로 올라온다. 둘 다 같은 규칙으로 매핑한다.
+     */
+    @ExceptionHandler(DataIntegrityViolationException::class, org.hibernate.exception.ConstraintViolationException::class)
+    fun handleIntegrity(ex: RuntimeException, request: NativeWebRequest): ResponseEntity<ProblemDetail> {
         val mapped = ConstraintErrorMapping.map(ex)
         if (mapped.code == ErrorCode.INTERNAL_ERROR) {
             log.error("Unmapped DB constraint violation (constraint={})", mapped.constraint, ex)

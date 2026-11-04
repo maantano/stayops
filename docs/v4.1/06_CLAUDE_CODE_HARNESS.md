@@ -13,7 +13,8 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | P1 ADR + scaffold | 완료 — ADR-001~003, apps/api(Spring Boot 4.1.2, Kotlin 2.3.21, Gradle 9.8.2), apps/web(Next.js 16.4.5, React 19.3), tools/simulator(uv), docker-compose(PostgreSQL 17). build/lint/typecheck/test/health 검증 |
 | P2 schema/core domain | 완료 — V1 migration(11개 테이블), 엔티티·repository, ADR-004, 스키마 제약 테스트 37개 통과(PostgreSQL 17), `docs/schema/SCHEMA.md` |
 | P2.5 command 인프라 | 완료 — 오류 코드·Problem Details, correlation ID, 데모 인증(ADR-005), Idempotency 실행기(V2), EventRecorder, RoomWorkflowLocks(ADR-003 개정). 테스트 60개 통과 |
-| 다음 | P3 — 예약 check-in/check-out (checkout × stayover 포함) |
+| P3 예약 check-in/out | 완료 — `POST /reservations/{id}/check-in`, `/check-out`, checkout × stayover 8개 상태 행, 장애 주입 rollback, 동시 요청. 백엔드 테스트 83개 통과 |
+| 다음 | P4 — task lifecycle (배정·재배정, blocker, start 판정 표·재시작, complete, cancel) |
 
 ## 2. 필수 원칙
 - Phase 0은 read-only.

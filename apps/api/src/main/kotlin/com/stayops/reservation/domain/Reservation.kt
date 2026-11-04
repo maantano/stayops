@@ -1,6 +1,8 @@
 package com.stayops.reservation.domain
 
 import com.stayops.shared.domain.AuditedEntity
+import com.stayops.shared.error.ErrorCode
+import com.stayops.shared.error.StayOpsException
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -66,4 +68,32 @@ class Reservation(
     @Column(name = "guest_count", nullable = false)
     var guestCount: Int = guestCount
         protected set
+
+    /**
+     * CONFIRMED → CHECKED_IN. 예정 체크인 이전의 조기 체크인은 객실이 준비됐다면 허용한다(`ASSUMPTION`,
+     * 허용 시간대 정책은 OPEN). 숙박 기간이 이미 끝난 예약은 체크인할 수 없다.
+     */
+    fun checkIn(at: Instant) {
+        if (status != ReservationStatus.CONFIRMED) {
+            throw StayOpsException(ErrorCode.INVALID_STATE, "reservation is $status", mapOf("currentStatus" to status.name))
+        }
+        if (!at.isBefore(scheduledCheckOutAt)) {
+            throw StayOpsException(
+                ErrorCode.INVALID_STATE,
+                "stay period has already ended",
+                mapOf("currentStatus" to status.name, "scheduledCheckOutAt" to scheduledCheckOutAt.toString()),
+            )
+        }
+        status = ReservationStatus.CHECKED_IN
+        actualCheckInAt = at
+    }
+
+    /** CHECKED_IN → CHECKED_OUT. 퇴실은 이 command로만 한다 (v4.1 02 §3.4). */
+    fun checkOut(at: Instant) {
+        if (status != ReservationStatus.CHECKED_IN) {
+            throw StayOpsException(ErrorCode.INVALID_STATE, "reservation is $status", mapOf("currentStatus" to status.name))
+        }
+        status = ReservationStatus.CHECKED_OUT
+        actualCheckOutAt = at
+    }
 }

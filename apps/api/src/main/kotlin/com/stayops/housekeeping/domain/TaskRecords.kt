@@ -52,6 +52,13 @@ class TaskAssignment(
 
     val isActive: Boolean
         get() = unassignedAt == null
+
+    fun end(at: Instant, reason: UnassignedReason, note: String? = null) {
+        check(isActive) { "assignment ${getId()} is already ended" }
+        unassignedAt = at
+        unassignedReason = reason
+        unassignedNote = note
+    }
 }
 
 /** 작업 차단 사유. 해제해도 삭제하지 않고 resolvedAt·resolutionType으로 종결한다. */
@@ -107,6 +114,15 @@ class TaskBlocker(
 
     val isActive: Boolean
         get() = resolvedAt == null
+
+    /** 삭제하지 않고 종결한다. */
+    fun close(at: Instant, by: UUID, type: BlockerResolutionType, note: String? = null) {
+        check(isActive) { "blocker ${getId()} is already resolved" }
+        resolvedAt = at
+        resolvedBy = by
+        resolutionType = type
+        resolutionNote = note
+    }
 }
 
 /** 검사 결과. 검사 task 하나당 한 건. */

@@ -246,6 +246,20 @@ lock Room → Reservation → active stayover task(있으면)
 3. 동일 객실 충돌 활성 투숙 예약 없음
 4. Reservation CHECKED_IN, actualCheckInAt / Room OCCUPIED / event
 
+`[P3 구현]` (`StayCommandService`)
+- 권한: FRONT_DESK, MANAGER. 요청 본문 없음, 시각은 서버 기준.
+- 판정 순서: 예약 상태(CONFIRMED) → 숙박 기간 종료 여부 → 다른 투숙 → availability(OOS면 `ROOM_NOT_AVAILABLE`) → operational(READY 아니면 `INVALID_STATE` + `roomOperationalStatus`).
+- 예정 체크인 이전의 조기 체크인은 객실이 READY·AVAILABLE이면 허용한다 (`ASSUMPTION`). 예정 체크아웃 시각이 지난 예약은 `INVALID_STATE`. 상세 허용 시간대·late arrival 정책은 OPEN 유지.
+- 이벤트: `RESERVATION_CHECKED_IN`, `ROOM_STATUS_CHANGED`(cause CHECK_IN).
+- 응답(check-in/out 공통): `reservationId, reservationStatus, reservationVersion, roomId, roomOperationalStatus, roomVersion, checkoutCleaningTaskId?, autoCancelledStayoverTaskId?, occurredAt, correlationId`.
+
+`[P3 구현]` Check-out 세부
+- 권한: FRONT_DESK, MANAGER.
+- 객실의 active task가 STAYOVER_CLEANING이 아니면(체크인 중인 객실에 turnover task) `STATE_INCONSISTENT`.
+- checkout cleaning 예상 소요는 설정 기본값(`stayops.housekeeping.default-duration-minutes`, `ASSUMPTION`), `durationSource=CONFIG_DEFAULT`, `scheduledAt`=체크아웃 시각, `dueAt`은 비움(다음 도착 기준 계산은 readiness P7).
+- 이벤트: `[TASK_CANCELLED]`, `RESERVATION_CHECKED_OUT`, `ROOM_STATUS_CHANGED`(cause CHECK_OUT), `HOUSEKEEPING_TASK_CREATED`.
+- `resolutionOptions`: 모든 요청자에게 `RESOLVE_BLOCKERS_AND_COMPLETE`(담당자가 수행), MANAGER에게만 `CANCEL_TASK_AS_MANAGER` 추가.
+
 ### Task create
 - checkout task: checkout command 내부에서만 생성.
 - RE_CLEANING(origin INSPECTION_FAILED): inspection FAILED 결과 command 내부에서 생성.
