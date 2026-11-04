@@ -100,6 +100,29 @@ export function useReservations(filter: Omit<ReservationsQuery, "cursor"> = {}) 
   });
 }
 
+export function useSimulationDatasets(allowed = true) {
+  const { api, propertyId } = useApi();
+  const enabled = useEnabled();
+  return useQuery({ queryKey: queryKeys.simulationDatasets(propertyId), queryFn: () => api.simulationDatasets(propertyId), enabled: enabled && allowed });
+}
+
+export function useSimulations(allowed = true) {
+  const { api, propertyId } = useApi();
+  const enabled = useEnabled();
+  return useQuery({ queryKey: queryKeys.simulations(propertyId), queryFn: () => api.simulations(propertyId), enabled: enabled && allowed });
+}
+
+export function useSimulation(simulationId: string | null) {
+  const { api, propertyId } = useApi();
+  const enabled = useEnabled();
+  return useQuery({
+    queryKey: queryKeys.simulation(propertyId, simulationId ?? ""),
+    queryFn: () => api.simulation(propertyId, simulationId!),
+    enabled: enabled && Boolean(simulationId),
+    staleTime: Infinity, // 완료된 실행 결과는 바뀌지 않는다
+  });
+}
+
 export function useStaffWorkloads(date?: string) {
   const { api, propertyId } = useApi();
   return useQuery({ queryKey: queryKeys.staffWorkloads(propertyId, date), queryFn: () => api.staffWorkloads(propertyId, date), enabled: useEnabled() });

@@ -225,6 +225,74 @@
         "required" : [ "businessDate", "generatedAt", "propertyId", "readiness", "rooms", "stays", "syntheticData", "tasks", "timezone" ],
         "type" : "object"
       },
+      "DatasetSummary" : {
+        "properties" : {
+          "configHash" : {
+            "type" : "string"
+          },
+          "days" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "generatorVersion" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "reservations" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "rooms" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "seed" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "staff" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "startDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "timezone" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "configHash", "days", "generatorVersion", "name", "reservations", "rooms", "seed", "staff", "startDate", "timezone" ],
+        "type" : "object"
+      },
+      "DatasetView" : {
+        "properties" : {
+          "contentHash" : {
+            "type" : "string"
+          },
+          "created" : {
+            "type" : "boolean"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "datasetId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "summary" : {
+            "$ref" : "#/components/schemas/DatasetSummary"
+          },
+          "synthetic" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "contentHash", "created", "createdAt", "datasetId", "summary", "synthetic" ],
+        "type" : "object"
+      },
       "DemoActor" : {
         "properties" : {
           "displayName" : {
@@ -283,6 +351,24 @@
           }
         },
         "required" : [ "result" ],
+        "type" : "object"
+      },
+      "JobStats" : {
+        "properties" : {
+          "completed" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "created" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "incomplete" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "completed", "created", "incomplete" ],
         "type" : "object"
       },
       "PageResponseReservationListItem" : {
@@ -712,6 +798,32 @@
         "required" : [ "grade", "readyDeadline", "roomId", "roomNumber", "topReasons" ],
         "type" : "object"
       },
+      "RoleLoad" : {
+        "properties" : {
+          "availableMinutes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "busyMinutes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "overtimeMinutes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "staff" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "utilization" : {
+            "format" : "double",
+            "type" : [ "number", "null" ]
+          }
+        },
+        "required" : [ "availableMinutes", "busyMinutes", "overtimeMinutes", "staff" ],
+        "type" : "object"
+      },
       "RoomCommandResponse" : {
         "properties" : {
           "availabilityReason" : {
@@ -876,6 +988,81 @@
         "required" : [ "activeTaskCount", "assignedEstimatedMinutes", "availableMinutes", "displayName", "flags", "role", "shifts", "staffId" ],
         "type" : "object"
       },
+      "RunRequest" : {
+        "properties" : {
+          "datasetId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "policies" : {
+            "items" : {
+              "enum" : [ "BASELINE_FIFO", "DEADLINE_FIRST", "SAME_SHIFT_START" ],
+              "type" : "string"
+            },
+            "type" : [ "array", "null" ]
+          }
+        },
+        "required" : [ "datasetId" ],
+        "type" : "object"
+      },
+      "ScenarioDiff" : {
+        "properties" : {
+          "metrics" : {
+            "additionalProperties" : {
+              "format" : "double",
+              "type" : "number"
+            },
+            "type" : "object"
+          },
+          "parameters" : {
+            "additionalProperties" : {
+              "additionalProperties" : {
+                "type" : "string"
+              },
+              "type" : "object"
+            },
+            "type" : "object"
+          }
+        },
+        "required" : [ "metrics", "parameters" ],
+        "type" : "object"
+      },
+      "ScenarioResult" : {
+        "properties" : {
+          "diffFromBaseline" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/ScenarioDiff"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "dispatchRule" : {
+            "enum" : [ "FIFO", "DEADLINE_FIRST" ],
+            "type" : "string"
+          },
+          "label" : {
+            "type" : "string"
+          },
+          "metrics" : {
+            "$ref" : "#/components/schemas/SimMetrics"
+          },
+          "parameters" : {
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "type" : "object"
+          },
+          "policy" : {
+            "enum" : [ "BASELINE_FIFO", "DEADLINE_FIRST", "SAME_SHIFT_START" ],
+            "type" : "string"
+          },
+          "sameHousekeeperShiftStart" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "dispatchRule", "label", "metrics", "parameters", "policy", "sameHousekeeperShiftStart" ],
+        "type" : "object"
+      },
       "Shift" : {
         "properties" : {
           "breakMinutes" : {
@@ -892,6 +1079,168 @@
           }
         },
         "required" : [ "breakMinutes", "endsAt", "startsAt" ],
+        "type" : "object"
+      },
+      "SimMetrics" : {
+        "properties" : {
+          "evaluatedArrivals" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "inspectionFailures" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "jobs" : {
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/JobStats"
+            },
+            "type" : "object"
+          },
+          "late" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "maxLatenessMinutes" : {
+            "format" : "int64",
+            "type" : [ "integer", "null" ]
+          },
+          "meanLatenessMinutes" : {
+            "format" : "double",
+            "type" : [ "number", "null" ]
+          },
+          "notReadyByHorizonEnd" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "onTime" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "onTimeReadinessRate" : {
+            "format" : "double",
+            "type" : [ "number", "null" ]
+          },
+          "p90LatenessMinutes" : {
+            "format" : "int64",
+            "type" : [ "integer", "null" ]
+          },
+          "stayover" : {
+            "$ref" : "#/components/schemas/StayoverStats"
+          },
+          "taskCompletionRate" : {
+            "format" : "double",
+            "type" : [ "number", "null" ]
+          },
+          "turnovers" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "workload" : {
+            "additionalProperties" : {
+              "$ref" : "#/components/schemas/RoleLoad"
+            },
+            "type" : "object"
+          }
+        },
+        "required" : [ "evaluatedArrivals", "inspectionFailures", "jobs", "late", "notReadyByHorizonEnd", "onTime", "stayover", "turnovers", "workload" ],
+        "type" : "object"
+      },
+      "SimulationRunSummary" : {
+        "properties" : {
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "datasetId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "onTimeReadinessRate" : {
+            "additionalProperties" : {
+              "format" : "double",
+              "type" : "number"
+            },
+            "type" : "object"
+          },
+          "policies" : {
+            "items" : {
+              "enum" : [ "BASELINE_FIFO", "DEADLINE_FIRST", "SAME_SHIFT_START" ],
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "runId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "seed" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "status" : {
+            "type" : "string"
+          }
+        },
+        "required" : [ "createdAt", "datasetId", "onTimeReadinessRate", "policies", "runId", "seed", "status" ],
+        "type" : "object"
+      },
+      "SimulationRunView" : {
+        "properties" : {
+          "assumptions" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "completedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "dataset" : {
+            "$ref" : "#/components/schemas/DatasetView"
+          },
+          "definitions" : {
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "type" : "object"
+          },
+          "engineVersion" : {
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "policyVersion" : {
+            "type" : "string"
+          },
+          "runId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "scenarios" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ScenarioResult"
+            },
+            "type" : "array"
+          },
+          "seed" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "startedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "synthetic" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "assumptions", "dataset", "definitions", "engineVersion", "note", "policyVersion", "runId", "scenarios", "seed", "startedAt", "status", "synthetic" ],
         "type" : "object"
       },
       "StaffWorkloadReport" : {
@@ -984,6 +1333,28 @@
             "type" : [ "string", "null" ]
           }
         },
+        "type" : "object"
+      },
+      "StayoverStats" : {
+        "properties" : {
+          "completed" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "meanWaitMinutes" : {
+            "format" : "double",
+            "type" : [ "number", "null" ]
+          },
+          "requested" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "started" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "required" : [ "completed", "requested", "started" ],
         "type" : "object"
       },
       "Stays" : {
@@ -1941,6 +2312,502 @@
           }
         },
         "tags" : [ "room-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/simulation-datasets" : {
+      "get" : {
+        "operationId" : "listSimulationDatasets",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/DatasetView"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "simulation-controller" ]
+      },
+      "post" : {
+        "operationId" : "importSimulationDataset",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "additionalProperties" : { },
+                "type" : "object"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DatasetView"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "simulation-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/simulations" : {
+      "get" : {
+        "operationId" : "listSimulations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "items" : {
+                    "$ref" : "#/components/schemas/SimulationRunSummary"
+                  },
+                  "type" : "array"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "simulation-controller" ]
+      },
+      "post" : {
+        "operationId" : "runSimulation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SimulationRunView"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "simulation-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/simulations/{simulationId}" : {
+      "get" : {
+        "operationId" : "getSimulation",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "simulationId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SimulationRunView"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "simulation-controller" ]
       }
     },
     "/api/v1/properties/{propertyId}/staff-workloads" : {

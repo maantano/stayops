@@ -555,6 +555,14 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 - 실패한 simulation은 partial success로 노출하지 않는다.
 - 결과는 실제 운영 최적화/성과 보장이 아니다.
 
+### 9.1 `[P11 구현]` 시뮬레이션
+- **입력:** P10 생성기 출력(`gen-v1`) JSON을 `POST /properties/{id}/simulation-datasets`로 올린다(MANAGER). 합성 표시·버전·구조를 검증하고 내용 해시로 중복을 막는다(같은 파일이면 기존 데이터셋 반환). 저장 후 변경하지 않는 입력 스냅샷이다. 백엔드가 Python을 호출하지 않는다.
+- **실행:** `POST /properties/{id}/simulations {datasetId, policies?}`(MANAGER). 요청 안에서 동기 실행하고 완료된 결과만 저장한다(실패는 저장하지 않음 → 부분 성공 노출 없음). 조회는 MANAGER·FRONT_DESK.
+- **엔진(`sim-engine-v1`, Kotlin, 난수 없음):** 분 단위로 진행. 체크아웃 → (린넨·시설 지연) → 청소 → 검사 → (실패) 재청소 → 재검사 → 준비 완료, 투숙 중 청소 요청은 현지 10:00 대기열 진입. 작업자는 근무 안·휴게 밖에서만 새 작업 시작, 근무 종료 이후분은 초과근무. 같은 시각 결정은 작업자 이름·작업 생성 순서. 가정 목록은 결과에 포함한다.
+- **정책(`sim-policy-v1`):** `BASELINE_FIFO`(먼저 생긴 작업부터, 데이터셋 근무표) / `DEADLINE_FIRST`(다음 도착 준비 마감이 이른 객실부터) / `SAME_SHIFT_START`(하우스키핑 근무 시작을 모두 09:00). 첫 정책은 반드시 기준.
+- **KPI(01 §6):** 정시 준비율(분모 = 기간 안에 준비 마감이 있는 turnover), 지연 건수·평균·p90·최대, 기간 내 미준비, 작업 완료율, 역할별 가동률(근무 중 작업 / 근무 − 휴게)과 초과근무, 투숙 중 청소 평균 대기. 결과에 정의·가정·엔진/정책 버전·데이터셋 seed·configHash를 함께 반환하고, 대안마다 기준 대비 지표 차이와 파라미터 차이를 둔다.
+- **재현성:** 같은 데이터셋·정책·파라미터·엔진 버전 → 같은 결과(테스트로 검증). 언어 간 형식은 계약 fixture로 검증(Python이 만든 `dataset-contract.json`을 Kotlin API 테스트가 업로드, pytest가 생성기 출력과 바이트 일치 확인).
+
 ## 10. DB constraints / invariants
 
 ### 10.1 `[v4.1]` Lock 정책
@@ -590,7 +598,7 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 - readiness blocker critical path 모델.
 - no-show cutoff 정책.
 - 객실 이동/room move 지원 여부.
-- simulation 비동기 처리 기준.
+- simulation 비동기 처리 기준 (`[P11]` 80실·14일·정책 3개가 약 0.2초라 MVP는 동기 실행).
 - `[v4.1]` READY 객실 재작업("READY 해제") 명령 — v4.2 후보 (OPEN-1).
 - `[v4.1]` warningMarginMinutes 초기값 (OPEN-7).
 

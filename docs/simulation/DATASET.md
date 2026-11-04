@@ -3,7 +3,8 @@
 - 생성기: `tools/simulator` (Python 3.11 표준 라이브러리만 사용)
 - 설정: `tools/simulator/configs/default.toml` — **모든 값은 임의의 가정(ASSUMPTION)** 이며 업계 평균·실측치가 아니다
 - 상태: `IMPLEMENTED` · `VERIFIED`(pytest 21개)
-- 소비자: P11 시뮬레이션(파일 기반 import, 02 §2.2). 백엔드가 Python을 호출하지 않는다.
+- 소비자: P11 시뮬레이션 — `POST /api/v1/properties/{id}/simulation-datasets`로 업로드(02 §9.1). 백엔드가 Python을 호출하지 않는다.
+- 언어 간 계약: `configs/contract.toml` + seed 7 → `apps/api/src/test/resources/simulation/dataset-contract.json`. pytest가 생성기 출력과 바이트 일치를 확인하고, Kotlin API 테스트가 이 파일을 업로드해 실행한다.
 
 ```bash
 cd tools/simulator
@@ -58,3 +59,12 @@ reservations[] {
 | 하루 수요/근무 가능 분 최대 | 0.71 (이동·준비 시간 미반영) |
 
 이 값은 합성 데이터의 성질이며 운영 성과가 아니다.
+
+## 시뮬레이션 결과 예 (기본 설정, seed 42, 참고)
+`sim-engine-v1` / `sim-policy-v1`, 평가 대상 도착 401건. 합성 데이터에 대한 상대 비교이며 운영 성과가 아니다.
+
+| 정책 | 정시 준비율 | 지연 | 평균 지연 | p90 | 초과근무 |
+|---|---|---|---|---|---|
+| 기준: 먼저 생긴 작업부터 | 81.6% | 74건 | 54.2분 | 102분 | 18분 |
+| 대안 A: 마감 급한 객실부터 | 96.3% | 15건 | 21.5분 | 37분 | 40분 |
+| 대안 B: 교대 시작 09:00 통일 | 80.3% | 79건 | 52.1분 | 109분 | 0분 |

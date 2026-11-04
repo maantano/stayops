@@ -22,6 +22,10 @@ export type TaskCommandResponse = Schemas["TaskCommandResponse"];
 export type StayCommandResponse = Schemas["StayCommandResponse"];
 export type RoomCommandResponse = Schemas["RoomCommandResponse"];
 export type DemoProperty = Schemas["DemoProperty"];
+export type DatasetView = Schemas["DatasetView"];
+export type SimulationRunView = Schemas["SimulationRunView"];
+export type SimulationRunSummary = Schemas["SimulationRunSummary"];
+export type SimPolicy = NonNullable<Schemas["RunRequest"]["policies"]>[number];
 
 export type RoomsQuery = NonNullable<operations["rooms"]["parameters"]["query"]>;
 export type TasksQuery = NonNullable<operations["tasks"]["parameters"]["query"]>;
@@ -98,6 +102,14 @@ export function createStayOpsApi(options: StayOpsApiOptions) {
       query(() => client.GET("/api/v1/properties/{propertyId}/tasks", { params: { path: { propertyId }, query: q, header: queryHeaders() } })),
     reservations: (propertyId: string, q: ReservationsQuery = {}) =>
       query(() => client.GET("/api/v1/properties/{propertyId}/reservations", { params: { path: { propertyId }, query: q, header: queryHeaders() } })),
+    simulationDatasets: (propertyId: string) =>
+      query(() => client.GET("/api/v1/properties/{propertyId}/simulation-datasets", { params: { path: { propertyId }, header: queryHeaders() } })),
+    simulations: (propertyId: string) =>
+      query(() => client.GET("/api/v1/properties/{propertyId}/simulations", { params: { path: { propertyId }, header: queryHeaders() } })),
+    simulation: (propertyId: string, simulationId: string) =>
+      query(() =>
+        client.GET("/api/v1/properties/{propertyId}/simulations/{simulationId}", { params: { path: { propertyId, simulationId }, header: queryHeaders() } }),
+      ),
     staffWorkloads: (propertyId: string, date?: string) =>
       query(() =>
         client.GET("/api/v1/properties/{propertyId}/staff-workloads", { params: { path: { propertyId }, query: date ? { date } : {}, header: queryHeaders() } }),
@@ -133,6 +145,15 @@ export function createStayOpsApi(options: StayOpsApiOptions) {
         command(() => client.POST("/api/v1/rooms/{roomId}/rework-tasks", { params: { path: { roomId }, header: commandHeaders(key) }, body })),
       changeAvailability: (roomId: string, body: Schemas["AvailabilityRequest"], key: string) =>
         command(() => client.POST("/api/v1/rooms/{roomId}/availability", { params: { path: { roomId }, header: commandHeaders(key) }, body })),
+      /** P10 생성기 출력(gen-v1) JSON을 그대로 올린다. */
+      importSimulationDataset: (propertyId: string, dataset: Record<string, unknown>, key: string) =>
+        command(() =>
+          client.POST("/api/v1/properties/{propertyId}/simulation-datasets", { params: { path: { propertyId }, header: commandHeaders(key) }, body: dataset }),
+        ),
+      runSimulation: (propertyId: string, datasetId: string, policies: SimPolicy[] | undefined, key: string) =>
+        command(() =>
+          client.POST("/api/v1/properties/{propertyId}/simulations", { params: { path: { propertyId }, header: commandHeaders(key) }, body: { datasetId, policies } }),
+        ),
     },
   };
 }

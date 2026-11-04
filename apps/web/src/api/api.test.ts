@@ -97,10 +97,13 @@ describe("query keys and invalidation", () => {
   });
 
   test("every command invalidates the shared operational views", () => {
-    for (const [command, targets] of Object.entries(invalidationTargets)) {
+    const simulationCommands = ["importSimulationDataset", "runSimulation"];
+    for (const [command, targets] of Object.entries(invalidationTargets).filter(([c]) => !simulationCommands.includes(c))) {
       expect(targets, command).toEqual(expect.arrayContaining(["dashboard", "readiness", "rooms", "room", "timeline", "tasks"]));
     }
     expect(invalidationPrefixes(PROPERTY, "checkIn")).toContainEqual(["stayops", PROPERTY, "reservations"]);
     expect(invalidationPrefixes(PROPERTY, "start")).not.toContainEqual(["stayops", PROPERTY, "reservations"]);
+    // 시뮬레이션(합성 데이터)은 운영 화면을 다시 불러오지 않는다
+    expect(invalidationPrefixes(PROPERTY, "runSimulation")).toEqual([["stayops", PROPERTY, "simulations"]]);
   });
 });

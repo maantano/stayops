@@ -21,7 +21,8 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | P8 API contract + 조회 + FE query layer | 완료 — springdoc OpenAPI 스냅샷(`docs/api/openapi.json`, ADR-006), 조회 API 8종(dashboard, rooms, room, timeline, tasks, reservations, readiness, staff-workloads), cursor 페이지, 역할별 조회 범위, CORS. FE: 생성 타입, typed client, ApiError·UX 매핑, query keys·무효화, hooks(같은 key 재시도). 백엔드 208 + FE 15 테스트 |
 | P9 운영 화면 | 완료 — 데모 seed(`demo` profile, 실제 command로 상태 구성)·데모 사용자 API, 화면 6개, 명령 dialog(RHF+Zod), 오류 안내, Kotlin non-null → OpenAPI required. live smoke로 readiness 반올림 결함 발견·수정. 백엔드 209 + FE 26(+live 1). 브라우저 확장 미연결로 화면 육안 확인은 미실시 |
 | P10 합성 데이터 generator | 완료 — `tools/simulator` (표준 라이브러리만), TOML 가정값, 용도별 난수 스트림·UUIDv5 id, 바이트 단위 재현성, 불변식 검증, 수요 요약, CLI(generate/validate/summarize). pytest 21개. 형식: `docs/simulation/DATASET.md` |
-| 다음 | P11 — 시뮬레이션 (데이터셋 import, 기준/대안 정책, KPI, SimulationRun) |
+| P11 시뮬레이션 | 완료 — V5(데이터셋·실행), 데이터셋 import(검증·중복 방지), Kotlin 결정적 엔진, 정책 3종 비교·기준 대비 차이, 조회 API, `/simulations` 화면, Python↔Kotlin 계약 fixture. 백엔드 227 · FE 29 · Python 22 |
+| 다음 | P12 — Playwright E2E, 접근성·보안 점검, 배포 구성(Vercel·AWS ECS·Terraform), 실제 인증 결정 |
 
 ## 2. 필수 원칙
 - Phase 0은 read-only.

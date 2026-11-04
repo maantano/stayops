@@ -116,6 +116,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/properties/{propertyId}/simulation-datasets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listSimulationDatasets"];
+        put?: never;
+        post: operations["importSimulationDataset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/properties/{propertyId}/simulations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listSimulations"];
+        put?: never;
+        post: operations["runSimulation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/properties/{propertyId}/simulations/{simulationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSimulation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/properties/{propertyId}/staff-workloads": {
         parameters: {
             query?: never;
@@ -452,6 +500,34 @@ export interface components {
             };
             timezone: string;
         };
+        DatasetSummary: {
+            configHash: string;
+            /** Format: int32 */
+            days: number;
+            generatorVersion: string;
+            name: string;
+            /** Format: int32 */
+            reservations: number;
+            /** Format: int32 */
+            rooms: number;
+            /** Format: int64 */
+            seed: number;
+            /** Format: int32 */
+            staff: number;
+            /** Format: date */
+            startDate: string;
+            timezone: string;
+        };
+        DatasetView: {
+            contentHash: string;
+            created: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            datasetId: string;
+            summary: components["schemas"]["DatasetSummary"];
+            synthetic: boolean;
+        };
         DemoActor: {
             displayName: string;
             /** @enum {string} */
@@ -473,6 +549,14 @@ export interface components {
             failureReason?: string | null;
             /** @enum {string|null} */
             result: "PASSED" | "FAILED" | null;
+        };
+        JobStats: {
+            /** Format: int32 */
+            completed: number;
+            /** Format: int32 */
+            created: number;
+            /** Format: int32 */
+            incomplete: number;
         };
         PageResponseReservationListItem: {
             items: components["schemas"]["ReservationListItem"][];
@@ -637,6 +721,18 @@ export interface components {
             roomNumber: string;
             topReasons: string[];
         };
+        RoleLoad: {
+            /** Format: int64 */
+            availableMinutes: number;
+            /** Format: int64 */
+            busyMinutes: number;
+            /** Format: int64 */
+            overtimeMinutes: number;
+            /** Format: int32 */
+            staff: number;
+            /** Format: double */
+            utilization?: number | null;
+        };
         RoomCommandResponse: {
             availabilityReason?: string | null;
             /** @enum {string} */
@@ -700,6 +796,34 @@ export interface components {
             /** Format: double */
             workloadRatio?: number | null;
         };
+        RunRequest: {
+            /** Format: uuid */
+            datasetId: string | null;
+            policies?: ("BASELINE_FIFO" | "DEADLINE_FIRST" | "SAME_SHIFT_START")[] | null;
+        };
+        ScenarioDiff: {
+            metrics: {
+                [key: string]: number;
+            };
+            parameters: {
+                [key: string]: {
+                    [key: string]: string;
+                };
+            };
+        };
+        ScenarioResult: {
+            diffFromBaseline?: components["schemas"]["ScenarioDiff"] | null;
+            /** @enum {string} */
+            dispatchRule: "FIFO" | "DEADLINE_FIRST";
+            label: string;
+            metrics: components["schemas"]["SimMetrics"];
+            parameters: {
+                [key: string]: string;
+            };
+            /** @enum {string} */
+            policy: "BASELINE_FIFO" | "DEADLINE_FIRST" | "SAME_SHIFT_START";
+            sameHousekeeperShiftStart: boolean;
+        };
         Shift: {
             /** Format: int32 */
             breakMinutes: number;
@@ -707,6 +831,73 @@ export interface components {
             endsAt: string;
             /** Format: date-time */
             startsAt: string;
+        };
+        SimMetrics: {
+            /** Format: int32 */
+            evaluatedArrivals: number;
+            /** Format: int32 */
+            inspectionFailures: number;
+            jobs: {
+                [key: string]: components["schemas"]["JobStats"];
+            };
+            /** Format: int32 */
+            late: number;
+            /** Format: int64 */
+            maxLatenessMinutes?: number | null;
+            /** Format: double */
+            meanLatenessMinutes?: number | null;
+            /** Format: int32 */
+            notReadyByHorizonEnd: number;
+            /** Format: int32 */
+            onTime: number;
+            /** Format: double */
+            onTimeReadinessRate?: number | null;
+            /** Format: int64 */
+            p90LatenessMinutes?: number | null;
+            stayover: components["schemas"]["StayoverStats"];
+            /** Format: double */
+            taskCompletionRate?: number | null;
+            /** Format: int32 */
+            turnovers: number;
+            workload: {
+                [key: string]: components["schemas"]["RoleLoad"];
+            };
+        };
+        SimulationRunSummary: {
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            datasetId: string;
+            onTimeReadinessRate: {
+                [key: string]: number;
+            };
+            policies: ("BASELINE_FIFO" | "DEADLINE_FIRST" | "SAME_SHIFT_START")[];
+            /** Format: uuid */
+            runId: string;
+            /** Format: int64 */
+            seed: number;
+            status: string;
+        };
+        SimulationRunView: {
+            assumptions: string[];
+            /** Format: date-time */
+            completedAt?: string | null;
+            dataset: components["schemas"]["DatasetView"];
+            definitions: {
+                [key: string]: string;
+            };
+            engineVersion: string;
+            note: string;
+            policyVersion: string;
+            /** Format: uuid */
+            runId: string;
+            scenarios: components["schemas"]["ScenarioResult"][];
+            /** Format: int64 */
+            seed: number;
+            /** Format: date-time */
+            startedAt: string;
+            status: string;
+            synthetic: boolean;
         };
         StaffWorkloadReport: {
             /** Format: date */
@@ -745,6 +936,16 @@ export interface components {
             notes?: string | null;
             /** Format: date-time */
             scheduledAt?: string | null;
+        };
+        StayoverStats: {
+            /** Format: int32 */
+            completed: number;
+            /** Format: double */
+            meanWaitMinutes?: number | null;
+            /** Format: int32 */
+            requested: number;
+            /** Format: int32 */
+            started: number;
         };
         Stays: {
             /** Format: int32 */
@@ -1282,6 +1483,354 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PageResponseTimelineEntry"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listSimulationDatasets: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005) */
+                "X-Demo-Staff-Id": string;
+                /** @description 선택. 없으면 서버가 생성해 응답 헤더로 돌려준다 */
+                "X-Correlation-Id"?: string;
+            };
+            path: {
+                propertyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetView"][];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    importSimulationDataset: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005) */
+                "X-Demo-Staff-Id": string;
+                /** @description 사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7) */
+                "Idempotency-Key": string;
+                /** @description 선택. 없으면 서버가 생성해 응답 헤더로 돌려준다 */
+                "X-Correlation-Id"?: string;
+            };
+            path: {
+                propertyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DatasetView"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    listSimulations: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005) */
+                "X-Demo-Staff-Id": string;
+                /** @description 선택. 없으면 서버가 생성해 응답 헤더로 돌려준다 */
+                "X-Correlation-Id"?: string;
+            };
+            path: {
+                propertyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationRunSummary"][];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    runSimulation: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005) */
+                "X-Demo-Staff-Id": string;
+                /** @description 사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7) */
+                "Idempotency-Key": string;
+                /** @description 선택. 없으면 서버가 생성해 응답 헤더로 돌려준다 */
+                "X-Correlation-Id"?: string;
+            };
+            path: {
+                propertyId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationRunView"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
+    getSimulation: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description 데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005) */
+                "X-Demo-Staff-Id": string;
+                /** @description 선택. 없으면 서버가 생성해 응답 헤더로 돌려준다 */
+                "X-Correlation-Id"?: string;
+            };
+            path: {
+                propertyId: string;
+                simulationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulationRunView"];
                 };
             };
             /** @description Problem Details (code 필드 참조) */

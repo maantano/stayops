@@ -1,0 +1,63 @@
+# 언어 간 계약 fixture용 작은 설정 (P11). 이 설정과 seed 7로 만든 데이터셋이
+# apps/api/src/test/resources/simulation/dataset-contract.json 이며, pytest가 생성 결과와 바이트 단위로 같은지 확인한다.
+# 모든 값은 ASSUMPTION. 기본 설정(default.toml)의 축소판이다.
+
+# 값을 바꾸면 출력 metadata의 configHash가 바뀐다. seed와 함께 보관해야 같은 데이터를 재현할 수 있다.
+
+[property]
+name = "계약 fixture 호텔 (synthetic)"
+timezone = "Asia/Seoul"
+check_in_time = "15:00"            # 01 §8 기본 체크인
+check_out_time = "11:00"           # 01 §8 기본 체크아웃
+operational_buffer_minutes = 30    # 준비 마감 = 체크인 - buffer (02 §8)
+
+[horizon]
+start_date = "2026-11-09"          # 시뮬레이션 첫 날 (property 현지 날짜)
+days = 3                           # 계약 fixture: 작게
+
+[rooms]                            # 01 §8: 80실
+STANDARD = 3
+DELUXE = 2
+SUITE = 1
+FAMILY = 0
+floors = 1
+
+[rooms.max_guests]
+STANDARD = 2
+DELUXE = 2
+SUITE = 3
+FAMILY = 0
+
+[staff]                            # 01 §8
+housekeepers = 2
+inspectors = 1
+shift_hours = 8
+break_minutes = 30
+# 하우스키핑 교대 시작 시각을 분산한다(4.3 capacity planning 연구의 "시작 시각 분산" 아이디어를 반영한 가정).
+housekeeper_shift_starts = ["08:00", "09:00", "10:00"]
+inspector_shift_starts = ["09:00", "10:00"]
+
+[demand]
+target_occupancy = 0.78            # 객실-박 기준 목표 점유율 (ASSUMPTION)
+# 숙박 일수 분포: [박 수, 가중치]
+stay_nights = [[1, 40], [2, 30], [3, 15], [4, 10], [5, 5]]
+
+[durations]                        # 분 단위 [최소, 최대], 균등 분포 (ASSUMPTION)
+checkout_cleaning = [30, 55]       # 01 §8
+stayover_cleaning = [15, 30]       # 01 §8
+inspection = [5, 10]               # 01 §8
+re_cleaning = [15, 25]
+linen_wait = [0, 20]               # 01 §8 린넨 대기
+maintenance_block = [10, 60]       # 01 §8 시설 차단
+
+[durations.room_type_multiplier]   # 객실 유형별 청소 시간 배수 (4.1·4.2 연구의 "유형별 차이"를 반영한 가정)
+STANDARD = 1.0
+DELUXE = 1.1
+SUITE = 1.3
+FAMILY = 1.2
+
+[probabilities]                    # (ASSUMPTION)
+inspection_failure = 0.08          # 첫 검사 실패 확률
+linen_shortage = 0.15              # 체크아웃 청소 중 린넨 대기 발생 확률
+maintenance_block = 0.04           # 체크아웃 청소 중 시설 차단 발생 확률
+stayover_request = 0.35            # 연박 중 하루마다 투숙 중 청소 요청 확률

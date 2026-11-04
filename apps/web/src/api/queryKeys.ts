@@ -14,9 +14,12 @@ export const queryKeys = {
   tasks: (propertyId: string, filter: Omit<TasksQuery, "cursor"> = {}) => ["stayops", propertyId, "tasks", filter] as const,
   reservations: (propertyId: string, filter: Omit<ReservationsQuery, "cursor"> = {}) => ["stayops", propertyId, "reservations", filter] as const,
   staffWorkloads: (propertyId: string, date?: string) => ["stayops", propertyId, "staff-workloads", date ?? "today"] as const,
+  simulationDatasets: (propertyId: string) => ["stayops", propertyId, "simulations", "datasets"] as const,
+  simulations: (propertyId: string) => ["stayops", propertyId, "simulations", "runs"] as const,
+  simulation: (propertyId: string, simulationId: string) => ["stayops", propertyId, "simulations", "run", simulationId] as const,
 };
 
-type Resource = "dashboard" | "readiness" | "rooms" | "room" | "timeline" | "tasks" | "reservations" | "staff-workloads";
+type Resource = "dashboard" | "readiness" | "rooms" | "room" | "timeline" | "tasks" | "reservations" | "staff-workloads" | "simulations";
 
 /**
  * command 성공 후 무효화할 자원 (03 §6 "관련 query invalidate").
@@ -38,6 +41,9 @@ export const invalidationTargets: Record<CommandName, Resource[]> = {
   createStayover: COMMON,
   createRework: [...COMMON, "staff-workloads"],
   changeAvailability: COMMON,
+  // 시뮬레이션은 합성 데이터만 다루므로 운영 화면 query에 영향이 없다.
+  importSimulationDataset: ["simulations"],
+  runSimulation: ["simulations"],
 };
 
 /** 무효화용 키 접두사. 같은 자원의 모든 filter·id 변형을 함께 무효화한다. */

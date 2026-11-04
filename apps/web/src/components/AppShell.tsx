@@ -15,6 +15,7 @@ const NAV = [
   { href: "/rooms", label: "객실", roles: ["MANAGER", "FRONT_DESK", "HOUSEKEEPER", "INSPECTOR"] },
   { href: "/tasks", label: "작업", roles: ["MANAGER", "FRONT_DESK", "HOUSEKEEPER", "INSPECTOR"] },
   { href: "/reservations", label: "예약", roles: ["MANAGER", "FRONT_DESK"] },
+  { href: "/simulations", label: "시뮬레이션", roles: ["MANAGER", "FRONT_DESK"] },
 ];
 
 export function homePathFor(role: string): string {

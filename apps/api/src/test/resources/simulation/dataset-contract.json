@@ -1,0 +1,612 @@
+{
+  "metadata": {
+    "assumptions": {
+      "durationsMinutes": {
+        "checkout_cleaning": [
+          30,
+          55
+        ],
+        "inspection": [
+          5,
+          10
+        ],
+        "linen_wait": [
+          0,
+          20
+        ],
+        "maintenance_block": [
+          10,
+          60
+        ],
+        "re_cleaning": [
+          15,
+          25
+        ],
+        "stayover_cleaning": [
+          15,
+          30
+        ]
+      },
+      "note": "All values are arbitrary simulation assumptions, not industry averages or measurements.",
+      "probabilities": {
+        "inspection_failure": 0.08,
+        "linen_shortage": 0.15,
+        "maintenance_block": 0.04,
+        "stayover_request": 0.35
+      },
+      "roomTypeMultiplier": {
+        "DELUXE": 1.1,
+        "FAMILY": 1.2,
+        "STANDARD": 1.0,
+        "SUITE": 1.3
+      },
+      "rooms": {
+        "DELUXE": 2,
+        "FAMILY": 0,
+        "STANDARD": 3,
+        "SUITE": 1
+      },
+      "staff": {
+        "housekeepers": 2,
+        "inspectors": 1
+      },
+      "targetOccupancy": 0.78
+    },
+    "config": {
+      "demand": {
+        "stay_nights": [
+          [
+            1,
+            40
+          ],
+          [
+            2,
+            30
+          ],
+          [
+            3,
+            15
+          ],
+          [
+            4,
+            10
+          ],
+          [
+            5,
+            5
+          ]
+        ],
+        "target_occupancy": 0.78
+      },
+      "durations": {
+        "checkout_cleaning": [
+          30,
+          55
+        ],
+        "inspection": [
+          5,
+          10
+        ],
+        "linen_wait": [
+          0,
+          20
+        ],
+        "maintenance_block": [
+          10,
+          60
+        ],
+        "re_cleaning": [
+          15,
+          25
+        ],
+        "room_type_multiplier": {
+          "DELUXE": 1.1,
+          "FAMILY": 1.2,
+          "STANDARD": 1.0,
+          "SUITE": 1.3
+        },
+        "stayover_cleaning": [
+          15,
+          30
+        ]
+      },
+      "horizon": {
+        "days": 3,
+        "start_date": "2026-11-09"
+      },
+      "probabilities": {
+        "inspection_failure": 0.08,
+        "linen_shortage": 0.15,
+        "maintenance_block": 0.04,
+        "stayover_request": 0.35
+      },
+      "property": {
+        "check_in_time": "15:00",
+        "check_out_time": "11:00",
+        "name": "계약 fixture 호텔 (synthetic)",
+        "operational_buffer_minutes": 30,
+        "timezone": "Asia/Seoul"
+      },
+      "rooms": {
+        "DELUXE": 2,
+        "FAMILY": 0,
+        "STANDARD": 3,
+        "SUITE": 1,
+        "floors": 1,
+        "max_guests": {
+          "DELUXE": 2,
+          "FAMILY": 0,
+          "STANDARD": 2,
+          "SUITE": 3
+        }
+      },
+      "staff": {
+        "break_minutes": 30,
+        "housekeeper_shift_starts": [
+          "08:00",
+          "09:00",
+          "10:00"
+        ],
+        "housekeepers": 2,
+        "inspector_shift_starts": [
+          "09:00",
+          "10:00"
+        ],
+        "inspectors": 1,
+        "shift_hours": 8
+      }
+    },
+    "configHash": "a81b1619f3aae5f6f7635a60b1a0ecfdf3496f49fbe845e0ca0740c3e2dedf1b",
+    "counts": {
+      "reservations": 11,
+      "rooms": 6,
+      "shifts": 9,
+      "staff": 3
+    },
+    "generatorVersion": "gen-v1",
+    "horizon": {
+      "days": 3,
+      "startDate": "2026-11-09",
+      "timezone": "Asia/Seoul"
+    },
+    "seed": 7,
+    "synthetic": true
+  },
+  "property": {
+    "defaultCheckInTime": "15:00",
+    "defaultCheckOutTime": "11:00",
+    "name": "계약 fixture 호텔 (synthetic)",
+    "operationalBufferMinutes": 30,
+    "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+    "synthetic": true,
+    "timezone": "Asia/Seoul"
+  },
+  "reservations": [
+    {
+      "checkInDate": "2026-11-08",
+      "guestCount": 2,
+      "nights": 4,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 53,
+        "inspectionFails": false,
+        "inspectionMinutes": 10,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": []
+      },
+      "reservationId": "b6027949-0b27-553c-8e9c-a9420bac60bb",
+      "roomId": "72e72acc-d290-5a58-97fe-4559e15b5412",
+      "roomNumber": "101",
+      "roomType": "DELUXE",
+      "scheduledCheckInAt": "2026-11-08T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-12T02:00:00Z",
+      "startsBeforeHorizon": true,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-08",
+      "guestCount": 2,
+      "nights": 2,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 30,
+        "inspectionFails": false,
+        "inspectionMinutes": 6,
+        "linenWaitMinutes": 14,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": []
+      },
+      "reservationId": "77da49fc-6b5d-5926-b69b-727afbd4b538",
+      "roomId": "20c577a3-1365-5f99-a610-5ab3a776d260",
+      "roomNumber": "102",
+      "roomType": "STANDARD",
+      "scheduledCheckInAt": "2026-11-08T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-10T02:00:00Z",
+      "startsBeforeHorizon": true,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-08",
+      "guestCount": 1,
+      "nights": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 60,
+        "inspectionFails": false,
+        "inspectionMinutes": 10,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": []
+      },
+      "reservationId": "dd00771e-ed27-552b-96b0-61b124f9eb47",
+      "roomId": "9a239788-97ac-5278-ba8c-a7b1230cbe5c",
+      "roomNumber": "105",
+      "roomType": "SUITE",
+      "scheduledCheckInAt": "2026-11-08T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-09T02:00:00Z",
+      "startsBeforeHorizon": true,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-08",
+      "guestCount": 2,
+      "nights": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 39,
+        "inspectionFails": false,
+        "inspectionMinutes": 7,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": []
+      },
+      "reservationId": "30dc6274-0026-5915-a544-04f0fb9b4cc2",
+      "roomId": "84e66753-c4aa-5539-b495-8c0de5b39510",
+      "roomNumber": "106",
+      "roomType": "STANDARD",
+      "scheduledCheckInAt": "2026-11-08T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-09T02:00:00Z",
+      "startsBeforeHorizon": true,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-09",
+      "guestCount": 1,
+      "nights": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 47,
+        "inspectionFails": false,
+        "inspectionMinutes": 6,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": []
+      },
+      "reservationId": "0616bfce-f70d-5bf8-8419-9e5c350f3691",
+      "roomId": "29536d39-8ab9-5824-a8f0-34ef8aa29b82",
+      "roomNumber": "103",
+      "roomType": "DELUXE",
+      "scheduledCheckInAt": "2026-11-09T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-10T02:00:00Z",
+      "startsBeforeHorizon": false,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-09",
+      "guestCount": 1,
+      "nights": 2,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 40,
+        "inspectionFails": false,
+        "inspectionMinutes": 7,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": [
+          {
+            "date": "2026-11-10",
+            "minutes": 19
+          }
+        ]
+      },
+      "reservationId": "a8d35bb9-74d1-56fc-856f-526e2eff6584",
+      "roomId": "0e859d9d-735b-5583-bc72-bc3855ad29b8",
+      "roomNumber": "104",
+      "roomType": "STANDARD",
+      "scheduledCheckInAt": "2026-11-09T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-11T02:00:00Z",
+      "startsBeforeHorizon": false,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-09",
+      "guestCount": 3,
+      "nights": 3,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 56,
+        "inspectionFails": false,
+        "inspectionMinutes": 7,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": []
+      },
+      "reservationId": "653129ca-beab-5f8a-b49d-a7370ab2a108",
+      "roomId": "9a239788-97ac-5278-ba8c-a7b1230cbe5c",
+      "roomNumber": "105",
+      "roomType": "SUITE",
+      "scheduledCheckInAt": "2026-11-09T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-12T02:00:00Z",
+      "startsBeforeHorizon": false,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-10",
+      "guestCount": 2,
+      "nights": 2,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 33,
+        "inspectionFails": false,
+        "inspectionMinutes": 9,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": []
+      },
+      "reservationId": "a9b184f8-cd9f-5d30-a3e1-2672f47b441a",
+      "roomId": "20c577a3-1365-5f99-a610-5ab3a776d260",
+      "roomNumber": "102",
+      "roomType": "STANDARD",
+      "scheduledCheckInAt": "2026-11-10T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-12T02:00:00Z",
+      "startsBeforeHorizon": false,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-10",
+      "guestCount": 1,
+      "nights": 5,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 41,
+        "inspectionFails": false,
+        "inspectionMinutes": 10,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": []
+      },
+      "reservationId": "4691300d-d2cf-54f3-94db-b1385abcf73b",
+      "roomId": "84e66753-c4aa-5539-b495-8c0de5b39510",
+      "roomNumber": "106",
+      "roomType": "STANDARD",
+      "scheduledCheckInAt": "2026-11-10T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-15T02:00:00Z",
+      "startsBeforeHorizon": false,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-11",
+      "guestCount": 1,
+      "nights": 4,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 55,
+        "inspectionFails": false,
+        "inspectionMinutes": 8,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": [
+          {
+            "date": "2026-11-12",
+            "minutes": 21
+          }
+        ]
+      },
+      "reservationId": "39cdaa14-607f-5e66-b0d5-60cb731e4014",
+      "roomId": "29536d39-8ab9-5824-a8f0-34ef8aa29b82",
+      "roomNumber": "103",
+      "roomType": "DELUXE",
+      "scheduledCheckInAt": "2026-11-11T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-15T02:00:00Z",
+      "startsBeforeHorizon": false,
+      "synthetic": true
+    },
+    {
+      "checkInDate": "2026-11-11",
+      "guestCount": 1,
+      "nights": 3,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "realization": {
+        "checkoutCleaningMinutes": 49,
+        "inspectionFails": false,
+        "inspectionMinutes": 9,
+        "linenWaitMinutes": 0,
+        "maintenanceBlockMinutes": 0,
+        "reCleaningMinutes": null,
+        "reInspectionMinutes": null,
+        "stayoverRequests": [
+          {
+            "date": "2026-11-12",
+            "minutes": 30
+          }
+        ]
+      },
+      "reservationId": "c09e0980-eefe-5b6a-84e8-3e1886555296",
+      "roomId": "0e859d9d-735b-5583-bc72-bc3855ad29b8",
+      "roomNumber": "104",
+      "roomType": "STANDARD",
+      "scheduledCheckInAt": "2026-11-11T06:00:00Z",
+      "scheduledCheckOutAt": "2026-11-14T02:00:00Z",
+      "startsBeforeHorizon": false,
+      "synthetic": true
+    }
+  ],
+  "rooms": [
+    {
+      "floor": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "roomId": "72e72acc-d290-5a58-97fe-4559e15b5412",
+      "roomNumber": "101",
+      "roomType": "DELUXE",
+      "synthetic": true
+    },
+    {
+      "floor": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "roomId": "20c577a3-1365-5f99-a610-5ab3a776d260",
+      "roomNumber": "102",
+      "roomType": "STANDARD",
+      "synthetic": true
+    },
+    {
+      "floor": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "roomId": "29536d39-8ab9-5824-a8f0-34ef8aa29b82",
+      "roomNumber": "103",
+      "roomType": "DELUXE",
+      "synthetic": true
+    },
+    {
+      "floor": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "roomId": "0e859d9d-735b-5583-bc72-bc3855ad29b8",
+      "roomNumber": "104",
+      "roomType": "STANDARD",
+      "synthetic": true
+    },
+    {
+      "floor": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "roomId": "9a239788-97ac-5278-ba8c-a7b1230cbe5c",
+      "roomNumber": "105",
+      "roomType": "SUITE",
+      "synthetic": true
+    },
+    {
+      "floor": 1,
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "roomId": "84e66753-c4aa-5539-b495-8c0de5b39510",
+      "roomNumber": "106",
+      "roomType": "STANDARD",
+      "synthetic": true
+    }
+  ],
+  "shifts": [
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-09T07:00:00Z",
+      "shiftId": "bef2f530-b10c-52c3-907d-d9db058eaa4d",
+      "staffId": "2b5a9a1a-389f-58d3-908c-64ee2c742fdf",
+      "startsAt": "2026-11-08T23:00:00Z",
+      "synthetic": true
+    },
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-10T07:00:00Z",
+      "shiftId": "8a2593db-a55e-5a7f-896b-89f4f255a0cb",
+      "staffId": "2b5a9a1a-389f-58d3-908c-64ee2c742fdf",
+      "startsAt": "2026-11-09T23:00:00Z",
+      "synthetic": true
+    },
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-11T07:00:00Z",
+      "shiftId": "225f3f06-4a96-5303-8b9a-feba38d8d819",
+      "staffId": "2b5a9a1a-389f-58d3-908c-64ee2c742fdf",
+      "startsAt": "2026-11-10T23:00:00Z",
+      "synthetic": true
+    },
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-09T08:00:00Z",
+      "shiftId": "1fb9dc06-5ca1-5ed7-b9a9-aab4e15e210f",
+      "staffId": "36c6d149-bb94-506a-aebd-d6c1135df375",
+      "startsAt": "2026-11-09T00:00:00Z",
+      "synthetic": true
+    },
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-10T08:00:00Z",
+      "shiftId": "28701054-4a61-5092-96d6-37a9f50b8ce4",
+      "staffId": "36c6d149-bb94-506a-aebd-d6c1135df375",
+      "startsAt": "2026-11-10T00:00:00Z",
+      "synthetic": true
+    },
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-11T08:00:00Z",
+      "shiftId": "9ebca9a0-0998-5fdf-9119-63adb36027d3",
+      "staffId": "36c6d149-bb94-506a-aebd-d6c1135df375",
+      "startsAt": "2026-11-11T00:00:00Z",
+      "synthetic": true
+    },
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-09T08:00:00Z",
+      "shiftId": "9f386cad-a9e0-5e4e-b654-6a0baef1de56",
+      "staffId": "0e20c2e4-2aae-5276-8ac2-30693d6df346",
+      "startsAt": "2026-11-09T00:00:00Z",
+      "synthetic": true
+    },
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-10T08:00:00Z",
+      "shiftId": "2cbd6618-41ff-5f5c-9f98-43a03bda4f56",
+      "staffId": "0e20c2e4-2aae-5276-8ac2-30693d6df346",
+      "startsAt": "2026-11-10T00:00:00Z",
+      "synthetic": true
+    },
+    {
+      "breakMinutes": 30,
+      "endsAt": "2026-11-11T08:00:00Z",
+      "shiftId": "dfdae747-75e6-5622-85da-11715b7e9105",
+      "staffId": "0e20c2e4-2aae-5276-8ac2-30693d6df346",
+      "startsAt": "2026-11-11T00:00:00Z",
+      "synthetic": true
+    }
+  ],
+  "staff": [
+    {
+      "displayName": "HK-01",
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "role": "HOUSEKEEPER",
+      "staffId": "2b5a9a1a-389f-58d3-908c-64ee2c742fdf",
+      "synthetic": true
+    },
+    {
+      "displayName": "HK-02",
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "role": "HOUSEKEEPER",
+      "staffId": "36c6d149-bb94-506a-aebd-d6c1135df375",
+      "synthetic": true
+    },
+    {
+      "displayName": "IN-01",
+      "propertyId": "0f1c1c21-76ec-5160-97eb-569e3203c1ed",
+      "role": "INSPECTOR",
+      "staffId": "0e20c2e4-2aae-5276-8ac2-30693d6df346",
+      "synthetic": true
+    }
+  ]
+}
