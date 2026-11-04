@@ -12,7 +12,7 @@
 | Domain unit | state transition, policy, readiness | JUnit 5 |
 | Repository integration | constraints, locks, queries | Testcontainers PostgreSQL |
 | API integration | auth, validation, idempotency, transaction | Spring test |
-| Contract | OpenAPI ↔ FE DTO | OpenAPI validator/contract tests |
+| Contract | OpenAPI ↔ FE DTO | `OpenApiContractTests`(스냅샷 일치·헤더 규칙) + FE 타입 생성 후 typecheck (ADR-006) |
 | FE unit/component | forms, badges, query cache, error state | Vitest, RTL |
 | E2E | 핵심 업무 시나리오 | Playwright |
 | Simulation regression | seed/snapshot reproducibility | Kotlin tests + Python pytest |

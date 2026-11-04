@@ -13,4 +13,6 @@ interface HousekeepingTaskRepository : JpaRepository<HousekeepingTask, UUID> {
 
     /** 조회용(잠금 없음). DB 제약상 객실당 active task는 최대 1개. */
     fun findFirstByRoomIdAndStatusIn(roomId: UUID, statuses: Collection<TaskStatus>): HousekeepingTask?
+
+    fun findByPropertyIdAndStatusIn(propertyId: UUID, statuses: Collection<TaskStatus>): List<HousekeepingTask>
 }

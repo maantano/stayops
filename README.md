@@ -56,6 +56,15 @@ uv sync && uv run stayops-simulator
 | Web | `cd apps/web && pnpm lint && pnpm typecheck && pnpm test && pnpm build` |
 | Simulator | `cd tools/simulator && uv run ruff check . && uv run ruff format --check . && uv run pytest` |
 
+## API 계약
+
+- OpenAPI: [`docs/api/openapi.json`](docs/api/openapi.json) — 서버 코드에서 생성한 스냅샷 (ADR-006). 실행 중이면 `GET /v3/api-docs`.
+- API를 바꿨다면:
+  ```bash
+  cd apps/api && STAYOPS_WRITE_OPENAPI=true ./gradlew test --tests '*OpenApiContractTests*'
+  cd ../web && pnpm api:types
+  ```
+
 ## 진행 상태
 
 [`docs/v4.1/06_CLAUDE_CODE_HARNESS.md`](docs/v4.1/06_CLAUDE_CODE_HARNESS.md) §1.1 참고.

@@ -19,6 +19,7 @@ import com.stayops.reservation.domain.ReservationStatus
 import com.stayops.reservation.infrastructure.ReservationRepository
 import com.stayops.room.infrastructure.RoomRepository
 import com.stayops.shared.error.NotFoundException
+import com.stayops.staff.domain.StaffRole
 import com.stayops.workflow.WorkflowStageService
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -48,6 +49,7 @@ class ReadinessQueryService(
     @Transactional(readOnly = true)
     fun readiness(actor: Actor, propertyId: UUID): ReadinessReport {
         actor.requireProperty(propertyId)
+        actor.requireRole(StaffRole.FRONT_DESK, StaffRole.MANAGER)
         val property = properties.findById(propertyId).orElseThrow { NotFoundException("property", propertyId) }
         val now = clock.instant()
         val until = now.plus(Duration.ofHours(settings.evaluationWindowHours))

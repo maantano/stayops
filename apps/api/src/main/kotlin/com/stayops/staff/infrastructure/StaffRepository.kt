@@ -4,4 +4,6 @@ import com.stayops.staff.domain.Staff
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.UUID
 
-interface StaffRepository : JpaRepository<Staff, UUID>
+interface StaffRepository : JpaRepository<Staff, UUID> {
+    fun findByPropertyIdAndActiveTrue(propertyId: UUID): List<Staff>
+}

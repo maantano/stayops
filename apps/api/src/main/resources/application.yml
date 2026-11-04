@@ -34,6 +34,10 @@ management:
         enabled: true # /actuator/health/liveness, /actuator/health/readiness 분리
       show-details: never
 
+springdoc:
+  default-produces-media-type: application/json
+  default-consumes-media-type: application/json
+
 logging:
   pattern:
     level: "%5p [cid:%X{correlationId:-}]"
@@ -41,6 +45,9 @@ logging:
 stayops:
   # 데모 모드 표시 (v4.1 04 §11). 실제 운영 데이터가 아님을 명시한다.
   demo-mode: true
+  web:
+    # CORS 허용 origin (쉼표 구분). 배포 환경에서 반드시 지정한다.
+    allowed-origins: ${STAYOPS_WEB_ALLOWED_ORIGINS:http://localhost:3000}
   db:
     lock-timeout: 5s
   housekeeping:

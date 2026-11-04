@@ -18,7 +18,8 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | P5 inspection/stayover/OOS/rework | 완료 — inspection-result(PASSED→READY, FAILED→RE_CLEANING), stayover 요청, availability, 관리자 재정비, workflowStage + 객실 상세 조회, V4 migration. E2E 1~11 시나리오 통과. 백엔드 테스트 147개 |
 | P6 동시성 강화 | 완료 — seed 고정 무작위 command sequence(순차·동시), DB 불변식 I1~I6, deadlock 0건 확인. 결함 1건 발견·수정(command 시각을 잠금 이후로, ADR-003 개정 2). 백엔드 테스트 167개 |
 | P7 readiness | 완료 — 순수 계산기(남은 경로·실작업 차감·blocker 겹침·UNKNOWN), 스냅샷 로더, `GET /properties/{id}/readiness`. 단위 24 + API 3. 백엔드 테스트 194개 |
-| 다음 | P8 — API contract(OpenAPI) + 조회 API(대시보드·목록·타임라인) + FE query layer |
+| P8 API contract + 조회 + FE query layer | 완료 — springdoc OpenAPI 스냅샷(`docs/api/openapi.json`, ADR-006), 조회 API 8종(dashboard, rooms, room, timeline, tasks, reservations, readiness, staff-workloads), cursor 페이지, 역할별 조회 범위, CORS. FE: 생성 타입, typed client, ApiError·UX 매핑, query keys·무효화, hooks(같은 key 재시도). 백엔드 208 + FE 15 테스트 |
+| 다음 | P9 — 운영 화면(데모 사용자 선택, 대시보드, 객실 상세·타임라인, 작업 보드, 명령 dialog) |
 
 ## 2. 필수 원칙
 - Phase 0은 read-only.

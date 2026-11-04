@@ -7,6 +7,10 @@ import com.stayops.room.application.RoomAvailabilityService
 import com.stayops.room.application.RoomCommandResponse
 import com.stayops.room.application.RoomQueryService
 import com.stayops.room.application.RoomView
+import com.stayops.room.application.TimelineEntry
+import com.stayops.shared.web.PageResponse
+import com.stayops.workflow.WorkflowStage
+import org.springframework.web.bind.annotation.RequestParam
 import com.stayops.room.domain.RoomAvailabilityStatus
 import com.stayops.shared.command.CommandRequest
 import com.stayops.shared.command.CommandResult
@@ -84,4 +88,23 @@ class RoomController(
 
     @GetMapping("/api/v1/properties/{propertyId}/rooms/{roomId}")
     fun room(@PathVariable propertyId: UUID, @PathVariable roomId: UUID, actor: Actor): RoomView = queries.room(actor, propertyId, roomId)
+
+    @GetMapping("/api/v1/properties/{propertyId}/rooms")
+    fun rooms(
+        @PathVariable propertyId: UUID,
+        @RequestParam(required = false) stage: WorkflowStage?,
+        @RequestParam(required = false) floor: Int?,
+        @RequestParam(required = false) cursor: String?,
+        @RequestParam(required = false) limit: Int?,
+        actor: Actor,
+    ): PageResponse<RoomView> = queries.rooms(actor, propertyId, stage, floor, cursor, limit)
+
+    @GetMapping("/api/v1/properties/{propertyId}/rooms/{roomId}/timeline")
+    fun timeline(
+        @PathVariable propertyId: UUID,
+        @PathVariable roomId: UUID,
+        @RequestParam(required = false) cursor: String?,
+        @RequestParam(required = false) limit: Int?,
+        actor: Actor,
+    ): PageResponse<TimelineEntry> = queries.timeline(actor, propertyId, roomId, cursor, limit)
 }

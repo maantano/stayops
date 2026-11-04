@@ -1,0 +1,3521 @@
+{
+  "components" : {
+    "schemas" : {
+      "ActiveTask" : {
+        "properties" : {
+          "actualStartedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "assigneeStaffId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "status" : {
+            "enum" : [ "PENDING", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED" ],
+            "type" : "string"
+          },
+          "statusBeforeBlocked" : {
+            "enum" : [ "PENDING", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED" ],
+            "type" : [ "string", "null" ]
+          },
+          "taskId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "type" : {
+            "enum" : [ "CHECKOUT_CLEANING", "STAYOVER_CLEANING", "RE_CLEANING", "INSPECTION" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "AssignRequest" : {
+        "properties" : {
+          "staffId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "staffId" ],
+        "type" : "object"
+      },
+      "Assignee" : {
+        "properties" : {
+          "assignmentId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "displayName" : {
+            "type" : [ "string", "null" ]
+          },
+          "staffId" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "AvailabilityRequest" : {
+        "properties" : {
+          "reason" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "status" : {
+            "enum" : [ "AVAILABLE", "OUT_OF_SERVICE" ],
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "reason", "status" ],
+        "type" : "object"
+      },
+      "Blocker" : {
+        "properties" : {
+          "blockedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "blockerId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "description" : {
+            "type" : [ "string", "null" ]
+          },
+          "estimatedResolutionAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "type" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "BlockerRequest" : {
+        "properties" : {
+          "description" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "estimatedResolutionAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "type" : {
+            "enum" : [ "DND", "LINEN_SHORTAGE", "SUPPLY_SHORTAGE", "MAINTENANCE", "STAFF_UNAVAILABLE", "OTHER" ],
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "type" ],
+        "type" : "object"
+      },
+      "BlockerSnapshot" : {
+        "properties" : {
+          "active" : {
+            "type" : "boolean"
+          },
+          "blockedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "blockerId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "estimatedResolutionAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "resolvedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "type" : {
+            "enum" : [ "DND", "LINEN_SHORTAGE", "SUPPLY_SHORTAGE", "MAINTENANCE", "STAFF_UNAVAILABLE", "OTHER" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "CancelRequest" : {
+        "properties" : {
+          "reason" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "reason" ],
+        "type" : "object"
+      },
+      "Contribution" : {
+        "properties" : {
+          "durationSource" : {
+            "enum" : [ "USER_INPUT", "CONFIG_DEFAULT" ],
+            "type" : [ "string", "null" ]
+          },
+          "minutes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "note" : {
+            "type" : [ "string", "null" ]
+          },
+          "seconds" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "sourceId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "type" : {
+            "enum" : [ "WAIT_FOR_CHECKOUT", "WAIT_FOR_SCHEDULE", "BLOCKER", "CLEANING", "INSPECTION" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Dashboard" : {
+        "properties" : {
+          "businessDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "generatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "propertyId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "readiness" : {
+            "$ref" : "#/components/schemas/ReadinessSummary"
+          },
+          "rooms" : {
+            "$ref" : "#/components/schemas/Rooms"
+          },
+          "stays" : {
+            "$ref" : "#/components/schemas/Stays"
+          },
+          "syntheticData" : {
+            "type" : "boolean"
+          },
+          "tasks" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "timezone" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "InspectionResultRequest" : {
+        "properties" : {
+          "checklist" : {
+            "additionalProperties" : {
+              "type" : "boolean"
+            },
+            "type" : [ "object", "null" ]
+          },
+          "failureReason" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "result" : {
+            "enum" : [ "PASSED", "FAILED" ],
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "result" ],
+        "type" : "object"
+      },
+      "PageResponseReservationListItem" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ReservationListItem"
+            },
+            "type" : "array"
+          },
+          "limit" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nextCursor" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "PageResponseRoomView" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RoomView"
+            },
+            "type" : "array"
+          },
+          "limit" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nextCursor" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "PageResponseTaskListItem" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TaskListItem"
+            },
+            "type" : "array"
+          },
+          "limit" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nextCursor" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "PageResponseTimelineEntry" : {
+        "properties" : {
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/TimelineEntry"
+            },
+            "type" : "array"
+          },
+          "limit" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "nextCursor" : {
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "Problem" : {
+        "description" : "RFC 9457 Problem Details + StayOps 확장 필드",
+        "properties" : {
+          "code" : {
+            "description" : "02 §7.1 오류 코드",
+            "example" : "INVALID_STATE",
+            "type" : "string"
+          },
+          "correlationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "detail" : {
+            "type" : "string"
+          },
+          "instance" : {
+            "type" : "string"
+          },
+          "status" : { },
+          "title" : {
+            "type" : "string"
+          },
+          "type" : {
+            "example" : "urn:stayops:problem:invalid-state",
+            "type" : "string"
+          }
+        },
+        "required" : [ "code", "status", "title", "type" ],
+        "type" : "object"
+      },
+      "ReadinessReport" : {
+        "properties" : {
+          "calculatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "calculationVersion" : {
+            "type" : "string"
+          },
+          "evaluationWindowEnd" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "propertyId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "rooms" : {
+            "items" : {
+              "$ref" : "#/components/schemas/ReadinessResult"
+            },
+            "type" : "array"
+          },
+          "summary" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "timezone" : {
+            "type" : "string"
+          },
+          "warningMarginMinutes" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "ReadinessResult" : {
+        "properties" : {
+          "assumptions" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "availabilityStatus" : {
+            "enum" : [ "AVAILABLE", "OUT_OF_SERVICE" ],
+            "type" : "string"
+          },
+          "calculatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "calculationVersion" : {
+            "type" : "string"
+          },
+          "contributions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Contribution"
+            },
+            "type" : "array"
+          },
+          "expectedReadyAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "flags" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "grade" : {
+            "enum" : [ "READY", "ON_TRACK", "WARNING", "AT_RISK", "UNKNOWN" ],
+            "type" : "string"
+          },
+          "inputSnapshot" : {
+            "$ref" : "#/components/schemas/ReadinessSnapshot"
+          },
+          "missingInputs" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "overlappedBlockers" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "readyDeadline" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "reservationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "riskMinutes" : {
+            "format" : "int64",
+            "type" : [ "integer", "null" ]
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomNumber" : {
+            "type" : "string"
+          },
+          "scheduledCheckInAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ReadinessSnapshot" : {
+        "properties" : {
+          "activeTask" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/TaskSnapshot"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "availabilityStatus" : {
+            "enum" : [ "AVAILABLE", "OUT_OF_SERVICE" ],
+            "type" : "string"
+          },
+          "awaitingInspection" : {
+            "type" : "boolean"
+          },
+          "currentStayCheckOutAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "defaultDurationMinutes" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "operationalBufferMinutes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "operationalStatus" : {
+            "enum" : [ "VACANT_DIRTY", "CLEANING", "INSPECTING", "READY", "OCCUPIED", "STAYOVER_CLEANING" ],
+            "type" : "string"
+          },
+          "reservationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomNumber" : {
+            "type" : "string"
+          },
+          "scheduledCheckInAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "workflowStage" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ReadinessSummary" : {
+        "properties" : {
+          "calculationVersion" : {
+            "type" : "string"
+          },
+          "summary" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "topRisks" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RiskItem"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "ReservationListItem" : {
+        "properties" : {
+          "actualCheckInAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "actualCheckOutAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "guestCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "reservationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomNumber" : {
+            "type" : "string"
+          },
+          "scheduledCheckInAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "scheduledCheckOutAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED", "NO_SHOW" ],
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "ResolveBlockerRequest" : {
+        "properties" : {
+          "note" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "ReworkRequest" : {
+        "properties" : {
+          "assigneeStaffId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "estimatedDurationMinutes" : {
+            "format" : "int32",
+            "maximum" : 480,
+            "minimum" : 1,
+            "type" : [ "integer", "null" ]
+          },
+          "kind" : {
+            "enum" : [ "CLEANING", "INSPECTION" ],
+            "type" : [ "string", "null" ]
+          },
+          "reason" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "scheduledAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "required" : [ "kind", "reason" ],
+        "type" : "object"
+      },
+      "RiskItem" : {
+        "properties" : {
+          "expectedReadyAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "grade" : {
+            "enum" : [ "READY", "ON_TRACK", "WARNING", "AT_RISK", "UNKNOWN" ],
+            "type" : "string"
+          },
+          "readyDeadline" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "riskMinutes" : {
+            "format" : "int64",
+            "type" : [ "integer", "null" ]
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomNumber" : {
+            "type" : "string"
+          },
+          "topReasons" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "RoomCommandResponse" : {
+        "properties" : {
+          "availabilityReason" : {
+            "type" : [ "string", "null" ]
+          },
+          "availabilityStatus" : {
+            "enum" : [ "AVAILABLE", "OUT_OF_SERVICE" ],
+            "type" : "string"
+          },
+          "changed" : {
+            "type" : "boolean"
+          },
+          "correlationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "occurredAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "operationalStatus" : {
+            "enum" : [ "VACANT_DIRTY", "CLEANING", "INSPECTING", "READY", "OCCUPIED", "STAYOVER_CLEANING" ],
+            "type" : "string"
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomVersion" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "RoomView" : {
+        "properties" : {
+          "activeTask" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/ActiveTask"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "alerts" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "availabilityReason" : {
+            "type" : [ "string", "null" ]
+          },
+          "availabilityStatus" : {
+            "enum" : [ "AVAILABLE", "OUT_OF_SERVICE" ],
+            "type" : "string"
+          },
+          "floor" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "operationalStatus" : {
+            "enum" : [ "VACANT_DIRTY", "CLEANING", "INSPECTING", "READY", "OCCUPIED", "STAYOVER_CLEANING" ],
+            "type" : "string"
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomNumber" : {
+            "type" : "string"
+          },
+          "roomType" : {
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "workflowStage" : {
+            "enum" : [ "NEEDS_CLEANING", "CLEANING", "AWAITING_INSPECTION", "INSPECTING", "READY", "OCCUPIED", "STAYOVER_CLEANING" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "Rooms" : {
+        "properties" : {
+          "byAvailability" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "byStage" : {
+            "additionalProperties" : {
+              "format" : "int32",
+              "type" : "integer"
+            },
+            "type" : "object"
+          },
+          "interruptedWork" : {
+            "items" : {
+              "format" : "uuid",
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "total" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "Row" : {
+        "properties" : {
+          "activeTaskCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "assignedEstimatedMinutes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "availableMinutes" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "flags" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          },
+          "role" : {
+            "enum" : [ "FRONT_DESK", "HOUSEKEEPER", "INSPECTOR", "MANAGER" ],
+            "type" : "string"
+          },
+          "shifts" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Shift"
+            },
+            "type" : "array"
+          },
+          "staffId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "workloadRatio" : {
+            "format" : "double",
+            "type" : [ "number", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "Shift" : {
+        "properties" : {
+          "breakMinutes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "endsAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "startsAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "StaffWorkloadReport" : {
+        "properties" : {
+          "businessDate" : {
+            "format" : "date",
+            "type" : "string"
+          },
+          "note" : {
+            "type" : "string"
+          },
+          "propertyId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "staff" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Row"
+            },
+            "type" : "array"
+          },
+          "timezone" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "StayCommandResponse" : {
+        "properties" : {
+          "autoCancelledStayoverTaskId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "checkoutCleaningTaskId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "correlationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "occurredAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "reservationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "reservationStatus" : {
+            "enum" : [ "CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED", "NO_SHOW" ],
+            "type" : "string"
+          },
+          "reservationVersion" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomOperationalStatus" : {
+            "enum" : [ "VACANT_DIRTY", "CLEANING", "INSPECTING", "READY", "OCCUPIED", "STAYOVER_CLEANING" ],
+            "type" : "string"
+          },
+          "roomVersion" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "StayoverRequest" : {
+        "properties" : {
+          "estimatedDurationMinutes" : {
+            "format" : "int32",
+            "maximum" : 480,
+            "minimum" : 1,
+            "type" : [ "integer", "null" ]
+          },
+          "notes" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : [ "string", "null" ]
+          },
+          "scheduledAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          }
+        },
+        "type" : "object"
+      },
+      "Stays" : {
+        "properties" : {
+          "checkedInToday" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "checkedOutToday" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "expectedArrivals" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "expectedDepartures" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "TaskCommandResponse" : {
+        "properties" : {
+          "actualStartedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "alreadyStarted" : {
+            "type" : [ "boolean", "null" ]
+          },
+          "assignmentId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "blockerId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "correlationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "createdTaskId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "inspectionRecordId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "occurredAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomOperationalStatus" : {
+            "enum" : [ "VACANT_DIRTY", "CLEANING", "INSPECTING", "READY", "OCCUPIED", "STAYOVER_CLEANING" ],
+            "type" : "string"
+          },
+          "roomVersion" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "statusBeforeBlocked" : {
+            "enum" : [ "PENDING", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED" ],
+            "type" : [ "string", "null" ]
+          },
+          "taskId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "taskStatus" : {
+            "enum" : [ "PENDING", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED" ],
+            "type" : "string"
+          },
+          "taskType" : {
+            "enum" : [ "CHECKOUT_CLEANING", "STAYOVER_CLEANING", "RE_CLEANING", "INSPECTION" ],
+            "type" : "string"
+          },
+          "taskVersion" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "warnings" : {
+            "items" : {
+              "type" : "string"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "TaskListItem" : {
+        "properties" : {
+          "activeBlockers" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Blocker"
+            },
+            "type" : "array"
+          },
+          "actualCompletedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "actualStartedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "assignee" : {
+            "oneOf" : [ {
+              "$ref" : "#/components/schemas/Assignee"
+            }, {
+              "type" : "null"
+            } ]
+          },
+          "durationSource" : {
+            "enum" : [ "USER_INPUT", "CONFIG_DEFAULT" ],
+            "type" : "string"
+          },
+          "estimatedDurationMinutes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "notes" : {
+            "type" : [ "string", "null" ]
+          },
+          "origin" : {
+            "enum" : [ "CHECKOUT_COMMAND", "CLEANING_COMPLETED", "INSPECTION_FAILED", "STAYOVER_REQUEST", "MANAGER_REWORK" ],
+            "type" : "string"
+          },
+          "originReason" : {
+            "type" : [ "string", "null" ]
+          },
+          "reservationId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "roomId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "roomNumber" : {
+            "type" : "string"
+          },
+          "scheduledAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PENDING", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED" ],
+            "type" : "string"
+          },
+          "statusBeforeBlocked" : {
+            "enum" : [ "PENDING", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED" ],
+            "type" : [ "string", "null" ]
+          },
+          "taskId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "type" : {
+            "enum" : [ "CHECKOUT_CLEANING", "STAYOVER_CLEANING", "RE_CLEANING", "INSPECTION" ],
+            "type" : "string"
+          },
+          "version" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "TaskSnapshot" : {
+        "properties" : {
+          "actualStartedAt" : {
+            "format" : "date-time",
+            "type" : [ "string", "null" ]
+          },
+          "blockers" : {
+            "items" : {
+              "$ref" : "#/components/schemas/BlockerSnapshot"
+            },
+            "type" : "array"
+          },
+          "durationSource" : {
+            "enum" : [ "USER_INPUT", "CONFIG_DEFAULT" ],
+            "type" : "string"
+          },
+          "estimatedDurationMinutes" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "hasAssignee" : {
+            "type" : "boolean"
+          },
+          "scheduledAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PENDING", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED" ],
+            "type" : "string"
+          },
+          "taskId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "type" : {
+            "enum" : [ "CHECKOUT_CLEANING", "STAYOVER_CLEANING", "RE_CLEANING", "INSPECTION" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "TimelineEntry" : {
+        "properties" : {
+          "actorDisplayName" : {
+            "type" : [ "string", "null" ]
+          },
+          "actorId" : {
+            "format" : "uuid",
+            "type" : [ "string", "null" ]
+          },
+          "actorType" : {
+            "type" : "string"
+          },
+          "aggregateId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "aggregateType" : {
+            "type" : "string"
+          },
+          "correlationId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "eventId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "eventType" : {
+            "type" : "string"
+          },
+          "occurredAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "payload" : {
+            "additionalProperties" : { },
+            "type" : "object"
+          }
+        },
+        "type" : "object"
+      }
+    }
+  },
+  "info" : {
+    "description" : "객실 준비·하우스키핑 운영 API (합성 데이터 데모). 인증은 데모 헤더 `X-Demo-Staff-Id`이며 보안 수단이 아니다 (ADR-005). 규칙의 기준 문서: docs/v4.1/02_DOMAIN_AND_API.md",
+    "title" : "StayOps API",
+    "version" : "v1"
+  },
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/api/v1/properties/{propertyId}/dashboard" : {
+      "get" : {
+        "operationId" : "dashboard",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Dashboard"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "dashboard-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/readiness" : {
+      "get" : {
+        "operationId" : "readiness",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReadinessReport"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "readiness-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/reservations" : {
+      "get" : {
+        "operationId" : "reservations",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "enum" : [ "CONFIRMED", "CHECKED_IN", "CHECKED_OUT", "CANCELLED", "NO_SHOW" ],
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          }
+        }, {
+          "in" : "query",
+          "name" : "checkInFrom",
+          "required" : false,
+          "schema" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "checkInTo",
+          "required" : false,
+          "schema" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "cursor",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseReservationListItem"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "reservation-query-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/rooms" : {
+      "get" : {
+        "operationId" : "rooms",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "stage",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "NEEDS_CLEANING", "CLEANING", "AWAITING_INSPECTION", "INSPECTING", "READY", "OCCUPIED", "STAYOVER_CLEANING" ],
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "floor",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "in" : "query",
+          "name" : "cursor",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseRoomView"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "room-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/rooms/{roomId}" : {
+      "get" : {
+        "operationId" : "room",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoomView"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "room-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/rooms/{roomId}/timeline" : {
+      "get" : {
+        "operationId" : "timeline",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "cursor",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseTimelineEntry"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "room-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/staff-workloads" : {
+      "get" : {
+        "operationId" : "workloads",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "date",
+          "required" : false,
+          "schema" : {
+            "format" : "date",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StaffWorkloadReport"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "staff-workload-controller" ]
+      }
+    },
+    "/api/v1/properties/{propertyId}/tasks" : {
+      "get" : {
+        "operationId" : "tasks",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "propertyId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "enum" : [ "PENDING", "ASSIGNED", "IN_PROGRESS", "BLOCKED", "COMPLETED", "CANCELLED" ],
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          }
+        }, {
+          "in" : "query",
+          "name" : "type",
+          "required" : false,
+          "schema" : {
+            "items" : {
+              "enum" : [ "CHECKOUT_CLEANING", "STAYOVER_CLEANING", "RE_CLEANING", "INSPECTION" ],
+              "type" : "string"
+            },
+            "type" : "array",
+            "uniqueItems" : true
+          }
+        }, {
+          "in" : "query",
+          "name" : "staffId",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "roomId",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "scheduledFrom",
+          "required" : false,
+          "schema" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "scheduledTo",
+          "required" : false,
+          "schema" : {
+            "format" : "date-time",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "cursor",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "limit",
+          "required" : false,
+          "schema" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageResponseTaskListItem"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-query-controller" ]
+      }
+    },
+    "/api/v1/reservations/{reservationId}/check-in" : {
+      "post" : {
+        "operationId" : "checkIn",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "reservationId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StayCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "stay-command-controller" ]
+      }
+    },
+    "/api/v1/reservations/{reservationId}/check-out" : {
+      "post" : {
+        "operationId" : "checkOut",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "reservationId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StayCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "stay-command-controller" ]
+      }
+    },
+    "/api/v1/rooms/{roomId}/availability" : {
+      "post" : {
+        "operationId" : "changeAvailability",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AvailabilityRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoomCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "room-controller" ]
+      }
+    },
+    "/api/v1/rooms/{roomId}/rework-tasks" : {
+      "post" : {
+        "operationId" : "createRework",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReworkRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "room-controller" ]
+      }
+    },
+    "/api/v1/rooms/{roomId}/stayover-cleanings" : {
+      "post" : {
+        "operationId" : "createStayover",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "roomId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StayoverRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "room-controller" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/assignments" : {
+      "post" : {
+        "operationId" : "assign",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AssignRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-command-controller" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/assignments/{assignmentId}" : {
+      "delete" : {
+        "operationId" : "unassign",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "assignmentId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-command-controller" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/blockers" : {
+      "post" : {
+        "operationId" : "addBlocker",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BlockerRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-command-controller" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/blockers/{blockerId}/resolve" : {
+      "post" : {
+        "operationId" : "resolveBlocker",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "path",
+          "name" : "blockerId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ResolveBlockerRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-command-controller" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/cancel" : {
+      "post" : {
+        "operationId" : "cancel",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CancelRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-command-controller" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/complete" : {
+      "post" : {
+        "operationId" : "complete",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-command-controller" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/inspection-result" : {
+      "post" : {
+        "operationId" : "inspectionResult",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/InspectionResultRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-command-controller" ]
+      }
+    },
+    "/api/v1/tasks/{taskId}/start" : {
+      "post" : {
+        "operationId" : "start",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "taskId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "데모 요청자(활성 직원 id). 보안 수단 아님 (ADR-005)",
+          "in" : "header",
+          "name" : "X-Demo-Staff-Id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "description" : "사용자 행동 1회당 1개. 재시도에는 같은 값을 쓴다 (02 §7)",
+          "in" : "header",
+          "name" : "Idempotency-Key",
+          "required" : true,
+          "schema" : {
+            "maxLength" : 100,
+            "pattern" : "^[A-Za-z0-9_\\-:.]{1,100}$",
+            "type" : "string"
+          }
+        }, {
+          "description" : "선택. 없으면 서버가 생성해 응답 헤더로 돌려준다",
+          "in" : "header",
+          "name" : "X-Correlation-Id",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TaskCommandResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          },
+          "400" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "401" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "403" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "404" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          },
+          "409" : {
+            "content" : {
+              "application/problem+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Problem"
+                }
+              }
+            },
+            "description" : "Problem Details (code 필드 참조)"
+          }
+        },
+        "tags" : [ "task-command-controller" ]
+      }
+    }
+  },
+  "servers" : [ {
+    "description" : "같은 origin (환경별 base URL은 클라이언트 설정)",
+    "url" : "/"
+  } ]
+}

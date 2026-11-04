@@ -9,4 +9,9 @@ interface TaskAssignmentRepository : JpaRepository<TaskAssignment, UUID> {
     fun findByTaskIdAndUnassignedAtIsNull(taskId: UUID): TaskAssignment?
 
     fun findByTaskIdOrderByAssignedAtAsc(taskId: UUID): List<TaskAssignment>
+
+    /** 조회용 일괄 로딩. */
+    fun findByTaskIdInAndUnassignedAtIsNull(taskIds: Collection<UUID>): List<TaskAssignment>
+
+    fun findByStaffIdInAndUnassignedAtIsNull(staffIds: Collection<UUID>): List<TaskAssignment>
 }

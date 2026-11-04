@@ -9,4 +9,7 @@ interface TaskBlockerRepository : JpaRepository<TaskBlocker, UUID> {
     fun findByTaskIdAndResolvedAtIsNullOrderByBlockedAtAsc(taskId: UUID): List<TaskBlocker>
 
     fun findByTaskIdOrderByBlockedAtAsc(taskId: UUID): List<TaskBlocker>
+
+    /** 조회용 일괄 로딩. */
+    fun findByTaskIdInAndResolvedAtIsNull(taskIds: Collection<UUID>): List<TaskBlocker>
 }

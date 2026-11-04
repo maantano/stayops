@@ -120,6 +120,15 @@
 - pagination은 cursor 기반.
 - 검색/필터 상태는 URL query에 반영 가능하게 설계.
 
+### 6.1 `[P8 구현]` 데이터 계층 (`apps/web/src/api/`)
+- `schema.d.ts`: `docs/api/openapi.json`에서 생성(`pnpm api:types`). 수정 금지.
+- `endpoints.ts`: openapi-fetch 기반 typed 클라이언트. 데모 요청자 헤더 주입, command는 호출자가 준 Idempotency-Key 사용, Problem → `ApiError`, 응답 없음 → `NETWORK_ERROR`, 데모 사용자 미선택 → 요청하지 않고 `NO_DEMO_ACTOR`.
+- `errors.ts`: `errorAction(error)`가 위 오류 매핑 표의 UX 방침을 반환. 화면은 이 값으로 분기한다.
+- `queryKeys.ts`: `["stayops", propertyId, 자원, filter]`. command별 무효화 대상 표(`invalidationTargets`). dashboard·readiness 30초 polling, staleTime 10초.
+- `hooks.ts`: 조회 hooks(목록은 infinite query), `useCommand(name)` → `run(...)`은 새 key, `retry()`는 **같은 key·같은 인자**로 재전송. 성공·VERSION_CONFLICT·INVALID_STATE 후 관련 query 무효화. mutation 자동 재시도 없음.
+- `session.ts`: 데모 세션(staffId, propertyId)을 localStorage에 보관, 실패 시 메모리.
+- query 재시도: 4xx는 재시도하지 않음, 네트워크·5xx만 1회.
+
 ## 7. Form validation
 - React Hook Form + Zod.
 - 사용자 입력은 UX validation, 서버 validation은 최종 권위.

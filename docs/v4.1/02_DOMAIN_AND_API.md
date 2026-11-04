@@ -423,6 +423,18 @@ GET /api/v1/properties/{propertyId}/simulations/{simulationId}
 
 목록 API는 cursor pagination, 안정적 sort(tie-breaker id), filter 허용 목록, timezone 명시.
 
+`[P8 구현]` 조회 API 공통
+- 응답 형식 `PageResponse{items, nextCursor, limit}`. limit 기본 50, 1~100 밖이면 400. cursor는 불투명 문자열(형식이 틀리면 400).
+- 정렬: rooms `(roomNumber, id)`, tasks `(scheduledAt, id)`, reservations `(scheduledCheckInAt, id)` 오름차순, timeline `(occurredAt, id)` 내림차순.
+- 필터: rooms `stage, floor` / tasks `status*, type*, staffId, roomId, scheduledFrom, scheduledTo` / reservations `status*, checkInFrom, checkInTo` (*는 반복 지정).
+- 역할 범위(04 §5 구체화): rooms·room·timeline은 모든 역할. tasks는 HOUSEKEEPER·INSPECTOR면 **본인 배정 작업만**(staffId 무시). dashboard·readiness·reservations·staff-workloads는 FRONT_DESK·MANAGER만(그 외 403).
+- rooms 목록은 property당 객실 수가 작다는 전제로 메모리에서 단계를 계산·필터링한다(MVP). 커지면 조회 모델로 바꾼다.
+- dashboard: 객실 수·단계별·availability별, 진행 중단 객실, 오늘(property timezone 업무일) 도착 예정·체크인·출발 예정·체크아웃 수, active task 상태별 수, readiness 요약과 위험 상위 5개(원인 상위 3개: 누락 입력 우선 → 시간 기여 큰 순), `syntheticData`.
+- staff-workloads: HOUSEKEEPER·INSPECTOR별 업무일 근무 가능 분(근무 − 휴게), 배정된 active task 예상 소요 합, `workloadRatio`(근무 없으면 null + `NO_SHIFT`, 초과 시 `OVER_CAPACITY`). 이동·준비 시간 미반영.
+- timeline: 객실·그 객실 task·예약의 이벤트, payload는 JSON 객체, 요청자 표시명 포함.
+- CORS: `stayops.web.allowed-origins`(기본 `http://localhost:3000`)만 허용, `X-Correlation-Id`·`Idempotency-Replayed` 응답 헤더 노출.
+- 계약: 서버 생성 OpenAPI 스냅샷 `docs/api/openapi.json` (ADR-006).
+
 ### Command
 ```http
 POST /api/v1/reservations/{id}/check-in
