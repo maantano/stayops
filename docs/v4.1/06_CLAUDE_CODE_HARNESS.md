@@ -17,7 +17,8 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | P4 task lifecycle | 완료 — assign/unassign, start 판정 표(재시작 포함), blocker 추가·해제·복귀, complete(검사 task 생성), cancel(started 기준 권한·Room 복귀), V3 migration. 백엔드 테스트 122개 통과 |
 | P5 inspection/stayover/OOS/rework | 완료 — inspection-result(PASSED→READY, FAILED→RE_CLEANING), stayover 요청, availability, 관리자 재정비, workflowStage + 객실 상세 조회, V4 migration. E2E 1~11 시나리오 통과. 백엔드 테스트 147개 |
 | P6 동시성 강화 | 완료 — seed 고정 무작위 command sequence(순차·동시), DB 불변식 I1~I6, deadlock 0건 확인. 결함 1건 발견·수정(command 시각을 잠금 이후로, ADR-003 개정 2). 백엔드 테스트 167개 |
-| 다음 | P7 — readiness 계산 (5등급, UNKNOWN, 근거·입력 스냅샷) |
+| P7 readiness | 완료 — 순수 계산기(남은 경로·실작업 차감·blocker 겹침·UNKNOWN), 스냅샷 로더, `GET /properties/{id}/readiness`. 단위 24 + API 3. 백엔드 테스트 194개 |
+| 다음 | P8 — API contract(OpenAPI) + 조회 API(대시보드·목록·타임라인) + FE query layer |
 
 ## 2. 필수 원칙
 - Phase 0은 read-only.

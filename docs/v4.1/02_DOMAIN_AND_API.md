@@ -512,6 +512,28 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 7. 결과에 입력 스냅샷, 계산 버전, 계산 시각, 근거별 시간 기여, 누락 필드를 포함.
 8. `[v4.1]` started task가 담당자 없이 PENDING이면 근거에 "담당자 없음 · 진행 중단"을 포함한다.
 
+### 8.1 `[P7 구현]` 계산 모델 (`readiness-v1`)
+`GET /api/v1/properties/{propertyId}/readiness` — 조회 시점 계산, 저장하지 않음. 계산기(`ReadinessCalculator`)는 입력 스냅샷 + 기준 시각의 순수 함수.
+
+- **평가 대상:** CONFIRMED 예약 중 `scheduledCheckInAt < now + 평가창` 이고 `scheduledCheckOutAt > now` (지연 도착 포함). 객실마다 가장 이른 도착 1건.
+- **남은 경로(직렬):**
+  | 객실 상태 | 경로 |
+  |---|---|
+  | READY | 계산 없이 READY (OOS면 `CANNOT_CHECK_IN_OUT_OF_SERVICE` flag) |
+  | OCCUPIED · STAYOVER_CLEANING | 현재 투숙 예정 체크아웃까지 대기 → 체크아웃 청소(기본값) → 검사(기본값) |
+  | VACANT_DIRTY + 시작 전 청소 task | 활성 blocker 해제 → task 예정 시각 → 청소(task 예상 소요) → 검사(기본값) |
+  | VACANT_DIRTY + 시작 전 검사 task | 활성 blocker 해제 → 예정 시각 → 검사 |
+  | CLEANING · INSPECTING | 활성 blocker 해제 → 남은 작업 → (청소면) 검사(기본값) |
+- **이미 일한 시간:** 실작업 = 시작 후 경과 − blocker 구간(합집합). 남은 작업 = max(0, 예상 소요 − 실작업). 초과하면 0 + `OVERRUN` flag.
+- **blocker:** task가 BLOCKED면 작업이 멈춘 것이 상태로 확정되므로 직렬로 둔다. 동시에 활성인 blocker는 합산하지 않고 가장 늦은 예상 해제 시각만 반영, 나머지는 `overlappedBlockers`.
+- **UNKNOWN (추정 금지):** 예상 해제 시각이 없거나 이미 지난 활성 blocker / 예정 체크아웃이 지났는데 아직 투숙 중 / 담당자 없이 멈춘 started 작업(`WORK_INTERRUPTED_NO_ASSIGNEE`) / 다음 단계 task 없음 / 상태 조합 모순. `missingInputs`에 이유. UNKNOWN에도 판정 불가 지점까지의 기여는 설명용으로 포함.
+- **반영하지 않는 것(가정으로 표시):** 인력 가용성(근무표) — 담당자가 없으면 `UNASSIGNED` flag만. 검사 실패(통과 가정). 현재 투숙객은 예정 시각에 퇴실.
+- **등급:** `risk = expectedReadyAt − (checkIn − buffer)`. `risk > 0` AT_RISK, `−warningMargin < risk ≤ 0` WARNING, 그 외 ON_TRACK. `riskMinutes`는 분 단위 올림.
+- **응답:** 객실별 `grade, scheduledCheckInAt, readyDeadline, expectedReadyAt, riskMinutes, availabilityStatus, contributions[type, seconds, minutes, sourceId, durationSource, note], overlappedBlockers, missingInputs, flags, assumptions, inputSnapshot, calculationVersion, calculatedAt` + `summary`(등급별 수). 정렬: AT_RISK → UNKNOWN → WARNING → ON_TRACK → READY, 같은 등급은 마감 순.
+- **일관성:** `Σ contributions.seconds = expectedReadyAt − calculatedAt` (단위 테스트로 검증). 같은 스냅샷·시각·버전이면 같은 결과.
+- **설정(`ASSUMPTION`, OPEN-7):** `stayops.readiness.warning-margin-minutes=30`, `evaluation-window-hours=24`, `calculation-version=readiness-v1`.
+- 모든 시간 계산은 Instant 기준이라 DST 전환과 무관하다(테스트로 확인).
+
 ## 9. Simulation contract
 - baseline과 scenario는 동일 input snapshot, seed, generator version, policy version에서 비교.
 - scenario는 정책 파라미터만 바꾼다. 원본 데이터 mutate 금지.

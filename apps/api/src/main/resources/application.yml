@@ -50,3 +50,8 @@ stayops:
       RE_CLEANING: 30
       INSPECTION: 10
       STAYOVER_CLEANING: 25
+  readiness:
+    # 모두 ASSUMPTION (현장 표준 아님, OPEN-7)
+    warning-margin-minutes: 30
+    evaluation-window-hours: 24
+    calculation-version: readiness-v1
