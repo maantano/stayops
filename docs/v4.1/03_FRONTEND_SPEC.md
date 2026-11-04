@@ -27,7 +27,7 @@
 - AVAILABLE / OUT_OF_SERVICE 수
 - 예정 check-in 및 checkout
 - readiness: READY / ON_TRACK / WARNING / AT_RISK / UNKNOWN
-- "담당자 없음 · 진행 중단" 경고 (started task가 PENDING인 객실)
+- "담당자 없음 · 진행 중단" 경고 (started task가 PENDING인 객실, 서버 `alerts`의 `WORK_INTERRUPTED_NO_ASSIGNEE`)
 - task: PENDING / ASSIGNED / IN_PROGRESS / BLOCKED
 - 담당자별 예정 workload
 - 기준 시각과 property timezone

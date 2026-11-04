@@ -36,6 +36,9 @@ class ApiClient(private val port: Int, private val json: JsonMapper) {
         staffId, idempotencyKey, correlationId,
     )
 
+    fun get(path: String, staffId: UUID?): Response =
+        send(HttpRequest.newBuilder(URI.create("http://localhost:$port$path")).GET(), staffId, null, null)
+
     fun delete(path: String, staffId: UUID?, idempotencyKey: String? = UUID.randomUUID().toString()): Response =
         send(HttpRequest.newBuilder(URI.create("http://localhost:$port$path")).DELETE(), staffId, idempotencyKey, null)
 

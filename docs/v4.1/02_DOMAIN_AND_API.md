@@ -362,6 +362,12 @@ lock Room → Reservation → active stayover task(있으면)
 - 결과 기록 + task COMPLETED + Room 전이 + (FAILED 시) RE_CLEANING(origin INSPECTION_FAILED, sourceTaskId = 이 검사) 생성은 원자적.
 - 결과 중복 제출 금지(InspectionRecord.taskId unique).
 
+`[P5 구현]` Inspection result 세부
+- 권한: 검사 task의 담당 INSPECTOR 본인만 (MANAGER 대리 제출 불가, 04 RBAC).
+- 판정 순서: FAILED 사유 누락(400) → task type(INSPECTION 아니면 INVALID_STATE) → BLOCKED(ACTIVE_BLOCKER_EXISTS) → IN_PROGRESS 아님(INVALID_STATE) → 담당자(FORBIDDEN) → Room INSPECTING 아님(STATE_INCONSISTENT).
+- PASSED는 availability와 무관하게 READY (READY+OOS 허용, §2 Room). `checklist`는 `Map<String, Boolean>`(최대 50항목)으로 받아 JSONB 스냅샷으로 저장.
+- 응답에 `inspectionRecordId`, FAILED면 `createdTaskId`(RE_CLEANING). 이벤트: `INSPECTION_RECORDED`, `ROOM_STATUS_CHANGED`(cause INSPECTION_PASSED/FAILED), FAILED면 `HOUSEKEEPING_TASK_CREATED`.
+
 ### Cancel
 `POST /api/v1/tasks/{id}/cancel`
 ```json
@@ -381,6 +387,14 @@ lock Room → Reservation → active stayover task(있으면)
 - task PENDING(origin STAYOVER_REQUEST), Room OCCUPIED 유지.
 - 자동 daily scheduler 제외.
 
+`[P5 구현]` Stayover create 세부
+- 권한: FRONT_DESK, MANAGER. 판정 순서: active task 존재(ACTIVE_WORKFLOW_EXISTS + existingTaskId) → OOS(ROOM_NOT_AVAILABLE) → OCCUPIED 아님(INVALID_STATE) → CHECKED_IN 예약 없음(STATE_INCONSISTENT).
+- `scheduledAt` 생략 시 지금. 5분 넘게 과거이거나 예약의 예정 체크아웃 이후면 VALIDATION_ERROR (5분 허용치는 `ASSUMPTION`). `estimatedDurationMinutes` 1~480, 생략 시 설정 기본값. `notes`는 V4 migration의 `housekeeping_task.notes`에 저장(게스트 개인정보 금지).
+
+`[P5 구현]` Rework create 세부
+- 판정 순서: active task 존재 → kind별 조건(CLEANING: VACANT_DIRTY / INSPECTION: VACANT_DIRTY + `uninspectedCompletedCleaning` 존재, 아니면 INVALID_STATE `reason=NOT_AWAITING_INSPECTION`) → CHECKED_IN 예약 존재 시 STATE_INCONSISTENT → 담당자 검증(실패 시 task도 생성하지 않음).
+- 응답 201. 담당자를 지정하면 `TASK_ASSIGNED` 이벤트도 함께 기록.
+
 ## 5. Availability / maintenance
 - OUT_OF_SERVICE는 판매/신규 투숙 가능 여부다. 신규 check-in을 막는다.
 - 이미 투숙 중인 예약을 OOS 변경만으로 자동 퇴실/취소하지 않는다.
@@ -389,6 +403,7 @@ lock Room → Reservation → active stayover task(있으면)
 - `[v4.1]` 점검/청소가 필요하면 관리자가 재정비 명령(§4)으로 task를 만든다. 대상은 VACANT_DIRTY 객실이며, READY 객실 재작업은 MVP 제외(OPEN-1).
 - MAINTENANCE blocker는 작업 중단 원인 기록용이며 설비 수리 완료를 의미하지 않는다.
 - OOS 변경이 진행 중 작업을 자동 완료/취소하지 않는다.
+- `[P5 구현]` `POST /rooms/{roomId}/availability {status, reason}`: MANAGER, reason은 OOS·해제 모두 필수(감사 이력). 해제 시 `availabilityReason`을 비우고 해제 사유는 이벤트(`ROOM_AVAILABILITY_CHANGED`)에 남긴다. 같은 상태 요청은 `changed=false`, 이벤트 없음.
 
 ## 6. REST API surface
 
@@ -404,6 +419,8 @@ GET /api/v1/properties/{propertyId}/readiness
 GET /api/v1/properties/{propertyId}/staff-workloads
 GET /api/v1/properties/{propertyId}/simulations/{simulationId}
 ```
+`[P5 구현]` `GET /properties/{propertyId}/rooms/{roomId}` 객실 상세: operational·availability 상태, `workflowStage`, active task 요약(상태, 차단 직전 상태, 최초 시작 시각, 담당자), `alerts`(`WORK_INTERRUPTED_NO_ASSIGNEE`: 시작된 작업에 담당자 없음, OPEN-5). MVP에서는 같은 property의 모든 역할이 조회 가능(`ASSUMPTION`, 역할별 범위는 P8). 나머지 조회 API는 P8.
+
 목록 API는 cursor pagination, 안정적 sort(tie-breaker id), filter 허용 목록, timezone 명시.
 
 ### Command

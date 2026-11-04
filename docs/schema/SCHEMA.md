@@ -1,6 +1,6 @@
 # StayOps DB 스키마 (V1)
 
-- 기준: `apps/api/src/main/resources/db/migration/V1__core_schema.sql` (+ V2 idempotency_record, V3 배정 종료 사유 `MANUAL_UNASSIGN`)
+- 기준: `apps/api/src/main/resources/db/migration/V1__core_schema.sql` (+ V2 idempotency_record, V3 배정 종료 사유 `MANUAL_UNASSIGN`, V4 `housekeeping_task.notes`)
 - 도메인 규칙 출처: `docs/v4.1/02_DOMAIN_AND_API.md` §2, §10
 - 검증: `apps/api/src/test/kotlin/com/stayops/schema/SchemaConstraintTests.kt` (PostgreSQL 17, Testcontainers, 37 tests)
 - 상태: `IMPLEMENTED` / 아래 표의 각 제약은 `VERIFIED`

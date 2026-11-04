@@ -3,6 +3,7 @@ package com.stayops.housekeeping.api
 import com.stayops.housekeeping.application.TaskCommandResponse
 import com.stayops.housekeeping.application.TaskCommandService
 import com.stayops.housekeeping.domain.BlockerType
+import com.stayops.housekeeping.domain.InspectionResult
 import com.stayops.identity.Actor
 import com.stayops.shared.command.CommandRequest
 import com.stayops.shared.command.CommandResult
@@ -39,6 +40,12 @@ class TaskCommandController(
 
     data class ResolveBlockerRequest(@field:Size(max = 500) val note: String? = null)
 
+    data class InspectionResultRequest(
+        @field:NotNull val result: InspectionResult?,
+        @field:Size(max = 500) val failureReason: String? = null,
+        @field:Size(max = 50) val checklist: Map<String, Boolean>? = null,
+    )
+
     data class CancelRequest(@field:NotBlank @field:Size(max = 500) val reason: String?)
 
     @PostMapping("/{taskId}/assignments")
@@ -73,6 +80,12 @@ class TaskCommandController(
     @PostMapping("/{taskId}/complete")
     fun complete(@PathVariable taskId: UUID, actor: Actor, command: CommandRequest) =
         run(command, actor, mapOf("taskId" to taskId)) { service.complete(it, taskId) }
+
+    @PostMapping("/{taskId}/inspection-result")
+    fun inspectionResult(@PathVariable taskId: UUID, @Valid @RequestBody body: InspectionResultRequest, actor: Actor, command: CommandRequest) =
+        run(command, actor, mapOf("taskId" to taskId, "body" to body)) {
+            service.submitInspectionResult(it, taskId, body.result!!, body.failureReason, body.checklist ?: emptyMap())
+        }
 
     @PostMapping("/{taskId}/cancel")
     fun cancel(@PathVariable taskId: UUID, @Valid @RequestBody body: CancelRequest, actor: Actor, command: CommandRequest) =

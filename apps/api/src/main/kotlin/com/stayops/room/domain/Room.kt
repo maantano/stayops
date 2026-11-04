@@ -101,6 +101,18 @@ class Room(
         operationalStatus = to
     }
 
+    /**
+     * 판매·신규 투숙 가능 여부 변경 (02 §5). operationalStatus는 바꾸지 않는다 — OOS 해제만으로 READY가 되지 않는다.
+     * 같은 상태로의 변경이면 false를 반환하고 아무것도 바꾸지 않는다.
+     */
+    fun changeAvailability(to: RoomAvailabilityStatus, reason: String, at: Instant): Boolean {
+        if (availabilityStatus == to) return false
+        availabilityStatus = to
+        availabilityReason = if (to == RoomAvailabilityStatus.OUT_OF_SERVICE) reason else null
+        availabilityChangedAt = at
+        return true
+    }
+
     /** 체크아웃: OCCUPIED → VACANT_DIRTY. 호출 전 서비스가 상태 일관성을 확인한다. */
     fun releaseAfterCheckout() {
         check(operationalStatus == RoomOperationalStatus.OCCUPIED) { "room must be OCCUPIED but was $operationalStatus" }

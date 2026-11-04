@@ -38,6 +38,7 @@ class HousekeepingTask(
     actualCompletedAt: Instant? = null,
     cancellationCode: CancellationCode? = null,
     cancellationReason: String? = null,
+    notes: String? = null,
     id: UUID = UUID.randomUUID(),
 ) : AuditedEntity(id) {
 
@@ -116,6 +117,10 @@ class HousekeepingTask(
 
     @Column(name = "created_by", nullable = false, updatable = false)
     val createdBy: UUID = createdBy
+
+    @Column(name = "notes", length = 500)
+    var notes: String? = notes
+        protected set
 
     val isStarted: Boolean
         get() = actualStartedAt != null
@@ -203,6 +208,62 @@ class HousekeepingTask(
             createdBy = createdBy,
             reservationId = reservationId,
         )
+
+        /** 투숙 중 청소 요청 (02 §4 Stayover create). */
+        fun stayover(
+            propertyId: UUID,
+            roomId: UUID,
+            reservationId: UUID,
+            scheduledAt: Instant,
+            estimatedDurationMinutes: Int,
+            durationSource: DurationSource,
+            createdBy: UUID,
+            notes: String?,
+        ) = HousekeepingTask(
+            propertyId = propertyId, roomId = roomId, type = TaskType.STAYOVER_CLEANING, origin = TaskOrigin.STAYOVER_REQUEST,
+            scheduledAt = scheduledAt, estimatedDurationMinutes = estimatedDurationMinutes, durationSource = durationSource,
+            createdBy = createdBy, reservationId = reservationId, notes = notes,
+        )
+
+        /** 검사 FAILED 결과 command 내부에서 생성. sourceTaskId는 실패한 검사 task. */
+        fun reCleaningAfter(
+            failedInspection: HousekeepingTask,
+            scheduledAt: Instant,
+            estimatedDurationMinutes: Int,
+            durationSource: DurationSource,
+            createdBy: UUID,
+        ): HousekeepingTask {
+            require(failedInspection.type == TaskType.INSPECTION) { "re-cleaning requires an inspection task" }
+            return HousekeepingTask(
+                propertyId = failedInspection.propertyId, roomId = failedInspection.roomId, type = TaskType.RE_CLEANING,
+                origin = TaskOrigin.INSPECTION_FAILED, scheduledAt = scheduledAt, estimatedDurationMinutes = estimatedDurationMinutes,
+                durationSource = durationSource, createdBy = createdBy, sourceTaskId = failedInspection.getId(),
+            )
+        }
+
+        /**
+         * 관리자 재정비 (02 §4 Rework create). CLEANING은 RE_CLEANING(sourceTaskId 없음),
+         * INSPECTION은 확인 대상 cleaning을 sourceTaskId로 갖는다.
+         */
+        fun managerRework(
+            propertyId: UUID,
+            roomId: UUID,
+            type: TaskType,
+            reason: String,
+            inspectedCleaningId: UUID?,
+            scheduledAt: Instant,
+            estimatedDurationMinutes: Int,
+            durationSource: DurationSource,
+            createdBy: UUID,
+        ): HousekeepingTask {
+            require(type == TaskType.RE_CLEANING || type == TaskType.INSPECTION) { "rework supports RE_CLEANING or INSPECTION" }
+            require((type == TaskType.INSPECTION) == (inspectedCleaningId != null)) { "inspection rework needs the cleaning it verifies" }
+            return HousekeepingTask(
+                propertyId = propertyId, roomId = roomId, type = type, origin = TaskOrigin.MANAGER_REWORK, originReason = reason,
+                scheduledAt = scheduledAt, estimatedDurationMinutes = estimatedDurationMinutes, durationSource = durationSource,
+                createdBy = createdBy, sourceTaskId = inspectedCleaningId,
+            )
+        }
 
         /** cleaning complete command 내부에서 생성. sourceTaskId는 확인 대상 cleaning task (02 §2). */
         fun inspectionOf(

@@ -47,6 +47,7 @@ class StayWorld(
     private val assignments: TaskAssignmentRepository,
     private val blockers: TaskBlockerRepository,
     private val shifts: StaffShiftRepository,
+    private val inspectionRecords: com.stayops.housekeeping.infrastructure.InspectionRecordRepository,
 ) {
     inner class Hotel {
         val property: Property = properties.save(
@@ -147,6 +148,15 @@ class StayWorld(
             if (blocked) blockers.save(TaskBlocker(task.getId(), BlockerType.DND, now.minusSeconds(300)))
             return task
         }
+
+        /** 완료된 검사 task에 결과 기록을 남긴다. */
+        fun inspectionRecord(inspection: HousekeepingTask, result: com.stayops.housekeeping.domain.InspectionResult) =
+            inspectionRecords.save(
+                com.stayops.housekeeping.domain.InspectionRecord(
+                    inspection.getId(), result, "{}", inspector.getId(), Instant.now().minusSeconds(30),
+                    failureReason = if (result == com.stayops.housekeeping.domain.InspectionResult.FAILED) "테스트 실패 사유" else null,
+                ),
+            )
 
         /** 지정 상태의 STAYOVER_CLEANING task (P3 테스트 호환). */
         fun stayoverTask(

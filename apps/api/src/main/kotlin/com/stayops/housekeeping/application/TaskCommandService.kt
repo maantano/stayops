@@ -11,7 +11,10 @@ import com.stayops.housekeeping.domain.TaskRoomRules
 import com.stayops.housekeeping.domain.TaskStatus
 import com.stayops.housekeeping.domain.TaskType
 import com.stayops.housekeeping.domain.UnassignedReason
+import com.stayops.housekeeping.domain.InspectionRecord
+import com.stayops.housekeeping.domain.InspectionResult
 import com.stayops.housekeeping.infrastructure.HousekeepingTaskRepository
+import com.stayops.housekeeping.infrastructure.InspectionRecordRepository
 import com.stayops.housekeeping.infrastructure.TaskAssignmentRepository
 import com.stayops.housekeeping.infrastructure.TaskBlockerRepository
 import com.stayops.operations.application.EventRecorder
@@ -30,6 +33,7 @@ import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.databind.json.JsonMapper
 import java.time.Instant
 import java.util.UUID
 
@@ -51,6 +55,8 @@ class TaskCommandService(
     private val assignees: AssigneePolicy,
     private val inspections: InspectionEligibility,
     private val housekeeping: HousekeepingProperties,
+    private val inspectionRecords: InspectionRecordRepository,
+    private val jsonMapper: JsonMapper,
     private val em: EntityManager,
 ) {
 
@@ -299,6 +305,81 @@ class TaskCommandService(
         return TaskCommandResponse.of(ctx, task, room, createdTaskId = inspectionId)
     }
 
+    // ------------------------------------------------------- inspection result
+
+    /**
+     * 검사 결과 제출 (02 §4 Inspection result): 결과 기록 + 검사 task 완료 + Room 전이 + (FAILED) 재청소 생성을 원자적으로.
+     * PASSED → READY (availability와 무관, READY+OOS 허용). FAILED → VACANT_DIRTY + RE_CLEANING.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    fun submitInspectionResult(
+        ctx: CommandContext,
+        taskId: UUID,
+        result: InspectionResult,
+        failureReason: String?,
+        checklist: Map<String, Boolean>,
+    ): TaskCommandResponse {
+        if (result == InspectionResult.FAILED && failureReason.isNullOrBlank()) {
+            throw StayOpsException(ErrorCode.VALIDATION_ERROR, "failureReason is required when result is FAILED")
+        }
+        val lock = locks.lockForTaskCommand(ctx.actor.propertyId, taskId)
+        val task = lock.task
+        val room = lock.room
+        if (task.type != TaskType.INSPECTION) {
+            throw StayOpsException(ErrorCode.INVALID_STATE, "task is not an inspection", mapOf("currentStatus" to task.status.name))
+        }
+        if (task.status == TaskStatus.BLOCKED) throw activeBlockerExists(task)
+        if (task.status != TaskStatus.IN_PROGRESS) {
+            throw StayOpsException(ErrorCode.INVALID_STATE, "inspection result requires IN_PROGRESS but was ${task.status}", mapOf("currentStatus" to task.status.name))
+        }
+        val assignment = assignments.findByTaskIdAndUnassignedAtIsNull(task.getId())
+        if (assignment?.staffId != ctx.actor.staffId) throw StayOpsException(ErrorCode.FORBIDDEN, "only the assigned inspector can submit the result")
+        if (room.operationalStatus != RoomOperationalStatus.INSPECTING) {
+            throw inconsistent("inspection result precondition failed", task, room, RoomOperationalStatus.INSPECTING)
+        }
+
+        val record = inspectionRecords.save(
+            InspectionRecord(
+                taskId = task.getId(),
+                result = result,
+                checklistSnapshotJson = jsonMapper.writeValueAsString(checklist),
+                inspectedBy = ctx.actor.staffId,
+                inspectedAt = ctx.now,
+                failureReason = failureReason?.trim()?.takeIf { result == InspectionResult.FAILED },
+            ),
+        )
+        task.complete(ctx.now)
+        assignment.end(ctx.now, UnassignedReason.TASK_COMPLETED)
+        val roomTo = if (result == InspectionResult.PASSED) RoomOperationalStatus.READY else RoomOperationalStatus.VACANT_DIRTY
+        room.changeWorkflowStatus(RoomOperationalStatus.INSPECTING, roomTo)
+
+        events.record(
+            ctx, task.propertyId, AGGREGATE, task, "INSPECTION_RECORDED",
+            mapOf("inspectionRecordId" to record.getId(), "result" to result.name, "failureReason" to record.failureReason, "sourceTaskId" to task.sourceTaskId),
+        )
+        recordRoomStatus(ctx, room, RoomOperationalStatus.INSPECTING, "INSPECTION_${result.name}", task)
+
+        var reCleaningId: UUID? = null
+        if (result == InspectionResult.FAILED) {
+            em.flush() // 객실당 active task 1개 index: 검사 완료 반영 후 재청소 생성
+            val reCleaning = tasks.save(
+                HousekeepingTask.reCleaningAfter(
+                    failedInspection = task,
+                    scheduledAt = ctx.now,
+                    estimatedDurationMinutes = housekeeping.defaultDuration(TaskType.RE_CLEANING),
+                    durationSource = DurationSource.CONFIG_DEFAULT,
+                    createdBy = ctx.actor.staffId,
+                ),
+            )
+            events.record(
+                ctx, task.propertyId, AGGREGATE, reCleaning, "HOUSEKEEPING_TASK_CREATED",
+                mapOf("type" to reCleaning.type.name, "origin" to reCleaning.origin.name, "sourceTaskId" to task.getId(), "roomId" to room.getId()),
+            )
+            reCleaningId = reCleaning.getId()
+        }
+        return TaskCommandResponse.of(ctx, task, room, createdTaskId = reCleaningId, inspectionRecordId = record.getId())
+    }
+
     // ------------------------------------------------------------------ cancel
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -362,7 +443,7 @@ class TaskCommandService(
     private fun existing(task: HousekeepingTask) =
         mapOf("existingTaskId" to task.getId(), "existingTaskType" to task.type.name, "existingTaskStatus" to task.status.name)
 
-    private fun inconsistent(what: String, task: HousekeepingTask, room: Room, expected: RoomOperationalStatus) =
+    internal fun inconsistent(what: String, task: HousekeepingTask, room: Room, expected: RoomOperationalStatus) =
         StateInconsistencyException(
             what,
             mapOf(
@@ -397,6 +478,7 @@ data class TaskCommandResponse(
     val assignmentId: UUID?,
     val blockerId: UUID?,
     val createdTaskId: UUID?,
+    val inspectionRecordId: UUID?,
     val warnings: List<String>,
     val occurredAt: Instant,
     val correlationId: UUID,
@@ -411,11 +493,12 @@ data class TaskCommandResponse(
             blockerId: UUID? = null,
             createdTaskId: UUID? = null,
             warnings: List<String> = emptyList(),
+            inspectionRecordId: UUID? = null,
         ) = TaskCommandResponse(
             taskId = task.getId(), taskType = task.type, taskStatus = task.status, statusBeforeBlocked = task.statusBeforeBlocked,
             actualStartedAt = task.actualStartedAt, taskVersion = task.version, roomId = room.getId(),
             roomOperationalStatus = room.operationalStatus, roomVersion = room.version, alreadyStarted = alreadyStarted,
-            assignmentId = assignmentId, blockerId = blockerId, createdTaskId = createdTaskId, warnings = warnings,
+            assignmentId = assignmentId, blockerId = blockerId, createdTaskId = createdTaskId, inspectionRecordId = inspectionRecordId, warnings = warnings,
             occurredAt = ctx.now, correlationId = ctx.correlationId,
         )
     }

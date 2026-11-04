@@ -15,7 +15,8 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | P2.5 command 인프라 | 완료 — 오류 코드·Problem Details, correlation ID, 데모 인증(ADR-005), Idempotency 실행기(V2), EventRecorder, RoomWorkflowLocks(ADR-003 개정). 테스트 60개 통과 |
 | P3 예약 check-in/out | 완료 — `POST /reservations/{id}/check-in`, `/check-out`, checkout × stayover 8개 상태 행, 장애 주입 rollback, 동시 요청. 백엔드 테스트 83개 통과 |
 | P4 task lifecycle | 완료 — assign/unassign, start 판정 표(재시작 포함), blocker 추가·해제·복귀, complete(검사 task 생성), cancel(started 기준 권한·Room 복귀), V3 migration. 백엔드 테스트 122개 통과 |
-| 다음 | P5 — inspection 결과·재청소, stayover 생성, OOS, 재정비 생성, workflowStage |
+| P5 inspection/stayover/OOS/rework | 완료 — inspection-result(PASSED→READY, FAILED→RE_CLEANING), stayover 요청, availability, 관리자 재정비, workflowStage + 객실 상세 조회, V4 migration. E2E 1~11 시나리오 통과. 백엔드 테스트 147개 |
+| 다음 | P6 — 동시성 강화 테스트 (무작위 command sequence 불변식, deadlock) |
 
 ## 2. 필수 원칙
 - Phase 0은 read-only.
