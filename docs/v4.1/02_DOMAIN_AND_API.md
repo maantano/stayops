@@ -478,7 +478,9 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 - **객실당 active ROOM_WORKFLOW task 1개**: partial unique index (§2.9).
 - 활성 assignment 최대 1개/task: partial unique index.
 - InspectionRecord taskId unique.
-- checkout task unique (reservationId, type) where reservationId not null.
+- checkout task unique (reservationId) where type = CHECKOUT_CLEANING. STAYOVER_CLEANING은 reservationId 필수, 예약당 여러 번 가능. (P2 구체화, `docs/schema/SCHEMA.md`)
+- 예약 시간 겹침: exclusion constraint (ADR-004). 객실당 CHECKED_IN 예약 1개. 직원 근무시간 겹침 금지.
+- task type × origin × reservationId/sourceTaskId 일관성 CHECK (§2 sourceTaskId 표).
 - `statusBeforeBlocked`: BLOCKED ⇔ not null (check constraint).
 - `cancellationCode`: CANCELLED ⇔ not null (check constraint).
 - `originReason`: origin=MANAGER_REWORK ⇒ not null (check constraint).
@@ -488,7 +490,7 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 - event aggregateVersion monotonic.
 
 ## 11. 아직 결정이 필요한 항목 (OPEN)
-- PostgreSQL exclusion constraint vs transaction lock (예약 중복).
+- ~~PostgreSQL exclusion constraint vs transaction lock (예약 중복)~~ → ADR-004에서 exclusion constraint로 결정.
 - 실제 auth 방식(데모 로그인/외부 IdP).
 - 작업자 동시 작업 가능 여부 및 travel/setup time.
 - stayover 검사 필요 조건.

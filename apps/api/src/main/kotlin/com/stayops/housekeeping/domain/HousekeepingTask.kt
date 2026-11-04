@@ -1,0 +1,120 @@
+package com.stayops.housekeeping.domain
+
+import com.stayops.shared.domain.AuditedEntity
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
+import jakarta.persistence.Table
+import java.time.Instant
+import java.util.UUID
+
+/**
+ * 하우스키핑 작업 (02 §2 HousekeepingTask).
+ *
+ * 상태 전이 메서드는 P3~P5에서 추가한다. 현재는 스키마와 1:1인 영속 모델이며,
+ * 상태-필드 불변식은 DB CHECK 제약이 최종 보장한다 (V1__core_schema.sql).
+ */
+@Entity
+@Table(name = "housekeeping_task")
+class HousekeepingTask(
+    propertyId: UUID,
+    roomId: UUID,
+    type: TaskType,
+    origin: TaskOrigin,
+    scheduledAt: Instant,
+    estimatedDurationMinutes: Int,
+    durationSource: DurationSource,
+    createdBy: UUID,
+    reservationId: UUID? = null,
+    sourceTaskId: UUID? = null,
+    originReason: String? = null,
+    status: TaskStatus = TaskStatus.PENDING,
+    statusBeforeBlocked: TaskStatus? = null,
+    dueAt: Instant? = null,
+    actualStartedAt: Instant? = null,
+    actualCompletedAt: Instant? = null,
+    cancellationCode: CancellationCode? = null,
+    cancellationReason: String? = null,
+    id: UUID = UUID.randomUUID(),
+) : AuditedEntity(id) {
+
+    @Column(name = "property_id", nullable = false, updatable = false)
+    val propertyId: UUID = propertyId
+
+    @Column(name = "room_id", nullable = false, updatable = false)
+    val roomId: UUID = roomId
+
+    @Column(name = "reservation_id", updatable = false)
+    val reservationId: UUID? = reservationId
+
+    /** INSPECTION → 확인 대상 cleaning task, RE_CLEANING(INSPECTION_FAILED) → 실패한 검사 task. */
+    @Column(name = "source_task_id", updatable = false)
+    val sourceTaskId: UUID? = sourceTaskId
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false, updatable = false, length = 30)
+    val type: TaskType = type
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "workflow_group", nullable = false, updatable = false, length = 30)
+    val workflowGroup: WorkflowGroup = type.workflowGroup
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "origin", nullable = false, updatable = false, length = 30)
+    val origin: TaskOrigin = origin
+
+    @Column(name = "origin_reason", updatable = false, length = 500)
+    val originReason: String? = originReason
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    var status: TaskStatus = status
+        protected set
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_before_blocked", length = 20)
+    var statusBeforeBlocked: TaskStatus? = statusBeforeBlocked
+        protected set
+
+    @Column(name = "scheduled_at", nullable = false)
+    var scheduledAt: Instant = scheduledAt
+        protected set
+
+    @Column(name = "due_at")
+    var dueAt: Instant? = dueAt
+        protected set
+
+    @Column(name = "estimated_duration_minutes", nullable = false)
+    var estimatedDurationMinutes: Int = estimatedDurationMinutes
+        protected set
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "duration_source", nullable = false, length = 20)
+    var durationSource: DurationSource = durationSource
+        protected set
+
+    /** "시작 전/후" 판정의 유일한 기준 (02 §2.8). 재시작 시에도 최초 시각을 보존한다. */
+    @Column(name = "actual_started_at")
+    var actualStartedAt: Instant? = actualStartedAt
+        protected set
+
+    @Column(name = "actual_completed_at")
+    var actualCompletedAt: Instant? = actualCompletedAt
+        protected set
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "cancellation_code", length = 20)
+    var cancellationCode: CancellationCode? = cancellationCode
+        protected set
+
+    @Column(name = "cancellation_reason", length = 500)
+    var cancellationReason: String? = cancellationReason
+        protected set
+
+    @Column(name = "created_by", nullable = false, updatable = false)
+    val createdBy: UUID = createdBy
+
+    val isStarted: Boolean
+        get() = actualStartedAt != null
+}

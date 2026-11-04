@@ -11,7 +11,8 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | 개발 환경 | OrbStack(Docker 29.8.2, Compose v5.5.0), uv 0.13.7, OpenJDK 21.0.13 (Homebrew `openjdk@21`, `~/Library/Java/JavaVirtualMachines`에 등록) |
 | Git | `handys/`에서 `git init -b main`, `.gitignore` 작성, 문서 baseline 커밋 |
 | P1 ADR + scaffold | 완료 — ADR-001~003, apps/api(Spring Boot 4.1.2, Kotlin 2.3.21, Gradle 9.8.2), apps/web(Next.js 16.4.5, React 19.3), tools/simulator(uv), docker-compose(PostgreSQL 17). build/lint/typecheck/test/health 검증 |
-| 다음 | P2 — schema/core domain + Flyway migration |
+| P2 schema/core domain | 완료 — V1 migration(11개 테이블), 엔티티·repository, ADR-004, 스키마 제약 테스트 37개 통과(PostgreSQL 17), `docs/schema/SCHEMA.md` |
+| 다음 | P2.5 — command 인프라 (idempotency, event append, Room lock, Problem Details) |
 
 ## 2. 필수 원칙
 - Phase 0은 read-only.
