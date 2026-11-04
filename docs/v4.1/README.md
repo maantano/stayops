@@ -1,31 +1,33 @@
-# StayOps v4.1 — 수정 초안 (승인 대기)
+# StayOps v4.1
 
-- 상태: **DRAFT / 사용자 승인 대기**
-- 기준: `docs/v4/` (v4 원본은 수정하지 않았다)
-- 입력: `StayOps_v4.1_수정지시서_및_환경확인.md` (사용자 작성), v4 검토 시 Claude Code가 보고한 항목 5~10
-- 작성일: 2026-11-04
+- 상태: **현재 구현 기준 (APPROVED 2026-11-04)**
+- 기준: v4 + `08_V4.1_CHANGE_LOG.md`의 승인 항목. v4 원본은 `docs/v4/`에 보존한다.
 
-## 이 디렉터리의 성격
+## 문서
+1. `01_PRODUCT_AND_SCOPE.md` — 제품 정의, 역할, 시나리오(A~E), 범위, 지표
+2. `02_DOMAIN_AND_API.md` — 도메인 모델, 상태 전이, 명령, API, 오류 코드, DB 제약 (**도메인 규칙의 단일 기준**)
+3. `03_FRONTEND_SPEC.md` — 화면, 상태 표현, command UX, 오류 매핑
+4. `04_BACKEND_SPEC.md` — 모듈, 트랜잭션, lock, RBAC, 관측
+5. `05_QA_STRATEGY.md` — 테스트 매트릭스, 동시성, E2E, 릴리스 게이트
+6. `06_CLAUDE_CODE_HARNESS.md` — 진행 현황, 구현 순서(P0~P12, P2.5), 실행 프롬프트
+7. `07_CROSS_FUNCTIONAL_DEEP_DIVE.md` — 교차 리뷰, 발견사항, 잔여 OPEN
+8. `08_V4.1_CHANGE_LOG.md` — v4 → v4.1 변경 전후 비교, 근거, 교차 흐름 추적, 환경 조사
 
-v4.1은 v4 문서 7개를 다시 쓴 완성본이 아니라 **변경 제안 세트**다. 각 변경이 v4의 어느 문장을 어떻게 바꾸는지 변경 전/후로 기록한다.
-승인된 항목만 v4.1 정식 문서 세트(01~07 갱신본)에 반영한다. 승인 전까지 `docs/README.md`의 현재 기준 버전은 v4로 유지한다.
+## v4 대비 핵심 변경
+- 관리자 재정비(재청소/재검사) 명령 `POST /rooms/{id}/rework-tasks`
+- "시작 전/후"는 모든 규칙에서 `actualStartedAt`으로 판정
+- Task start 판정 표(멱등·재시작·상태 모순)
+- 체크아웃 시 unstarted stayover 자동 취소 / started면 거부
+- 객실당 active workflow task 1개 (partial unique index), Room 행 잠금으로 객실 단위 직렬화
+- 역할 FRONT_DESK, 오류 코드 단일 목록, readiness 5등급, `workflowStage`
+- 구현 순서에 P2.5 command 인프라 추가
 
-## 파일
-
-- `V4.1_CHANGE_PROPOSAL.md` — 변경 전후 비교, 근거, Product/FE/BE/QA 영향, 교차 흐름 추적, 신규 발견, 미결정 사항, 승인 요청, 환경·Git 조사 결과
-
-## 상태 라벨 (이 초안 한정)
-
-| 라벨 | 의미 |
-|---|---|
-| `APPROVED` | 사용자가 승인함 |
-| `PROPOSED` | 제안. 승인 전에는 구현 규칙이 아님 |
-| `OPEN` | 결정 필요. 선택지와 권장안 제시 |
-| `REJECTED` | 검토 후 채택하지 않음 |
+## 상태 라벨
+`APPROVED`, `PROPOSED`, `OPEN`, `REJECTED` (변경 관리) / `FACT`, `EVIDENCE`, `INTERPRETATION`, `HYPOTHESIS`, `ASSUMPTION`, `DECISION`, `IMPLEMENTED`, `VERIFIED` (내용)
 
 ## 변경 이력
-
 | 날짜 | 내용 |
 |---|---|
-| 2026-11-04 | v4 패키지를 저장소 `docs/`로 복사 (`APPROVED`, v1/v2 보존) |
+| 2026-11-04 | v4 패키지를 저장소 `docs/`로 복사 (v1/v2 보존) |
 | 2026-11-04 | v4.1 변경 제안 초안 작성 |
+| 2026-11-04 | 사용자 승인 (권장안 일괄), 01~07 갱신본 작성 |
