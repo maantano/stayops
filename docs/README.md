@@ -26,6 +26,7 @@
 ## 구현 문서
 - 진행 현황: `docs/v4.1/06_CLAUDE_CODE_HARNESS.md` §1.1 (P1~P12 완료)
 - 스키마 `docs/schema/SCHEMA.md` · API 계약 `docs/api/openapi.json` · 합성 데이터 `docs/simulation/DATASET.md`
+- AI 활용 개발 과정 `docs/process/AI_DEVELOPMENT_PROCESS.md`
 - 배포 구성 `docs/deploy/DEPLOYMENT.md` · 보안·접근성 점검 `docs/deploy/SECURITY_REVIEW.md` (실제 배포 안 함)
 
 ## 버전 이력

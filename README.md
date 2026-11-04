@@ -6,6 +6,8 @@
 > **합성 데이터 데모.** 실제 호텔 운영 데이터나 운영자 인터뷰 없이 공개 자료와 합성 데이터로 설계·검증했습니다. 결과를 실제 운영 성과로 표현하지 않습니다.
 >
 > **인증은 데모용입니다.** 화면에서 직원을 고르면 `X-Demo-Staff-Id` 헤더로 그 직원의 권한을 씁니다. 보안 수단이 아닙니다 ([ADR-005](docs/decisions/ADR-005-demo-authentication.md), [ADR-007](docs/decisions/ADR-007-auth-before-deployment.md)).
+>
+> **AI 활용 개발.** 설계 리뷰부터 구현·검증·문서화까지 AI 코딩 에이전트(Claude Code)와 단계별로 진행했습니다. 사람과 AI의 역할 분담, 단계별 작업, 검증 방법, AI 오류를 잡아낸 사례는 [`docs/process/AI_DEVELOPMENT_PROCESS.md`](docs/process/AI_DEVELOPMENT_PROCESS.md)에 있습니다.
 
 ## 주요 기능
 
@@ -158,3 +160,4 @@ docs/             설계 문서(v4.1이 현재 기준), ADR, 스키마, 배포·
 | [`docs/v4.1/`](docs/v4.1/) | 01 제품·범위 · 02 도메인·API(규칙의 단일 기준) · 03 FE · 04 BE · 05 QA · 06 진행 현황 · 07 교차 검토 · 08 변경 이력 |
 | [`docs/decisions/`](docs/decisions/) | ADR-001~007 |
 | [`docs/schema/SCHEMA.md`](docs/schema/SCHEMA.md) | DB 스키마와 제약 |
+| [`docs/process/AI_DEVELOPMENT_PROCESS.md`](docs/process/AI_DEVELOPMENT_PROCESS.md) | **AI 활용 개발 과정** — 단계별 작업, 사람·AI 역할 분담, 검증 방법, AI 오류 교정 사례 |
