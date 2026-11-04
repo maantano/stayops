@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/demo/actors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["actors"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/properties/{propertyId}/dashboard": {
         parameters: {
             query?: never;
@@ -350,13 +366,13 @@ export interface components {
             /** Format: uuid */
             assigneeStaffId?: string | null;
             /** @enum {string} */
-            status?: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED";
+            status: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED";
             /** @enum {string|null} */
             statusBeforeBlocked?: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED" | null;
             /** Format: uuid */
-            taskId?: string;
+            taskId: string;
             /** @enum {string} */
-            type?: "CHECKOUT_CLEANING" | "STAYOVER_CLEANING" | "RE_CLEANING" | "INSPECTION";
+            type: "CHECKOUT_CLEANING" | "STAYOVER_CLEANING" | "RE_CLEANING" | "INSPECTION";
         };
         AssignRequest: {
             /** Format: uuid */
@@ -364,10 +380,10 @@ export interface components {
         };
         Assignee: {
             /** Format: uuid */
-            assignmentId?: string;
+            assignmentId: string;
             displayName?: string | null;
             /** Format: uuid */
-            staffId?: string;
+            staffId: string;
         };
         AvailabilityRequest: {
             reason: string | null;
@@ -376,13 +392,13 @@ export interface components {
         };
         Blocker: {
             /** Format: date-time */
-            blockedAt?: string;
+            blockedAt: string;
             /** Format: uuid */
-            blockerId?: string;
+            blockerId: string;
             description?: string | null;
             /** Format: date-time */
             estimatedResolutionAt?: string | null;
-            type?: string;
+            type: string;
         };
         BlockerRequest: {
             description?: string | null;
@@ -394,15 +410,15 @@ export interface components {
         BlockerSnapshot: {
             active?: boolean;
             /** Format: date-time */
-            blockedAt?: string;
+            blockedAt: string;
             /** Format: uuid */
-            blockerId?: string;
+            blockerId: string;
             /** Format: date-time */
             estimatedResolutionAt?: string | null;
             /** Format: date-time */
             resolvedAt?: string | null;
             /** @enum {string} */
-            type?: "DND" | "LINEN_SHORTAGE" | "SUPPLY_SHORTAGE" | "MAINTENANCE" | "STAFF_UNAVAILABLE" | "OTHER";
+            type: "DND" | "LINEN_SHORTAGE" | "SUPPLY_SHORTAGE" | "MAINTENANCE" | "STAFF_UNAVAILABLE" | "OTHER";
         };
         CancelRequest: {
             reason: string | null;
@@ -411,30 +427,44 @@ export interface components {
             /** @enum {string|null} */
             durationSource?: "USER_INPUT" | "CONFIG_DEFAULT" | null;
             /** Format: int64 */
-            minutes?: number;
+            minutes: number;
             note?: string | null;
             /** Format: int64 */
-            seconds?: number;
+            seconds: number;
             /** Format: uuid */
             sourceId?: string | null;
             /** @enum {string} */
-            type?: "WAIT_FOR_CHECKOUT" | "WAIT_FOR_SCHEDULE" | "BLOCKER" | "CLEANING" | "INSPECTION";
+            type: "WAIT_FOR_CHECKOUT" | "WAIT_FOR_SCHEDULE" | "BLOCKER" | "CLEANING" | "INSPECTION";
         };
         Dashboard: {
             /** Format: date */
-            businessDate?: string;
+            businessDate: string;
             /** Format: date-time */
-            generatedAt?: string;
+            generatedAt: string;
             /** Format: uuid */
-            propertyId?: string;
-            readiness?: components["schemas"]["ReadinessSummary"];
-            rooms?: components["schemas"]["Rooms"];
-            stays?: components["schemas"]["Stays"];
-            syntheticData?: boolean;
-            tasks?: {
+            propertyId: string;
+            readiness: components["schemas"]["ReadinessSummary"];
+            rooms: components["schemas"]["Rooms"];
+            stays: components["schemas"]["Stays"];
+            syntheticData: boolean;
+            tasks: {
                 [key: string]: number;
             };
-            timezone?: string;
+            timezone: string;
+        };
+        DemoActor: {
+            displayName: string;
+            /** @enum {string} */
+            role: "FRONT_DESK" | "HOUSEKEEPER" | "INSPECTOR" | "MANAGER";
+            /** Format: uuid */
+            staffId: string;
+        };
+        DemoProperty: {
+            actors: components["schemas"]["DemoActor"][];
+            name: string;
+            /** Format: uuid */
+            propertyId: string;
+            timezone: string;
         };
         InspectionResultRequest: {
             checklist?: {
@@ -445,27 +475,27 @@ export interface components {
             result: "PASSED" | "FAILED" | null;
         };
         PageResponseReservationListItem: {
-            items?: components["schemas"]["ReservationListItem"][];
+            items: components["schemas"]["ReservationListItem"][];
             /** Format: int32 */
-            limit?: number;
+            limit: number;
             nextCursor?: string | null;
         };
         PageResponseRoomView: {
-            items?: components["schemas"]["RoomView"][];
+            items: components["schemas"]["RoomView"][];
             /** Format: int32 */
-            limit?: number;
+            limit: number;
             nextCursor?: string | null;
         };
         PageResponseTaskListItem: {
-            items?: components["schemas"]["TaskListItem"][];
+            items: components["schemas"]["TaskListItem"][];
             /** Format: int32 */
-            limit?: number;
+            limit: number;
             nextCursor?: string | null;
         };
         PageResponseTimelineEntry: {
-            items?: components["schemas"]["TimelineEntry"][];
+            items: components["schemas"]["TimelineEntry"][];
             /** Format: int32 */
-            limit?: number;
+            limit: number;
             nextCursor?: string | null;
         };
         /** @description RFC 9457 Problem Details + StayOps 확장 필드 */
@@ -486,77 +516,77 @@ export interface components {
         };
         ReadinessReport: {
             /** Format: date-time */
-            calculatedAt?: string;
-            calculationVersion?: string;
+            calculatedAt: string;
+            calculationVersion: string;
             /** Format: date-time */
-            evaluationWindowEnd?: string;
+            evaluationWindowEnd: string;
             /** Format: uuid */
-            propertyId?: string;
-            rooms?: components["schemas"]["ReadinessResult"][];
-            summary?: {
+            propertyId: string;
+            rooms: components["schemas"]["ReadinessResult"][];
+            summary: {
                 [key: string]: number;
             };
-            timezone?: string;
+            timezone: string;
             /** Format: int64 */
-            warningMarginMinutes?: number;
+            warningMarginMinutes: number;
         };
         ReadinessResult: {
-            assumptions?: string[];
+            assumptions: string[];
             /** @enum {string} */
-            availabilityStatus?: "AVAILABLE" | "OUT_OF_SERVICE";
+            availabilityStatus: "AVAILABLE" | "OUT_OF_SERVICE";
             /** Format: date-time */
-            calculatedAt?: string;
-            calculationVersion?: string;
-            contributions?: components["schemas"]["Contribution"][];
+            calculatedAt: string;
+            calculationVersion: string;
+            contributions: components["schemas"]["Contribution"][];
             /** Format: date-time */
             expectedReadyAt?: string | null;
-            flags?: string[];
+            flags: string[];
             /** @enum {string} */
-            grade?: "READY" | "ON_TRACK" | "WARNING" | "AT_RISK" | "UNKNOWN";
-            inputSnapshot?: components["schemas"]["ReadinessSnapshot"];
-            missingInputs?: string[];
-            overlappedBlockers?: string[];
+            grade: "READY" | "ON_TRACK" | "WARNING" | "AT_RISK" | "UNKNOWN";
+            inputSnapshot: components["schemas"]["ReadinessSnapshot"];
+            missingInputs: string[];
+            overlappedBlockers: string[];
             /** Format: date-time */
-            readyDeadline?: string;
+            readyDeadline: string;
             /** Format: uuid */
-            reservationId?: string;
+            reservationId: string;
             /** Format: int64 */
             riskMinutes?: number | null;
             /** Format: uuid */
-            roomId?: string;
-            roomNumber?: string;
+            roomId: string;
+            roomNumber: string;
             /** Format: date-time */
-            scheduledCheckInAt?: string;
+            scheduledCheckInAt: string;
         };
         ReadinessSnapshot: {
             activeTask?: components["schemas"]["TaskSnapshot"] | null;
             /** @enum {string} */
-            availabilityStatus?: "AVAILABLE" | "OUT_OF_SERVICE";
-            awaitingInspection?: boolean;
+            availabilityStatus: "AVAILABLE" | "OUT_OF_SERVICE";
+            awaitingInspection: boolean;
             /** Format: date-time */
             currentStayCheckOutAt?: string | null;
-            defaultDurationMinutes?: {
+            defaultDurationMinutes: {
                 [key: string]: number;
             };
             /** Format: int32 */
-            operationalBufferMinutes?: number;
+            operationalBufferMinutes: number;
             /** @enum {string} */
-            operationalStatus?: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
+            operationalStatus: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
             /** Format: uuid */
-            reservationId?: string;
+            reservationId: string;
             /** Format: uuid */
-            roomId?: string;
-            roomNumber?: string;
+            roomId: string;
+            roomNumber: string;
             /** Format: date-time */
-            scheduledCheckInAt?: string;
-            workflowStage?: string;
+            scheduledCheckInAt: string;
+            workflowStage: string;
         };
         ReadinessSummary: {
-            calculationVersion?: string;
-            summary?: {
+            calculationVersion: string;
+            summary: {
                 [key: string]: number;
             };
-            topRisks?: components["schemas"]["RiskItem"][];
+            topRisks: components["schemas"]["RiskItem"][];
         };
         ReservationListItem: {
             /** Format: date-time */
@@ -564,20 +594,20 @@ export interface components {
             /** Format: date-time */
             actualCheckOutAt?: string | null;
             /** Format: int32 */
-            guestCount?: number;
+            guestCount: number;
             /** Format: uuid */
-            reservationId?: string;
+            reservationId: string;
             /** Format: uuid */
-            roomId?: string;
-            roomNumber?: string;
+            roomId: string;
+            roomNumber: string;
             /** Format: date-time */
-            scheduledCheckInAt?: string;
+            scheduledCheckInAt: string;
             /** Format: date-time */
-            scheduledCheckOutAt?: string;
+            scheduledCheckOutAt: string;
             /** @enum {string} */
-            status?: "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED" | "NO_SHOW";
+            status: "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED" | "NO_SHOW";
             /** Format: int64 */
-            version?: number;
+            version: number;
         };
         ResolveBlockerRequest: {
             note?: string | null;
@@ -597,95 +627,95 @@ export interface components {
             /** Format: date-time */
             expectedReadyAt?: string | null;
             /** @enum {string} */
-            grade?: "READY" | "ON_TRACK" | "WARNING" | "AT_RISK" | "UNKNOWN";
+            grade: "READY" | "ON_TRACK" | "WARNING" | "AT_RISK" | "UNKNOWN";
             /** Format: date-time */
-            readyDeadline?: string;
+            readyDeadline: string;
             /** Format: int64 */
             riskMinutes?: number | null;
             /** Format: uuid */
-            roomId?: string;
-            roomNumber?: string;
-            topReasons?: string[];
+            roomId: string;
+            roomNumber: string;
+            topReasons: string[];
         };
         RoomCommandResponse: {
             availabilityReason?: string | null;
             /** @enum {string} */
-            availabilityStatus?: "AVAILABLE" | "OUT_OF_SERVICE";
-            changed?: boolean;
+            availabilityStatus: "AVAILABLE" | "OUT_OF_SERVICE";
+            changed: boolean;
             /** Format: uuid */
-            correlationId?: string;
+            correlationId: string;
             /** Format: date-time */
-            occurredAt?: string;
+            occurredAt: string;
             /** @enum {string} */
-            operationalStatus?: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
+            operationalStatus: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
             /** Format: uuid */
-            roomId?: string;
+            roomId: string;
             /** Format: int64 */
-            roomVersion?: number;
+            roomVersion: number;
         };
         RoomView: {
             activeTask?: components["schemas"]["ActiveTask"] | null;
-            alerts?: string[];
+            alerts: string[];
             availabilityReason?: string | null;
             /** @enum {string} */
-            availabilityStatus?: "AVAILABLE" | "OUT_OF_SERVICE";
+            availabilityStatus: "AVAILABLE" | "OUT_OF_SERVICE";
             /** Format: int32 */
-            floor?: number;
+            floor: number;
             /** @enum {string} */
-            operationalStatus?: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
+            operationalStatus: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
             /** Format: uuid */
-            roomId?: string;
-            roomNumber?: string;
-            roomType?: string;
+            roomId: string;
+            roomNumber: string;
+            roomType: string;
             /** Format: int64 */
-            version?: number;
+            version: number;
             /** @enum {string} */
-            workflowStage?: "NEEDS_CLEANING" | "CLEANING" | "AWAITING_INSPECTION" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
+            workflowStage: "NEEDS_CLEANING" | "CLEANING" | "AWAITING_INSPECTION" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
         };
         Rooms: {
-            byAvailability?: {
+            byAvailability: {
                 [key: string]: number;
             };
-            byStage?: {
+            byStage: {
                 [key: string]: number;
             };
-            interruptedWork?: string[];
+            interruptedWork: string[];
             /** Format: int32 */
-            total?: number;
+            total: number;
         };
         Row: {
             /** Format: int32 */
-            activeTaskCount?: number;
+            activeTaskCount: number;
             /** Format: int64 */
-            assignedEstimatedMinutes?: number;
+            assignedEstimatedMinutes: number;
             /** Format: int64 */
-            availableMinutes?: number;
-            displayName?: string;
-            flags?: string[];
+            availableMinutes: number;
+            displayName: string;
+            flags: string[];
             /** @enum {string} */
-            role?: "FRONT_DESK" | "HOUSEKEEPER" | "INSPECTOR" | "MANAGER";
-            shifts?: components["schemas"]["Shift"][];
+            role: "FRONT_DESK" | "HOUSEKEEPER" | "INSPECTOR" | "MANAGER";
+            shifts: components["schemas"]["Shift"][];
             /** Format: uuid */
-            staffId?: string;
+            staffId: string;
             /** Format: double */
             workloadRatio?: number | null;
         };
         Shift: {
             /** Format: int32 */
-            breakMinutes?: number;
+            breakMinutes: number;
             /** Format: date-time */
-            endsAt?: string;
+            endsAt: string;
             /** Format: date-time */
-            startsAt?: string;
+            startsAt: string;
         };
         StaffWorkloadReport: {
             /** Format: date */
-            businessDate?: string;
-            note?: string;
+            businessDate: string;
+            note: string;
             /** Format: uuid */
-            propertyId?: string;
-            staff?: components["schemas"]["Row"][];
-            timezone?: string;
+            propertyId: string;
+            staff: components["schemas"]["Row"][];
+            timezone: string;
         };
         StayCommandResponse: {
             /** Format: uuid */
@@ -693,21 +723,21 @@ export interface components {
             /** Format: uuid */
             checkoutCleaningTaskId?: string | null;
             /** Format: uuid */
-            correlationId?: string;
+            correlationId: string;
             /** Format: date-time */
-            occurredAt?: string;
+            occurredAt: string;
             /** Format: uuid */
-            reservationId?: string;
+            reservationId: string;
             /** @enum {string} */
-            reservationStatus?: "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED" | "NO_SHOW";
+            reservationStatus: "CONFIRMED" | "CHECKED_IN" | "CHECKED_OUT" | "CANCELLED" | "NO_SHOW";
             /** Format: int64 */
-            reservationVersion?: number;
+            reservationVersion: number;
             /** Format: uuid */
-            roomId?: string;
+            roomId: string;
             /** @enum {string} */
-            roomOperationalStatus?: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
+            roomOperationalStatus: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
             /** Format: int64 */
-            roomVersion?: number;
+            roomVersion: number;
         };
         StayoverRequest: {
             /** Format: int32 */
@@ -718,13 +748,13 @@ export interface components {
         };
         Stays: {
             /** Format: int32 */
-            checkedInToday?: number;
+            checkedInToday: number;
             /** Format: int32 */
-            checkedOutToday?: number;
+            checkedOutToday: number;
             /** Format: int32 */
-            expectedArrivals?: number;
+            expectedArrivals: number;
             /** Format: int32 */
-            expectedDepartures?: number;
+            expectedDepartures: number;
         };
         TaskCommandResponse: {
             /** Format: date-time */
@@ -735,98 +765,98 @@ export interface components {
             /** Format: uuid */
             blockerId?: string | null;
             /** Format: uuid */
-            correlationId?: string;
+            correlationId: string;
             /** Format: uuid */
             createdTaskId?: string | null;
             /** Format: uuid */
             inspectionRecordId?: string | null;
             /** Format: date-time */
-            occurredAt?: string;
+            occurredAt: string;
             /** Format: uuid */
-            roomId?: string;
+            roomId: string;
             /** @enum {string} */
-            roomOperationalStatus?: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
+            roomOperationalStatus: "VACANT_DIRTY" | "CLEANING" | "INSPECTING" | "READY" | "OCCUPIED" | "STAYOVER_CLEANING";
             /** Format: int64 */
-            roomVersion?: number;
+            roomVersion: number;
             /** @enum {string|null} */
             statusBeforeBlocked?: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED" | null;
             /** Format: uuid */
-            taskId?: string;
+            taskId: string;
             /** @enum {string} */
-            taskStatus?: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED";
+            taskStatus: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED";
             /** @enum {string} */
-            taskType?: "CHECKOUT_CLEANING" | "STAYOVER_CLEANING" | "RE_CLEANING" | "INSPECTION";
+            taskType: "CHECKOUT_CLEANING" | "STAYOVER_CLEANING" | "RE_CLEANING" | "INSPECTION";
             /** Format: int64 */
-            taskVersion?: number;
-            warnings?: string[];
+            taskVersion: number;
+            warnings: string[];
         };
         TaskListItem: {
-            activeBlockers?: components["schemas"]["Blocker"][];
+            activeBlockers: components["schemas"]["Blocker"][];
             /** Format: date-time */
             actualCompletedAt?: string | null;
             /** Format: date-time */
             actualStartedAt?: string | null;
             assignee?: components["schemas"]["Assignee"] | null;
             /** @enum {string} */
-            durationSource?: "USER_INPUT" | "CONFIG_DEFAULT";
+            durationSource: "USER_INPUT" | "CONFIG_DEFAULT";
             /** Format: int32 */
-            estimatedDurationMinutes?: number;
+            estimatedDurationMinutes: number;
             notes?: string | null;
             /** @enum {string} */
-            origin?: "CHECKOUT_COMMAND" | "CLEANING_COMPLETED" | "INSPECTION_FAILED" | "STAYOVER_REQUEST" | "MANAGER_REWORK";
+            origin: "CHECKOUT_COMMAND" | "CLEANING_COMPLETED" | "INSPECTION_FAILED" | "STAYOVER_REQUEST" | "MANAGER_REWORK";
             originReason?: string | null;
             /** Format: uuid */
             reservationId?: string | null;
             /** Format: uuid */
-            roomId?: string;
-            roomNumber?: string;
+            roomId: string;
+            roomNumber: string;
             /** Format: date-time */
-            scheduledAt?: string;
+            scheduledAt: string;
             /** @enum {string} */
-            status?: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED";
+            status: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED";
             /** @enum {string|null} */
             statusBeforeBlocked?: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED" | null;
             /** Format: uuid */
-            taskId?: string;
+            taskId: string;
             /** @enum {string} */
-            type?: "CHECKOUT_CLEANING" | "STAYOVER_CLEANING" | "RE_CLEANING" | "INSPECTION";
+            type: "CHECKOUT_CLEANING" | "STAYOVER_CLEANING" | "RE_CLEANING" | "INSPECTION";
             /** Format: int64 */
-            version?: number;
+            version: number;
         };
         TaskSnapshot: {
             /** Format: date-time */
             actualStartedAt?: string | null;
-            blockers?: components["schemas"]["BlockerSnapshot"][];
+            blockers: components["schemas"]["BlockerSnapshot"][];
             /** @enum {string} */
-            durationSource?: "USER_INPUT" | "CONFIG_DEFAULT";
+            durationSource: "USER_INPUT" | "CONFIG_DEFAULT";
             /** Format: int32 */
-            estimatedDurationMinutes?: number;
-            hasAssignee?: boolean;
+            estimatedDurationMinutes: number;
+            hasAssignee: boolean;
             /** Format: date-time */
-            scheduledAt?: string;
+            scheduledAt: string;
             /** @enum {string} */
-            status?: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED";
+            status: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "BLOCKED" | "COMPLETED" | "CANCELLED";
             /** Format: uuid */
-            taskId?: string;
+            taskId: string;
             /** @enum {string} */
-            type?: "CHECKOUT_CLEANING" | "STAYOVER_CLEANING" | "RE_CLEANING" | "INSPECTION";
+            type: "CHECKOUT_CLEANING" | "STAYOVER_CLEANING" | "RE_CLEANING" | "INSPECTION";
         };
         TimelineEntry: {
             actorDisplayName?: string | null;
             /** Format: uuid */
             actorId?: string | null;
-            actorType?: string;
+            actorType: string;
             /** Format: uuid */
-            aggregateId?: string;
-            aggregateType?: string;
+            aggregateId: string;
+            aggregateType: string;
             /** Format: uuid */
-            correlationId?: string;
+            correlationId: string;
             /** Format: uuid */
-            eventId?: string;
-            eventType?: string;
+            eventId: string;
+            eventType: string;
             /** Format: date-time */
-            occurredAt?: string;
-            payload?: {
+            occurredAt: string;
+            payload: {
                 [key: string]: unknown;
             };
         };
@@ -839,6 +869,65 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    actors: {
+        parameters: {
+            query?: never;
+            header?: {
+                /** @description 선택. 없으면 서버가 생성해 응답 헤더로 돌려준다 */
+                "X-Correlation-Id"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoProperty"][];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description Problem Details (code 필드 참조) */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["Problem"];
+                };
+            };
+        };
+    };
     dashboard: {
         parameters: {
             query?: never;

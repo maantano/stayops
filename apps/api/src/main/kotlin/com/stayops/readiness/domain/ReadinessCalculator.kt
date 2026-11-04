@@ -184,16 +184,23 @@ object ReadinessCalculator {
             assumptions += "검사 통과를 가정 (실패 시 재청소·재검사 시간 미반영)"
         }
 
+        /*
+         * 기여는 초 단위로 **올림**해 쌓고, cursor도 같은 초만큼만 전진한다.
+         * → Σ contributions.seconds = expectedReadyAt − calculatedAt 이 밀리초가 섞인 입력에서도 정확히 성립하고,
+         *   예상 시각은 실제보다 이르게 나오지 않는다(보수적). (P9 live smoke에서 0.752초 불일치 발견 후 수정)
+         */
         private fun waitUntil(until: Instant, type: ContributionType, sourceId: java.util.UUID?, note: String?) {
-            if (until.isAfter(cursor)) {
-                contributions += Contribution(type, Duration.between(cursor, until).seconds, sourceId, null, note)
-                cursor = until
-            }
+            if (until.isAfter(cursor)) advance(type, Duration.between(cursor, until), sourceId, null, note)
         }
 
         private fun work(type: ContributionType, duration: Duration, sourceId: java.util.UUID?, source: DurationSource?, note: String?) {
-            contributions += Contribution(type, duration.seconds, sourceId, source, note)
-            cursor = cursor.plus(duration)
+            advance(type, duration, sourceId, source, note)
+        }
+
+        private fun advance(type: ContributionType, duration: Duration, sourceId: java.util.UUID?, source: DurationSource?, note: String?) {
+            val seconds = Math.ceilDiv(duration.toMillis(), 1000L)
+            contributions += Contribution(type, seconds, sourceId, source, note)
+            cursor = cursor.plusSeconds(seconds)
         }
 
         private fun default(type: TaskType): Duration =

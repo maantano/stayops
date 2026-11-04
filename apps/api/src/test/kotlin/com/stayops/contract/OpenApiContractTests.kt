@@ -63,7 +63,7 @@ class OpenApiContractTests(
         val paths = generated().get("paths")
         val problems = mutableListOf<String>()
         for (path in paths.propertyNames()) {
-            if (!path.startsWith("/api/v1/")) continue
+            if (!path.startsWith("/api/v1/") || path.startsWith("/api/v1/demo/")) continue // 데모 사용자 목록은 인증 전 화면용
             val item = paths.get(path)
             for (method in item.propertyNames()) {
                 val op = item.get(method)

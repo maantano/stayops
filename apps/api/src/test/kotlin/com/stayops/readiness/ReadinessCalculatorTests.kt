@@ -121,6 +121,20 @@ class ReadinessCalculatorTests {
             assertTrue("UNASSIGNED" in r.flags)
         }
 
+        /** P9 회귀: 밀리초가 섞인 기준 시각·입력에서도 기여 합계가 정확히 일치하고 예상 시각이 실제보다 이르지 않다. */
+        @Test
+        fun `contributions stay consistent with millisecond inputs and never undershoot`() {
+            val at = now.plusMillis(752)
+            val t = task(status = TaskStatus.IN_PROGRESS, startedAgo = Duration.ofMinutes(10).plusMillis(333), durationMinutes = 40)
+            val s = snapshot(RoomOperationalStatus.CLEANING, task = t.copy(blockers = listOf(blocker(min(2), resolvesIn = min(3).plusMillis(400)))), checkInIn = min(300))
+            val r = calc(s, at)
+            val expected = assertNotNull(r.expectedReadyAt)
+            assertEquals(Duration.between(at, expected).toMillis(), r.contributions.sumOf { it.seconds } * 1000)
+            // 실제 값(밀리초 단위 계산)보다 이르지 않다
+            val exactBlockerWait = Duration.between(at, now.plus(min(3)).plusMillis(400))
+            assertTrue(Duration.between(at, expected) >= exactBlockerWait.plus(min(10)))
+        }
+
         @Test
         fun `result carries snapshot, version and calculation time, and is deterministic`() {
             val s = snapshot(RoomOperationalStatus.VACANT_DIRTY, task = task())

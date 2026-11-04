@@ -48,6 +48,17 @@ cd tools/simulator
 uv sync && uv run stayops-simulator
 ```
 
+## 데모로 화면 보기
+
+```bash
+docker compose up -d
+cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=demo'   # 데모 호텔이 없으면 합성 데이터를 만든다
+cd apps/web && pnpm dev                                                   # http://localhost:3000 → 데모 사용자 선택
+```
+- 데모 데이터는 실제 command(체크아웃·배정·시작·차단·완료·검사)로 상태를 만들어 이벤트 이력이 남는다. 준비 위험 5등급이 모두 나오도록 구성했다.
+- 웹을 다른 포트로 띄우면 API에 `STAYOPS_WEB_ALLOWED_ORIGINS=http://localhost:<port>`를 지정한다. API 주소는 `NEXT_PUBLIC_STAYOPS_API_BASE_URL`(기본 `http://localhost:8080`).
+- 실행 중인 API에 대한 FE 클라이언트 smoke: `cd apps/web && STAYOPS_LIVE_API=http://localhost:8080 pnpm exec vitest run live`
+
 ## 검증 명령
 
 | 대상 | 명령 |

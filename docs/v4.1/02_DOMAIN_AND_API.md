@@ -423,6 +423,8 @@ GET /api/v1/properties/{propertyId}/simulations/{simulationId}
 
 목록 API는 cursor pagination, 안정적 sort(tie-breaker id), filter 허용 목록, timezone 명시.
 
+`[P9 구현]` `GET /api/v1/demo/actors`: 데모 사용자 선택 화면용 property·직원 목록. `stayops.demo-mode=true`일 때만 등록되며 요청자 헤더가 없다(ADR-005, 운영 배포에서는 demo-mode를 끈다).
+
 `[P8 구현]` 조회 API 공통
 - 응답 형식 `PageResponse{items, nextCursor, limit}`. limit 기본 50, 1~100 밖이면 400. cursor는 불투명 문자열(형식이 틀리면 400).
 - 정렬: rooms `(roomNumber, id)`, tasks `(scheduledAt, id)`, reservations `(scheduledCheckInAt, id)` 오름차순, timeline `(occurredAt, id)` 내림차순.
@@ -542,7 +544,7 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 - **반영하지 않는 것(가정으로 표시):** 인력 가용성(근무표) — 담당자가 없으면 `UNASSIGNED` flag만. 검사 실패(통과 가정). 현재 투숙객은 예정 시각에 퇴실.
 - **등급:** `risk = expectedReadyAt − (checkIn − buffer)`. `risk > 0` AT_RISK, `−warningMargin < risk ≤ 0` WARNING, 그 외 ON_TRACK. `riskMinutes`는 분 단위 올림.
 - **응답:** 객실별 `grade, scheduledCheckInAt, readyDeadline, expectedReadyAt, riskMinutes, availabilityStatus, contributions[type, seconds, minutes, sourceId, durationSource, note], overlappedBlockers, missingInputs, flags, assumptions, inputSnapshot, calculationVersion, calculatedAt` + `summary`(등급별 수). 정렬: AT_RISK → UNKNOWN → WARNING → ON_TRACK → READY, 같은 등급은 마감 순.
-- **일관성:** `Σ contributions.seconds = expectedReadyAt − calculatedAt` (단위 테스트로 검증). 같은 스냅샷·시각·버전이면 같은 결과.
+- **일관성:** `Σ contributions.seconds = expectedReadyAt − calculatedAt` (단위 테스트로 검증). 각 기여는 초 단위 **올림**으로 쌓아 밀리초 입력에서도 정확히 성립하고 예상 시각이 실제보다 이르지 않다 (P9 live smoke에서 0.752초 불일치 발견 후 수정). 같은 스냅샷·시각·버전이면 같은 결과.
 - **설정(`ASSUMPTION`, OPEN-7):** `stayops.readiness.warning-margin-minutes=30`, `evaluation-window-hours=24`, `calculation-version=readiness-v1`.
 - 모든 시간 계산은 Instant 기준이라 DST 전환과 무관하다(테스트로 확인).
 

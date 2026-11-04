@@ -129,6 +129,23 @@
 - `session.ts`: 데모 세션(staffId, propertyId)을 localStorage에 보관, 실패 시 메모리.
 - query 재시도: 4xx는 재시도하지 않음, 네트워크·5xx만 1회.
 
+### 6.2 `[P9 구현]` 화면 (`apps/web/src/features/`, `src/app/`)
+| 경로 | 역할 | 내용 |
+|---|---|---|
+| `/` | 전체 | 데모 사용자 선택(ADR-005). 선택 후 역할별 첫 화면으로 이동(관리자·프런트 → 대시보드, 하우스키핑·검사 → 작업) |
+| `/dashboard` | 관리자·프런트 | 준비 위험 등급별 수(UNKNOWN 별도), 확인 필요 객실(원인 상위 3개를 문장으로), 객실 단계·판매 상태, 오늘 투숙, 진행 작업, 담당자별 업무량, 도착 예정 전체의 계산 근거(펼침) |
+| `/rooms` | 전체 | 업무 단계 필터(`?stage=`), 객실 카드(단계·판매 중단·진행 중단 경고) |
+| `/rooms/[roomId]` | 전체 | 상태 두 축 + 업무 단계, READY+판매 중단 안내, 진행 작업 카드, 준비 위험 근거(관리자·프런트), 이벤트 타임라인, 객실 명령(투숙 중 청소 요청·재청소·재검사·판매 중단/재개) |
+| `/tasks` | 전체 | 상태·유형 필터(`?status=&type=`, 기본 active), `?focus=` 강조. 하우스키핑·검사는 본인 작업만 |
+| `/reservations` | 관리자·프런트 | 도착 예정 체크인, 투숙 중 체크아웃. 체크아웃 거부 시 막는 작업·차단 사유·해결 방법 안내 |
+
+- 버튼 노출은 `availableTaskActions`(시작 전/후는 `actualStartedAt`)와 역할로 거르되 최종 판단은 서버.
+- 폼은 React Hook Form + Zod: 취소·판매 중단·재정비 사유 필수, 기타 차단 설명 필수, 검사 실패 사유 필수, 분 단위 입력 1~480. 차단 예상 시간을 비우면 "판정 불가"가 된다는 안내를 표시.
+- dialog는 네이티브 `<dialog>`(포커스 가두기·Esc·포커스 복귀, `aria-labelledby`). 명령 결과는 live region 알림, 재사용 응답이면 "(이미 처리된 요청의 결과)".
+- 시각은 세션의 property timezone으로 표시(`formatInstant`). 상태는 항상 텍스트 라벨 + 기호(색 단독 금지).
+- shadcn/ui 대신 Tailwind + 네이티브 요소 (ADR-002 개정).
+- Next 16: URL을 읽는 client hook 때문에 페이지 전체를 Suspense로 감싼다.
+
 ## 7. Form validation
 - React Hook Form + Zod.
 - 사용자 입력은 UX validation, 서버 validation은 최종 권위.

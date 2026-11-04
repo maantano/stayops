@@ -34,3 +34,7 @@ TanStack Query, React Hook Form, Zod, shadcn/ui, Playwright, OpenAPI 생성기�
 ## 영향
 - 백엔드 통합 테스트는 Docker(Testcontainers)가 실행 중이어야 한다.
 - 버전 업그레이드는 새 ADR 또는 이 ADR의 개정 이력으로 기록한다.
+
+## 개정 (2026-11-04, P8·P9)
+- FE 데이터·폼: TanStack Query 5.104.5, openapi-fetch 0.17.0, openapi-typescript 7.13.0, React Hook Form 7.90.0, Zod 4.6.7, @hookform/resolvers 6.0.0 (확인 시점 기준 2주 이상 지난 안정 버전).
+- **shadcn/ui는 도입하지 않는다.** MVP 화면은 Tailwind 유틸리티 + 네이티브 `<dialog>`(showModal의 포커스 가두기·Esc 닫기)로 충분하고, 컴포넌트 생성 CLI·Radix 의존성을 늘릴 이유가 없다. 디자인 시스템이 필요해지면 재검토한다(v4.1 01 §1 기술 스택 표와의 차이).

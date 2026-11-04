@@ -21,6 +21,7 @@ export type StaffWorkloadReport = Schemas["StaffWorkloadReport"];
 export type TaskCommandResponse = Schemas["TaskCommandResponse"];
 export type StayCommandResponse = Schemas["StayCommandResponse"];
 export type RoomCommandResponse = Schemas["RoomCommandResponse"];
+export type DemoProperty = Schemas["DemoProperty"];
 
 export type RoomsQuery = NonNullable<operations["rooms"]["parameters"]["query"]>;
 export type TasksQuery = NonNullable<operations["tasks"]["parameters"]["query"]>;
@@ -77,6 +78,9 @@ export function createStayOpsApi(options: StayOpsApiOptions) {
   }
 
   return {
+    /** 데모 사용자 선택용 목록 (인증 전, demo-mode 서버만). */
+    demoActors: () => query(() => client.GET("/api/v1/demo/actors", {})),
+
     // ------------------------------------------------------------- queries
     dashboard: (propertyId: string) =>
       query(() => client.GET("/api/v1/properties/{propertyId}/dashboard", { params: { path: { propertyId }, header: queryHeaders() } })),

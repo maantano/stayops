@@ -38,12 +38,14 @@ export function useDashboard() {
   });
 }
 
-export function useReadiness() {
+/** [allowed]가 false면 호출하지 않는다 (readiness는 FRONT_DESK·MANAGER 전용, 04 §5). */
+export function useReadiness(allowed = true) {
   const { api, propertyId } = useApi();
+  const enabled = useEnabled();
   return useQuery({
     queryKey: queryKeys.readiness(propertyId),
     queryFn: () => api.readiness(propertyId),
-    enabled: useEnabled(),
+    enabled: enabled && allowed,
     refetchInterval: POLLING.readinessMs,
     staleTime: POLLING.staleMs,
   });
