@@ -75,6 +75,8 @@ cd apps/web && pnpm dev                                                   # http
 
 ## 검증 명령
 
+CI: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — push(main)·PR마다 아래 전부(API·Web·Simulator·E2E·이미지 빌드·Terraform·비밀 스캔)를 병렬 job으로 실행한다. 배포는 하지 않는다. action은 커밋 SHA로 고정하고 Dependabot(`.github/dependabot.yml`)이 주 1회 갱신 PR을 올린다.
+
 | 대상 | 명령 |
 |---|---|
 | API | `cd apps/api && ./gradlew build` (단위·통합 테스트 포함, Testcontainers로 PostgreSQL을 띄우므로 Docker 실행 필요) |

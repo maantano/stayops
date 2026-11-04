@@ -13,6 +13,7 @@
 | 웹 보안 헤더 | 설정 검토 + E2E | 헤더 없음 | `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, production CSP(`frame-ancestors 'none'`, `connect-src` API만), `X-Powered-By` 제거. E2E로 확인 |
 | IaC | checkov | 121 통과 · 0 실패 · 19 skip | 고친 것: SG 규칙 설명, 기본 SG 차단, RDS 로그 내보내기, migration task 읽기 전용 FS. skip은 데모 비용 사유를 코드에 기록 (DEPLOYMENT §6) |
 | 컨테이너 | 로컬 실행 | non-root(`stayops`), JRE만 포함, healthcheck | — |
+| CI 공급망 | 설정 검토 | action을 커밋 SHA로 고정, `permissions: contents: read`, 배포 자격 증명 없음, gitleaks·checkov는 checksum/버전 고정 | Dependabot 주간 갱신 |
 
 ## 2. 설정 검토 체크리스트
 | 항목 | 상태 | 근거 |

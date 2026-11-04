@@ -1,0 +1,201 @@
+# StayOps CI — 테스트·정적 검사·이미지 빌드까지. 배포(push·apply)는 하지 않는다 (ADR-007, docs/deploy/DEPLOYMENT.md).
+# 서드파티 action은 커밋 SHA로 고정한다(태그 변경 공급망 위험). 갱신은 Dependabot이 PR로 올린다.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  JAVA_VERSION: "21"
+  NODE_VERSION: "22"
+  TERRAFORM_VERSION: "1.17.1"
+  GITLEAKS_VERSION: "8.30.1"
+  CHECKOV_VERSION: "3.4.3"
+
+jobs:
+  api:
+    name: API (build · unit · integration · OpenAPI contract)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+      # Testcontainers가 runner의 Docker로 PostgreSQL 17을 띄운다. 무작위 command 불변식 테스트 포함(seed 고정).
+      - run: ./gradlew build --console=plain
+      - name: Test report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: api-test-report
+          path: apps/api/build/reports/tests/
+          retention-days: 7
+
+  web:
+    name: Web (lint · typecheck · unit · build · API types in sync)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: apps/web/package.json # packageManager 필드의 pnpm 버전을 쓴다
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: Generated API types match docs/api/openapi.json
+        run: |
+          pnpm api:types
+          git diff --exit-code -- src/api/schema.d.ts || { echo "::error::src/api/schema.d.ts is stale — run 'pnpm api:types'"; exit 1; }
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+
+  simulator:
+    name: Simulator (ruff · pytest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: tools/simulator
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa # v10.3.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: tools/simulator/uv.lock
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      # Python↔Kotlin 계약 fixture(apps/api/src/test/resources/simulation/dataset-contract.json)와 바이트 일치도 확인한다
+      - run: uv run pytest
+
+  e2e:
+    name: E2E (Playwright · axe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: stayops
+          POSTGRES_PASSWORD: stayops # CI 전용 일회성 컨테이너
+          POSTGRES_DB: stayops_e2e # e2e profile은 이름이 _e2e로 끝나는 DB만 초기화한다
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U stayops -d stayops_e2e"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-read-only: true
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: apps/web/package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      # playwright.config.ts가 API(e2e profile, 8081)와 웹 production build(3200)를 직접 띄운다
+      - run: pnpm test:e2e
+        env:
+          CI: "true"
+      - name: Playwright report
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+          retention-days: 7
+
+  image:
+    name: API image (build only, no push)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: apps/api
+          push: false
+          tags: stayops-api:ci-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  infra:
+    name: Terraform (fmt · validate · checkov)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: infra/terraform
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - run: terraform fmt -recursive -check -diff
+      - run: terraform init -backend=false -input=false # AWS 자격 증명 없이 문법·참조만 검증
+      - run: terraform validate
+      - uses: astral-sh/setup-uv@18d369b23da25a81e9458561248e1aafff6a70fa # v10.3.1
+      # skip은 각 리소스의 checkov:skip 주석에 사유를 남긴다 (docs/deploy/SECURITY_REVIEW.md)
+      - run: uvx "checkov==${CHECKOV_VERSION}" -d . --framework terraform --compact --quiet
+
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # 전체 이력 검사
+      - name: Install gitleaks (checksum verified)
+        working-directory: ${{ runner.temp }}
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          file="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfLO "$base/$file"
+          curl -sSfLO "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          grep " $file\$" "gitleaks_${GITLEAKS_VERSION}_checksums.txt" | sha256sum -c -
+          tar -xzf "$file" gitleaks
+      - run: ${{ runner.temp }}/gitleaks git --no-banner --redact .

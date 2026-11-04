@@ -101,4 +101,4 @@ $(terraform output -raw migrate_command)        # 데모 데이터가 필요하�
 | WAF·ALB access log·VPC flow log 없음 | WAF managed rules, 로그 버킷 |
 | 로그 30일, AWS 관리형 암호화 | 보존 정책·KMS CMK 검토 |
 | Terraform local state | S3 backend + lockfile |
-| CI 없음 (명령은 README) | GitHub Actions: 테스트 → 이미지 → migration → 배포 |
+| CI는 검증만(`.github/workflows/ci.yml`: 테스트·E2E·이미지 빌드·Terraform 검사·비밀 스캔), 배포 단계 없음 | CD 추가: OIDC로 AWS 역할 위임(장기 키 없음) → ECR push → migration task → `terraform apply`(environment 승인) |

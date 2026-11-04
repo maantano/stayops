@@ -30,7 +30,7 @@ export default defineConfig({
       url: `http://localhost:${API_PORT}/actuator/health`,
       env: { STAYOPS_API_PORT: String(API_PORT), STAYOPS_WEB_ALLOWED_ORIGINS: `http://localhost:${WEB_PORT}` },
       reuseExistingServer: false, // 매 실행마다 DB를 초기화하기 위해 항상 새로 띄운다
-      timeout: 180_000,
+      timeout: 360_000, // CI의 빈 runner는 Gradle 컴파일부터 한다
     },
     {
       // 배포와 같은 production build로 검증한다. NEXT_PUBLIC_* 값은 build 시점에 들어간다.
