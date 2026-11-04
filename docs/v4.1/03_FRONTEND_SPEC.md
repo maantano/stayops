@@ -106,6 +106,8 @@
 | STAYOVER_IN_PROGRESS | 체크아웃 거부 dialog (Room detail 참조) |
 | IDEMPOTENCY_CONFLICT | 새 key로 다시 시도하도록 안내 (FE 버그 가능성 → 로그) |
 | STATE_INCONSISTENT | "데이터 상태 확인 필요" 표시, correlationId 노출, 관리자 문의 안내. 재시도 버튼 없음 |
+| UNAUTHENTICATED | 데모 사용자 선택 화면으로 이동 `[P2.5]` |
+| REQUEST_NOT_SUPPORTED / INTERNAL_ERROR | 일반 오류 화면, correlationId 노출 `[P2.5]` |
 - destructive command(cancel, OOS)는 사유/확인 dialog.
 - 더블클릭 방지 및 pending indicator.
 

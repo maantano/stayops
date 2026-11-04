@@ -26,5 +26,11 @@
 
 ## 영향
 - 같은 객실에 대한 command는 순차 처리되므로 객실 단위 처리량이 제한된다. 객실 하나에 동시 요청이 많지 않은 도메인이라 허용 가능하다고 판단한다(`ASSUMPTION`).
-- 잠금 대기 시간 상한(`lock_timeout`)을 설정하고, 초과 시 503이 아니라 409 계열로 재시도를 안내할지 P2.5에서 결정한다(`OPEN`).
 - QA: v4.1 05 §4의 race·deadlock 테스트로 검증한다.
+
+## 개정 (2026-11-04, P2.5 구현)
+1. **잠금 대기 상한:** 연결 초기화 시 `SET lock_timeout = '${stayops.db.lock-timeout}'` (기본 5s). 초과·deadlock·낙관적 잠금 충돌은 모두 **409 `VERSION_CONFLICT`**로 응답한다. 클라이언트 처리(재조회 후 재시도)가 같으므로 별도 코드를 만들지 않는다.
+2. **잠금 획득 방식:** `EntityManager.find(..., PESSIMISTIC_WRITE)`. 이미 같은 transaction에서 읽은 엔티티라도 JPA 명세상 version 검사가 수행되므로 오래된 상태로 판단하지 않는다. id만 아는 command(task/reservation 기준)는 roomId를 스칼라 조회한 뒤 Room부터 잠근다.
+3. **순서 강제:** `RoomLockScope`가 Room → Reservation → Task 순서를 어기면 `IllegalStateException`(500)으로 즉시 실패한다. 코드 버그를 운영 전에 드러내기 위함이다.
+4. **Idempotency-Key 직렬화:** 같은 key의 동시 요청은 `pg_advisory_xact_lock(hash(actor, endpoint, key))`으로 직렬화한다. 도메인 잠금이 아니라 중복 요청 처리용이므로 위 "advisory lock 기각"과 충돌하지 않는다.
+5. **검증:** `CommandInfrastructureTests`(같은 객실 command 직렬화, 같은 key 동시 요청 1회 실행), `LockTimeoutTests`(lock_timeout 초과 → 409, 부분 반영 없음).

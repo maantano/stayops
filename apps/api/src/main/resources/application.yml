@@ -5,6 +5,9 @@ spring:
     url: ${STAYOPS_DB_URL:jdbc:postgresql://localhost:5432/stayops}
     username: ${STAYOPS_DB_USER:stayops}
     password: ${STAYOPS_DB_PASSWORD:stayops}
+    hikari:
+      # ADR-003: 객실 잠금 대기 상한. 초과 시 409 VERSION_CONFLICT
+      connection-init-sql: "SET lock_timeout = '${stayops.db.lock-timeout}'"
   jpa:
     open-in-view: false
     hibernate:
@@ -31,6 +34,12 @@ management:
         enabled: true # /actuator/health/liveness, /actuator/health/readiness 분리
       show-details: never
 
+logging:
+  pattern:
+    level: "%5p [cid:%X{correlationId:-}]"
+
 stayops:
   # 데모 모드 표시 (v4.1 04 §11). 실제 운영 데이터가 아님을 명시한다.
   demo-mode: true
+  db:
+    lock-timeout: 5s

@@ -399,6 +399,8 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 
 ## 7. API 공통 계약
 - `[v4.1]` **모든 POST/DELETE command에 `Idempotency-Key` 필수**(OPEN-6 결정). 키 scope: actor + endpoint + key. 같은 키·같은 payload hash → 최초 응답 재반환(이후 상태가 바뀌었어도 최초 응답). 같은 키·다른 payload → 409 `IDEMPOTENCY_CONFLICT`. 누락 시 400 `VALIDATION_ERROR`.
+- `[P2.5]` 성공한 command의 최초 응답만 저장한다. 실패한 command는 rollback되어 저장되지 않고, 같은 key로 재시도하면 최신 상태로 다시 평가된다. 재사용 응답에는 `Idempotency-Replayed: true` 헤더. endpoint는 route template(`POST /api/v1/tasks/{id}/start`)이고 path 변수는 payload hash에 포함한다. 같은 key 동시 요청은 advisory lock으로 직렬화(ADR-003 개정). 보관 기간·정리는 OPEN.
+- `[P2.5]` 요청자: `X-Demo-Staff-Id` 데모 헤더(ADR-005, 보안 수단 아님). correlation ID: `X-Correlation-Id` 요청 헤더(UUID) 사용, 없으면 생성, 응답 헤더로 반환. Problem `type`은 `urn:stayops:problem:<code-kebab>`.
 - 모든 command에 correlation ID 생성/전파.
 - 성공 응답: resource id, resulting status, aggregate version, occurredAt, correlationId.
 - 오류는 RFC 9457 Problem Details: `type, title, status, detail, instance, code, correlationId, fieldErrors`.
@@ -409,6 +411,7 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 | code | HTTP | 용도 |
 |---|---|---|
 | VALIDATION_ERROR | 400/422 | 입력 형식·범위, Idempotency-Key 누락 |
+| UNAUTHENTICATED | 401 | 요청자 식별 불가 (데모 헤더 없음·무효·비활성 staff) `[P2.5]` |
 | NOT_FOUND | 404 | 리소스 없음 **및 다른 property 리소스**(존재 노출 방지) |
 | FORBIDDEN | 403 | 같은 property 내 역할 권한 부족 |
 | INVALID_STATE | 409 | 상태 전이 불가 |
@@ -422,8 +425,12 @@ Availability body는 `{status, reason}`, MANAGER 권한, 동일 상태 반복은
 | ACTIVE_WORKFLOW_EXISTS | 409 | 객실에 active task 존재 |
 | STAYOVER_IN_PROGRESS | 409 | started stayover 때문에 checkout 불가 |
 | STATE_INCONSISTENT | 409 | 저장 상태 모순, 보정하지 않음 |
+| REQUEST_NOT_SUPPORTED | 405/406/415 | 지원하지 않는 method·media type `[P2.5]` |
+| INTERNAL_ERROR | 500 | 예상하지 못한 오류, 매핑되지 않은 DB 제약 위반(서비스 검증 누락 버그). 내부 정보 미노출 `[P2.5]` |
 
 `PROPERTY_SCOPE_VIOLATION`은 사용하지 않는다(REJECTED). scope 위반은 서버 로그에만 기록한다.
+
+잠금 대기 초과·deadlock·낙관적 잠금 충돌은 모두 `VERSION_CONFLICT`(ADR-003 개정). 동시 요청 경쟁으로 생기는 DB 제약 위반 매핑은 `ConstraintErrorMapping`(예: `reservation_no_overlap` → SCHEDULE_CONFLICT, `task_one_active_workflow_per_room` → ACTIVE_WORKFLOW_EXISTS).
 
 ## 8. Readiness calculation
 `expectedReadyAt`는 예측 보장이 아니라 입력 데이터 기반 계산값이다.
