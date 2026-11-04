@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { useState } from "react";
+import { StrictMode, useState } from "react";
 import { fireEvent, render as renderPlain, screen, waitFor, within } from "@testing-library/react";
 import type { TaskListItem } from "@/api/endpoints";
 import { ApiError } from "@/api/errors";
@@ -214,5 +214,17 @@ describe("Dialog", () => {
     expect(document.activeElement).toBe(cancel);
     fireEvent.click(cancel);
     await waitFor(() => expect(document.activeElement).toBe(trigger));
+  });
+
+  test("stays open under StrictMode (dev double-invoked effects must not close it)", async () => {
+    renderPlain(
+      <StrictMode>
+        <Harness />
+      </StrictMode>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "열기" }));
+    expect(await screen.findByRole("button", { name: "취소" })).toBeDefined();
+    await new Promise((resolve) => setTimeout(resolve, 20)); // 정리 단계의 지연 작업과 close 이벤트가 끝날 시간을 준다
+    expect(screen.queryByRole("button", { name: "취소" })).not.toBeNull();
   });
 });

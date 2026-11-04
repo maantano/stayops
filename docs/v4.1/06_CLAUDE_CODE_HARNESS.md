@@ -24,6 +24,7 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | P11 시뮬레이션 | 완료 — V5(데이터셋·실행), 데이터셋 import(검증·중복 방지), Kotlin 결정적 엔진, 정책 3종 비교·기준 대비 차이, 조회 API, `/simulations` 화면, Python↔Kotlin 계약 fixture. 백엔드 227 · FE 29 · Python 22 |
 | P12 E2E·점검·배포 구성 | 완료 (실제 배포 없음) — Playwright E2E 7개(e2e profile·전용 DB, production build, 핵심 흐름 202호 배정→차단→검사 실패→재청소→통과→체크인, stayover 체크아웃 거부, OOS 체크인 차단·재개, 시뮬레이션, 키보드 dialog, axe serious/critical 0, 보안 헤더). **결함 2건 발견·수정**: dialog unmount 시 포커스 미복귀, 요청 본문 무제한 파싱(→ 413 `PAYLOAD_TOO_LARGE`). gitleaks·pnpm audit·checkov(121/0/19 skip). API Dockerfile(로컬 실행 검증)·`aws`/`migrate` profile·Terraform(validate)·Next 보안 헤더/CSP. 인증은 ADR-007(데모 헤더 유지, 도입 단계 기록). 백엔드 230 · FE 31 · Python 22 · E2E 7 |
 | CI | 완료 — GitHub Actions `ci.yml` 7개 job(API build·Web lint/typecheck/test/build + OpenAPI 타입 동기화·Simulator·E2E(Postgres service)·API 이미지 빌드·Terraform fmt/validate/checkov·gitleaks 전체 이력). action SHA 고정, Dependabot. actionlint(+shellcheck)·스키마 검증, 각 job 명령 로컬 실행으로 확인. 원격 저장소가 없어 GitHub에서 실제 실행은 미확인 |
+| 수동 확인 후속 | 사용자 확인에서 다크 모드 결함 발견 → 팔레트 반전·`color-scheme`, E2E 라이트·다크 axe. 그 과정에서 개발 모드(StrictMode) dialog 미표시 결함 발견·수정. 웹 32 · E2E 8 |
 | 남은 일 | 실제 배포·CD(AWS 자격 증명·인증서·Vercel), 실제 인증(ADR-007 단계), GitHub에서 CI 첫 실행 확인, 화면 낭독기 수동 점검, 02 §11 OPEN 항목 |
 
 ## 2. 필수 원칙

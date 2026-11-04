@@ -34,13 +34,18 @@ export function Dialog({ open, title, onClose, children }: { open: boolean; titl
   }, [onClose]);
 
   // ×·취소 버튼이나 제출 성공으로 부모가 dialog를 unmount하면 close 이벤트가 오지 않는다 — 이때도 포커스를 되돌린다 (P12 E2E에서 발견).
+  // React 개발 모드(StrictMode)는 effect를 "정리 → 재실행"으로 한 번 더 돌린다. 여기서 dialog를 닫으면 close 이벤트로
+  // onClose가 불려 dialog가 열리자마자 닫힌다(수동 확인에서 발견). 그래서 닫지 않고, 정리 후 dialog가 실제로
+  // DOM에서 빠졌을 때만 포커스를 되돌린다. DOM에서 제거된 modal dialog는 브라우저가 알아서 modal 상태를 해제한다.
   useEffect(() => {
     const dialog = ref.current;
     const restore = restoreFocus;
     return () => {
-      if (dialog?.open) dialog.close();
-      const target = restore.current;
-      if (target?.isConnected) target.focus();
+      setTimeout(() => {
+        if (dialog?.isConnected) return; // StrictMode의 가짜 unmount
+        const target = restore.current;
+        if (target?.isConnected) target.focus();
+      });
     };
   }, []);
 

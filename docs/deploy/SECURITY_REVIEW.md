@@ -35,8 +35,10 @@
 ## 3. 접근성 (05 §8)
 | 확인 | 방법 | 결과 |
 |---|---|---|
-| 주요 화면 7개(사용자 선택, 대시보드, 객실, 객실 상세, 작업, 예약, 시뮬레이션) + 열린 dialog | Playwright + axe-core 4.11 (WCAG 2.0/2.1 A·AA) | serious·critical **0** |
+| 주요 화면 7개(사용자 선택, 대시보드, 객실, 객실 상세, 작업, 예약, 시뮬레이션) + 열린 dialog | Playwright + axe-core 4.11 (WCAG 2.0/2.1 A·AA), **라이트·다크 두 모드** | serious·critical **0** |
 | 키보드로 dialog 열기·Esc 닫기·포커스 복귀 | Playwright | **결함 발견·수정**: ×/취소 버튼·제출 성공처럼 부모가 dialog를 unmount하면 포커스가 trigger로 돌아오지 않음(Esc만 정상). `Dialog` unmount 시 포커스 복원 + 단위 회귀 테스트(수정 전 실패 확인) |
 | 상태를 색만으로 표시하지 않음 | 코드 검토 | Badge가 항상 텍스트 라벨 + 화면 낭독용 접두어 |
+| OS 다크 모드 | 사용자 수동 확인 → Playwright `colorScheme: dark` + axe | **결함 발견·수정**: 템플릿 CSS가 body 배경·글자만 다크로 바꾸고 컴포넌트는 라이트 색 그대로라 카드 제목이 안 보임(axe `color-contrast` serious). Tailwind 팔레트를 다크에서 밝기 반전 + `color-scheme: light dark`. E2E에서 라이트·다크 모두 axe 0 + 배경 밝기 확인(수정 전 실패 확인) |
+| 개발 모드 dialog | 수동 확인 중 발견 | **결함 발견·수정**: 포커스 복원 수정이 React StrictMode의 effect 재실행에서 dialog를 닫아 개발 서버에서 dialog가 열리지 않음(production은 정상이라 E2E 미검출). 실제 DOM 제거 시에만 복원하도록 수정, StrictMode 단위 테스트 + jsdom polyfill의 close 이벤트를 브라우저처럼 비동기로(수정 전 실패 확인) |
 
 남은 한계: 실제 화면 낭독기(VoiceOver 등) 수동 점검은 하지 않았다. axe는 자동 검출 가능한 규칙만 확인한다.

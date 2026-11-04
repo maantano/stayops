@@ -10,7 +10,8 @@ if (typeof HTMLDialogElement !== "undefined" && !HTMLDialogElement.prototype.sho
   };
   HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
     this.removeAttribute("open");
-    this.dispatchEvent(new Event("close"));
+    // 브라우저처럼 close 이벤트는 task로 나중에 보낸다(HTML 명세 "queue an element task"). 동기로 보내면 타이밍 버그를 못 잡는다.
+    setTimeout(() => this.dispatchEvent(new Event("close")));
   };
 }
 
