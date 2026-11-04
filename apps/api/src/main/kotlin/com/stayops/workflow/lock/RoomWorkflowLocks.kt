@@ -41,6 +41,19 @@ class RoomWorkflowLocks(private val em: EntityManager) {
         return scope to scope.task(taskId)
     }
 
+    /**
+     * task command 공통 진입점: Room → (객실의 CHECKED_IN 예약) → Task 순서로 잠근다.
+     * stayover 시작처럼 예약 상태를 함께 확인해야 하는 command가 순서를 어기지 않도록 예약을 항상 먼저 잠근다.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    fun lockForTaskCommand(propertyId: UUID, taskId: UUID): TaskLock {
+        val roomId = scalarRoomId("select t.roomId from HousekeepingTask t where t.id = :id and t.propertyId = :propertyId", taskId, propertyId)
+            ?: throw NotFoundException("task", taskId)
+        val scope = lockRoom(propertyId, roomId)
+        val checkedIn = scope.checkedInReservation()
+        return TaskLock(scope, checkedIn, scope.task(taskId))
+    }
+
     /** reservation id만 아는 command용. */
     @Transactional(propagation = Propagation.MANDATORY)
     fun lockRoomOfReservation(propertyId: UUID, reservationId: UUID): Pair<RoomLockScope, Reservation> {
@@ -57,6 +70,10 @@ class RoomWorkflowLocks(private val em: EntityManager) {
             .setParameter("propertyId", propertyId)
             .resultList
             .firstOrNull()
+}
+
+data class TaskLock(val scope: RoomLockScope, val checkedInReservation: Reservation?, val task: HousekeepingTask) {
+    val room: Room get() = scope.room
 }
 
 class RoomLockScope internal constructor(val room: Room, private val em: EntityManager) {

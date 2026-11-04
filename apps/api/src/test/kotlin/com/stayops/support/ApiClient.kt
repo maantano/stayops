@@ -29,10 +29,17 @@ class ApiClient(private val port: Int, private val json: JsonMapper) {
         staffId: UUID?,
         idempotencyKey: String? = UUID.randomUUID().toString(),
         correlationId: String? = null,
-    ): Response {
-        val builder = HttpRequest.newBuilder(URI.create("http://localhost:$port$path"))
+    ): Response = send(
+        HttpRequest.newBuilder(URI.create("http://localhost:$port$path"))
             .header("Content-Type", "application/json")
-            .POST(body?.let { HttpRequest.BodyPublishers.ofString(json.writeValueAsString(it)) } ?: HttpRequest.BodyPublishers.noBody())
+            .POST(body?.let { HttpRequest.BodyPublishers.ofString(json.writeValueAsString(it)) } ?: HttpRequest.BodyPublishers.noBody()),
+        staffId, idempotencyKey, correlationId,
+    )
+
+    fun delete(path: String, staffId: UUID?, idempotencyKey: String? = UUID.randomUUID().toString()): Response =
+        send(HttpRequest.newBuilder(URI.create("http://localhost:$port$path")).DELETE(), staffId, idempotencyKey, null)
+
+    private fun send(builder: HttpRequest.Builder, staffId: UUID?, idempotencyKey: String?, correlationId: String?): Response {
         staffId?.let { builder.header("X-Demo-Staff-Id", it.toString()) }
         idempotencyKey?.let { builder.header("Idempotency-Key", it) }
         correlationId?.let { builder.header("X-Correlation-Id", it) }

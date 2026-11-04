@@ -92,6 +92,15 @@ class Room(
         operationalStatus = RoomOperationalStatus.OCCUPIED
     }
 
+    /**
+     * 작업 workflow에 따른 상태 전이 (02 §3.3 matrix). 호출 전 서비스가 [from]과 실제 상태를 비교해
+     * 다르면 STATE_INCONSISTENT로 거부해야 한다. 여기서는 마지막 방어로만 검사한다.
+     */
+    fun changeWorkflowStatus(from: RoomOperationalStatus, to: RoomOperationalStatus) {
+        check(operationalStatus == from) { "room must be $from but was $operationalStatus" }
+        operationalStatus = to
+    }
+
     /** 체크아웃: OCCUPIED → VACANT_DIRTY. 호출 전 서비스가 상태 일관성을 확인한다. */
     fun releaseAfterCheckout() {
         check(operationalStatus == RoomOperationalStatus.OCCUPIED) { "room must be OCCUPIED but was $operationalStatus" }

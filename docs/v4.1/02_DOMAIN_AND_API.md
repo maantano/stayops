@@ -302,6 +302,13 @@ lock Room → Reservation → active stayover task(있으면)
 - 활성 assignment가 있으면 `REASSIGNED`로 종료 후 새 레코드.
 - IN_PROGRESS task 재배정은 MVP에서 금지.
 
+`[P4 구현]` Task assign / unassign 세부
+- 권한: MANAGER. 배정 대상 task는 PENDING 또는 ASSIGNED (BLOCKED·IN_PROGRESS 불가).
+- 담당자 검증(`AssigneePolicy`): 같은 property, 활성, task type별 역할(§2 Staff), **작업 예정 시각(`max(scheduledAt, now)`)을 포함하는 근무**. 실패 시 `ASSIGNMENT_INVALID`(reason: STAFF_NOT_FOUND / STAFF_INACTIVE / ROLE_MISMATCH) 또는 `SHIFT_CONFLICT`.
+- 예상 종료가 근무 종료 이후면 거부하지 않고 응답 `warnings`에 `EXPECTED_END_AFTER_SHIFT_END`.
+- 같은 담당자 재배정은 변경 없음(이벤트 없음).
+- 배정 해제 `DELETE /tasks/{id}/assignments/{assignmentId}`: ASSIGNED → PENDING, 종료 사유 `MANUAL_UNASSIGN`(V3 migration).
+
 ### Task start `[v4.1]`
 공통 `POST /api/v1/tasks/{id}/start`. 위에서부터 평가한다.
 
@@ -326,6 +333,17 @@ lock Room → Reservation → active stayover task(있으면)
 | STAYOVER_CLEANING | OCCUPIED + Reservation CHECKED_IN → STAYOVER_CLEANING | STAYOVER_CLEANING |
 
 공통: 요청자는 담당자 본인(MANAGER는 3번 응답만 해당, 대리 start 불가 — OPEN-4 결정), 근무시간·역할 유효.
+
+`[P4 구현]` start 세부
+- 7번 "담당자 무효"는 요청자가 담당자가 아니면 `FORBIDDEN`, 담당자 본인이지만 지금 근무 중이 아니거나 역할·활성 조건을 못 맞추면 `ASSIGNMENT_INVALID`/`SHIFT_CONFLICT`.
+- 검사 task 최초 시작 조건: 객실 VACANT_DIRTY이고, 검사의 `sourceTaskId`가 `isAwaitingInspection` 판정의 대상 cleaning(가장 최근 started cleaning, COMPLETED, 검사 결과 없음)과 같아야 한다 (`InspectionEligibility`).
+- 이벤트: 최초 `TASK_STARTED` + `ROOM_STATUS_CHANGED`, 재시작 `TASK_RESUMED`.
+
+`[P4 구현]` blocker 세부
+- 권한: MANAGER 또는 현재 담당자(담당자 없는 task는 MANAGER만). FRONT_DESK 불가.
+- OTHER는 description 필수, `estimatedResolutionAt`은 미래 시각.
+- 마지막 blocker 해제 시 복귀 대상의 담당자 검증 시각: ASSIGNED 복귀는 `max(scheduledAt, now)`(배정과 같은 기준), IN_PROGRESS 복귀는 now. 무효면 assignment를 `ASSIGNEE_INVALID_ON_RESUME`으로 종료하고 PENDING, 응답 `warnings`에 `ASSIGNEE_INVALID_ON_RESUME`.
+- 이벤트: `BLOCKER_ADDED`, `BLOCKER_RESOLVED`(remainingActiveBlockers, restoredStatus, assigneeInvalidReason).
 
 ### Task complete
 - task IN_PROGRESS, blocker 없음, 활성 assignment 유효.

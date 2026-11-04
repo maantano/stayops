@@ -120,6 +120,54 @@ class HousekeepingTask(
     val isStarted: Boolean
         get() = actualStartedAt != null
 
+    /** PENDING → ASSIGNED, 또는 ASSIGNED 재배정. IN_PROGRESS 재배정은 MVP에서 금지 (02 §4 Task assign). */
+    fun markAssigned() {
+        if (status != TaskStatus.PENDING && status != TaskStatus.ASSIGNED) {
+            throw StayOpsException(ErrorCode.INVALID_STATE, "task cannot be assigned while $status", mapOf("currentStatus" to status.name))
+        }
+        status = TaskStatus.ASSIGNED
+    }
+
+    /** ASSIGNED → PENDING (관리자 배정 해제). */
+    fun markUnassigned() {
+        if (status != TaskStatus.ASSIGNED) {
+            throw StayOpsException(ErrorCode.INVALID_STATE, "task cannot be unassigned while $status", mapOf("currentStatus" to status.name))
+        }
+        status = TaskStatus.PENDING
+    }
+
+    /** ASSIGNED → IN_PROGRESS. 재시작이면 최초 시작 시각을 보존한다 (02 §2.8). 선행조건은 서비스가 판정한다. */
+    fun start(at: Instant) {
+        check(status == TaskStatus.ASSIGNED) { "start requires ASSIGNED but was $status" }
+        status = TaskStatus.IN_PROGRESS
+        if (actualStartedAt == null) actualStartedAt = at
+    }
+
+    /** 첫 활성 blocker 등록 시 현재 상태를 저장하고 BLOCKED로. 이미 BLOCKED면 저장 값을 유지한다. */
+    fun block() {
+        check(status.isActive) { "cannot block a $status task" }
+        if (status != TaskStatus.BLOCKED) {
+            statusBeforeBlocked = status
+            status = TaskStatus.BLOCKED
+        }
+    }
+
+    /** 마지막 blocker 해제 시 복귀. [to]는 저장된 상태이거나, 담당자가 무효면 PENDING. */
+    fun unblock(to: TaskStatus) {
+        check(status == TaskStatus.BLOCKED) { "unblock requires BLOCKED but was $status" }
+        check(to == TaskStatus.PENDING || to == TaskStatus.ASSIGNED || to == TaskStatus.IN_PROGRESS) { "invalid unblock target $to" }
+        status = to
+        statusBeforeBlocked = null
+    }
+
+    fun complete(at: Instant) {
+        if (status != TaskStatus.IN_PROGRESS) {
+            throw StayOpsException(ErrorCode.INVALID_STATE, "task cannot be completed while $status", mapOf("currentStatus" to status.name))
+        }
+        status = TaskStatus.COMPLETED
+        actualCompletedAt = at
+    }
+
     /**
      * active → CANCELLED. 권한·Room 복귀 판단은 호출하는 서비스 책임이다.
      * assignment 종료와 blocker 종결도 같은 transaction에서 서비스가 처리한다.
@@ -155,5 +203,27 @@ class HousekeepingTask(
             createdBy = createdBy,
             reservationId = reservationId,
         )
+
+        /** cleaning complete command 내부에서 생성. sourceTaskId는 확인 대상 cleaning task (02 §2). */
+        fun inspectionOf(
+            cleaning: HousekeepingTask,
+            scheduledAt: Instant,
+            estimatedDurationMinutes: Int,
+            durationSource: DurationSource,
+            createdBy: UUID,
+        ): HousekeepingTask {
+            require(cleaning.type.isCleaning && cleaning.status == TaskStatus.COMPLETED) { "inspection requires a completed cleaning task" }
+            return HousekeepingTask(
+                propertyId = cleaning.propertyId,
+                roomId = cleaning.roomId,
+                type = TaskType.INSPECTION,
+                origin = TaskOrigin.CLEANING_COMPLETED,
+                scheduledAt = scheduledAt,
+                estimatedDurationMinutes = estimatedDurationMinutes,
+                durationSource = durationSource,
+                createdBy = createdBy,
+                sourceTaskId = cleaning.getId(),
+            )
+        }
     }
 }

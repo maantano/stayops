@@ -56,6 +56,7 @@ enum class CancellationCode {
 
 enum class UnassignedReason {
     REASSIGNED,
+    MANUAL_UNASSIGN,
     ASSIGNEE_INVALID_ON_RESUME,
     TASK_CANCELLED,
     TASK_COMPLETED,

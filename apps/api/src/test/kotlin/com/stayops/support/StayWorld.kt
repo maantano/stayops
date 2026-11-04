@@ -23,7 +23,9 @@ import com.stayops.room.domain.RoomOperationalStatus
 import com.stayops.room.infrastructure.RoomRepository
 import com.stayops.staff.domain.Staff
 import com.stayops.staff.domain.StaffRole
+import com.stayops.staff.domain.StaffShift
 import com.stayops.staff.infrastructure.StaffRepository
+import com.stayops.staff.infrastructure.StaffShiftRepository
 import org.springframework.stereotype.Component
 import java.time.Duration
 import java.time.Instant
@@ -44,6 +46,7 @@ class StayWorld(
     private val tasks: HousekeepingTaskRepository,
     private val assignments: TaskAssignmentRepository,
     private val blockers: TaskBlockerRepository,
+    private val shifts: StaffShiftRepository,
 ) {
     inner class Hotel {
         val property: Property = properties.save(
@@ -51,8 +54,16 @@ class StayWorld(
         )
         val manager: Staff = staff(StaffRole.MANAGER, "MGR-01")
         val frontDesk: Staff = staff(StaffRole.FRONT_DESK, "FD-01")
-        val housekeeper: Staff = staff(StaffRole.HOUSEKEEPER, "HK-01")
+        val housekeeper: Staff = staff(StaffRole.HOUSEKEEPER, "HK-01").also { onShift(it) }
+        val inspector: Staff = staff(StaffRole.INSPECTOR, "IN-01").also { onShift(it) }
         private var roomSeq = 100
+
+        /** 기본: 2시간 전부터 8시간 뒤까지 근무 (테스트 가정). */
+        fun onShift(
+            staff: Staff,
+            from: Instant = Instant.now().minus(Duration.ofHours(2)),
+            to: Instant = Instant.now().plus(Duration.ofHours(8)),
+        ): StaffShift = shifts.save(StaffShift(staff.getId(), from, to))
 
         fun staff(role: StaffRole, name: String): Staff = staffs.save(Staff(property.getId(), name, role))
 
@@ -88,31 +99,43 @@ class StayWorld(
         }
 
         /**
-         * 지정 상태의 STAYOVER_CLEANING task. [started]면 actualStartedAt을 기록한다.
-         * [assigned]면 활성 assignment, [assignmentEndedOnResume]면 종료된 assignment를 남긴다.
+         * 임의 상태의 task. [started]면 actualStartedAt, [assignee]가 있으면 활성 assignment,
+         * [assignmentEndedOnResume]면 종료된 assignment, [blocked]면 활성 DND blocker를 남긴다.
          */
-        fun stayoverTask(
+        fun task(
             room: Room,
-            reservation: Reservation,
+            type: TaskType,
             status: TaskStatus,
+            reservation: Reservation? = null,
+            source: HousekeepingTask? = null,
             statusBeforeBlocked: TaskStatus? = null,
             started: Boolean = false,
-            assigned: Boolean = false,
+            assignee: Staff? = null,
             blocked: Boolean = false,
             assignmentEndedOnResume: Boolean = false,
+            scheduledAt: Instant = Instant.now(),
         ): HousekeepingTask {
             val now = Instant.now()
+            val origin = when (type) {
+                TaskType.CHECKOUT_CLEANING -> TaskOrigin.CHECKOUT_COMMAND
+                TaskType.STAYOVER_CLEANING -> TaskOrigin.STAYOVER_REQUEST
+                TaskType.INSPECTION -> TaskOrigin.CLEANING_COMPLETED
+                TaskType.RE_CLEANING -> if (source != null) TaskOrigin.INSPECTION_FAILED else TaskOrigin.MANAGER_REWORK
+            }
             val task = tasks.save(
                 HousekeepingTask(
-                    propertyId = property.getId(), roomId = room.getId(), type = TaskType.STAYOVER_CLEANING,
-                    origin = TaskOrigin.STAYOVER_REQUEST, scheduledAt = now, estimatedDurationMinutes = 25,
-                    durationSource = DurationSource.USER_INPUT, createdBy = frontDesk.getId(), reservationId = reservation.getId(),
+                    propertyId = property.getId(), roomId = room.getId(), type = type, origin = origin,
+                    originReason = if (origin == TaskOrigin.MANAGER_REWORK) "테스트 재정비" else null,
+                    scheduledAt = scheduledAt, estimatedDurationMinutes = 25, durationSource = DurationSource.USER_INPUT,
+                    createdBy = frontDesk.getId(), reservationId = reservation?.getId(), sourceTaskId = source?.getId(),
                     status = status, statusBeforeBlocked = statusBeforeBlocked,
-                    actualStartedAt = if (started) now.minusSeconds(600) else null,
+                    actualStartedAt = if (started || status == TaskStatus.COMPLETED) now.minusSeconds(600) else null,
                     actualCompletedAt = if (status == TaskStatus.COMPLETED) now.minusSeconds(60) else null,
+                    cancellationCode = if (status == TaskStatus.CANCELLED) com.stayops.housekeeping.domain.CancellationCode.MANUAL else null,
+                    cancellationReason = if (status == TaskStatus.CANCELLED) "테스트 취소" else null,
                 ),
             )
-            if (assigned) assignments.save(TaskAssignment(task.getId(), housekeeper.getId(), now.minusSeconds(900), manager.getId()))
+            if (assignee != null) assignments.save(TaskAssignment(task.getId(), assignee.getId(), now.minusSeconds(900), manager.getId()))
             if (assignmentEndedOnResume) {
                 assignments.save(
                     TaskAssignment(
@@ -123,6 +146,39 @@ class StayWorld(
             }
             if (blocked) blockers.save(TaskBlocker(task.getId(), BlockerType.DND, now.minusSeconds(300)))
             return task
+        }
+
+        /** 지정 상태의 STAYOVER_CLEANING task (P3 테스트 호환). */
+        fun stayoverTask(
+            room: Room,
+            reservation: Reservation,
+            status: TaskStatus,
+            statusBeforeBlocked: TaskStatus? = null,
+            started: Boolean = false,
+            assigned: Boolean = false,
+            blocked: Boolean = false,
+            assignmentEndedOnResume: Boolean = false,
+        ): HousekeepingTask = task(
+            room, TaskType.STAYOVER_CLEANING, status, reservation = reservation, statusBeforeBlocked = statusBeforeBlocked,
+            started = started, assignee = if (assigned) housekeeper else null, blocked = blocked,
+            assignmentEndedOnResume = assignmentEndedOnResume,
+        )
+
+        /** 체크아웃된 객실 + 체크아웃 청소 task (turnover 시나리오용). */
+        fun turnover(
+            roomStatus: RoomOperationalStatus = RoomOperationalStatus.VACANT_DIRTY,
+            status: TaskStatus = TaskStatus.PENDING,
+            statusBeforeBlocked: TaskStatus? = null,
+            started: Boolean = false,
+            assignee: Staff? = null,
+            blocked: Boolean = false,
+        ): Pair<Room, HousekeepingTask> {
+            val room = room(roomStatus)
+            val reservation = reservation(
+                room, ReservationStatus.CHECKED_OUT,
+                checkIn = Instant.now().minus(Duration.ofHours(26)), checkOut = Instant.now().minus(Duration.ofHours(2)),
+            )
+            return room to task(room, TaskType.CHECKOUT_CLEANING, status, reservation, null, statusBeforeBlocked, started, assignee, blocked)
         }
     }
 
