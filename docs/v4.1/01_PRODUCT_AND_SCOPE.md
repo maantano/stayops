@@ -135,6 +135,8 @@
 - 청소 30–55분, stayover 15–30분, inspection 5–10분
 - 린넨 blocker 0–20분, 시설 blocker 10–60분
 
+`[P10]` 생성에 추가로 필요한 가정: 목표 점유율 0.78, 숙박 일수 분포(1~5박), 재청소 15–25분, 첫 검사 실패율 8%, 린넨 대기 발생 15%, 시설 차단 발생 4%, 연박 중 투숙 중 청소 요청 35%/일, 객실 유형별 청소 시간 배수, 하우스키핑 교대 시작 08/09/10시 분산. 상세는 `tools/simulator/configs/default.toml`, `docs/simulation/DATASET.md`.
+
 전부 `ASSUMPTION`. 설정 파일로 분리하고 UI에 "합성 데이터" badge를 노출한다. seed, generator version, parameter snapshot을 저장한다.
 
 ## 9. 검증 전략(인터뷰 없이)

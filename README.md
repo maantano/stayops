@@ -48,6 +48,16 @@ cd tools/simulator
 uv sync && uv run stayops-simulator
 ```
 
+## 합성 데이터 생성
+
+```bash
+cd tools/simulator
+uv run stayops-simulator generate --seed 42 --out output/dataset-42.json
+uv run stayops-simulator validate output/dataset-42.json
+uv run stayops-simulator summarize output/dataset-42.json
+```
+같은 seed·설정이면 같은 파일이 나온다. 모든 값은 가정이다 — [`docs/simulation/DATASET.md`](docs/simulation/DATASET.md).
+
 ## 데모로 화면 보기
 
 ```bash
