@@ -5,7 +5,7 @@
 #   - 서버:      SPRING_PROFILES_ACTIVE=aws
 #   - migration: SPRING_PROFILES_ACTIVE=aws,migrate  (Flyway 실행 후 종료, 배포 전 한 번)
 
-FROM eclipse-temurin:21-jdk AS build
+FROM eclipse-temurin:25-jdk AS build
 WORKDIR /workspace
 # 의존성 layer를 소스와 분리해 캐시한다
 COPY gradlew settings.gradle.kts build.gradle.kts ./
@@ -15,7 +15,7 @@ COPY src/main src/main
 RUN ./gradlew --no-daemon --console=plain bootJar -x test \
  && java -Djarmode=tools -jar build/libs/*-SNAPSHOT.jar extract --layers --launcher --destination /workspace/extracted
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:24-jre-alpine
 RUN addgroup -S stayops && adduser -S -G stayops stayops
 WORKDIR /app
 # 변경 빈도가 낮은 layer부터 복사한다
