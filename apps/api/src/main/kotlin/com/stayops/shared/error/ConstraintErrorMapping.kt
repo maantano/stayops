@@ -31,7 +31,9 @@ object ConstraintErrorMapping {
     fun constraintName(ex: Throwable): String? {
         for (cause in generateSequence(ex) { it.cause }) {
             if (cause is org.hibernate.exception.ConstraintViolationException) {
-                cause.constraintName?.let { return it.lowercase() }
+                // 타입을 명시한다: Hibernate 반환 타입의 nullness 어노테이션(checker framework)을 Kotlin 2.4가 추론 타입으로 쓰지 못한다
+                val name: String? = cause.constraintName
+                if (name != null) return name.lowercase()
             }
         }
         // 일부 제약(예: exclusion)은 Hibernate가 이름을 추출하지 못하므로 PostgreSQL 메시지에서 찾는다.
