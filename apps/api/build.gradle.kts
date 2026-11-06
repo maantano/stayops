@@ -28,7 +28,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
 	implementation("org.flywaydb:flyway-database-postgresql")
 	// OpenAPI 문서 생성 (ADR-006). UI 없이 /v3/api-docs만 노출한다.
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.1")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.2.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("tools.jackson.module:jackson-module-kotlin")
 	runtimeOnly("org.postgresql:postgresql")
