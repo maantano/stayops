@@ -1,9 +1,9 @@
 plugins {
-	kotlin("jvm") version "2.3.21"
-	kotlin("plugin.spring") version "2.3.21"
+	kotlin("jvm") version "2.4.21"
+	kotlin("plugin.spring") version "2.4.21"
 	id("org.springframework.boot") version "4.1.2"
 	id("io.spring.dependency-management") version "1.1.7"
-	kotlin("plugin.jpa") version "2.3.21"
+	kotlin("plugin.jpa") version "2.4.21"
 }
 
 group = "com.stayops"
@@ -28,7 +28,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-webmvc")
 	implementation("org.flywaydb:flyway-database-postgresql")
 	// OpenAPI 문서 생성 (ADR-006). UI 없이 /v3/api-docs만 노출한다.
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.1.1")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:3.2.0")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("tools.jackson.module:jackson-module-kotlin")
 	runtimeOnly("org.postgresql:postgresql")

@@ -20,6 +20,10 @@ updates:
   - package-ecosystem: docker
     directory: /apps/api
     schedule: { interval: weekly }
+    ignore:
+      # 런타임은 JDK 21(LTS)로 고정한다(ADR-002, Gradle toolchain 21). 주 버전 상향은 사람이 결정한다.
+      - dependency-name: eclipse-temurin
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: terraform
     directory: /infra/terraform
     schedule: { interval: weekly }
