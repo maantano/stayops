@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "api:types": "openapi-typescript ../../docs/api/openapi.json -o src/api/schema.d.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:ops": "playwright test -c playwright.ops.config.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "6.0.0",

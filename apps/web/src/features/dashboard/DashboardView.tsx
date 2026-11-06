@@ -6,7 +6,7 @@ import { useDemoSession } from "@/app/providers";
 import { ErrorNotice } from "@/components/ErrorNotice";
 import { Badge, Card, EmptyState, LoadingState } from "@/components/ui";
 import { formatInstant, formatRisk } from "@/lib/format";
-import { availabilityLabels, flagLabels, gradeLabels, labelOf, missingInputLabel, contributionLabels, roleLabels, taskStatusLabels, workflowStageLabels } from "@/lib/labels";
+import { availabilityLabels, flagLabels, labelOf, missingInputLabel, contributionLabels, roleLabels, taskStatusLabels, workflowStageLabels } from "@/lib/labels";
 import { GradeBadge, ReadinessBreakdown } from "../readiness/ReadinessBreakdown";
 
 /** 운영 대시보드 (03 §3 Dashboard). UNKNOWN을 위험·정상에 합치지 않는다. */
@@ -29,8 +29,11 @@ export function DashboardView() {
 
       <section aria-labelledby="readiness-heading" className="space-y-3">
         <h2 id="readiness-heading" className="text-lg font-semibold">
-          준비 위험 (도착 예정 객실)
+          준비 예측 — 손님 도착 전에 객실이 준비될까요?
         </h2>
+        <p className="text-sm text-zinc-600">
+          도착 예정 손님이 있는 객실마다 남은 청소·검사가 끝나는 예상 시각을 계산해, 준비 마감(체크인 30분 전)과 비교합니다.
+        </p>
         <div className="flex flex-wrap gap-2">
           {(["AT_RISK", "UNKNOWN", "WARNING", "ON_TRACK", "READY"] as const).map((g) => (
             <Card key={g} className="min-w-28 p-3" as="div">
@@ -49,8 +52,8 @@ export function DashboardView() {
                   {r.roomNumber}호
                 </Link>
                 <GradeBadge grade={r.grade} />
-                <span className="text-sm">{r.grade === "UNKNOWN" ? "판정 불가" : formatRisk(r.riskMinutes)}</span>
-                <span className="text-sm text-zinc-600">마감 {formatInstant(r.readyDeadline, tz)}</span>
+                {r.grade === "UNKNOWN" ? null : <span className="text-sm">{formatRisk(r.riskMinutes)}</span>}
+                <span className="text-sm text-zinc-600">준비 마감 {formatInstant(r.readyDeadline, tz)}</span>
                 <span className="text-sm text-zinc-600">
                   원인:{" "}
                   {r.topReasons
@@ -142,14 +145,14 @@ export function DashboardView() {
       </section>
 
       <section aria-labelledby="readiness-detail-heading" className="space-y-2">
-        <h2 id="readiness-detail-heading" className="text-lg font-semibold">도착 예정 객실 전체 · 계산 근거</h2>
+        <h2 id="readiness-detail-heading" className="text-lg font-semibold">도착 예정 객실 전체 · 예측 근거</h2>
         {readiness.isError ? <ErrorNotice error={readiness.error} /> : null}
         {readiness.data?.rooms.map((r) => (
           <details key={r.roomId} className="rounded-md border border-zinc-200 bg-white p-3">
             <summary className="flex cursor-pointer flex-wrap items-center gap-2">
               <span className="font-semibold">{r.roomNumber}호</span>
               <GradeBadge grade={r.grade} />
-              <span className="text-sm text-zinc-600">{labelOf(gradeLabels, r.grade).label === "판정 불가" ? "" : formatRisk(r.riskMinutes)}</span>
+              <span className="text-sm text-zinc-600">{r.grade === "UNKNOWN" ? "" : formatRisk(r.riskMinutes)}</span>
             </summary>
             <div className="mt-3">
               <ReadinessBreakdown result={r} timeZone={tz} />

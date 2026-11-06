@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ProblemDetail
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotWritableException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -91,6 +92,24 @@ class ProblemDetailsHandler(meterRegistry: MeterRegistry) : ResponseEntityExcept
         return handleExceptionInternal(ex, body, headers, status, request)
     }
 
+    /**
+     * 응답을 쓰는 중 클라이언트가 연결을 끊은 경우(브라우저 이동·탭 닫기 → Broken pipe)는 서버 오류가 아니다.
+     * 이미 응답이 시작돼 보낼 수도 없으므로 debug로만 남긴다. 그 밖의 직렬화 실패는 기존대로 처리한다.
+     */
+    override fun handleHttpMessageNotWritable(
+        ex: HttpMessageNotWritableException,
+        headers: HttpHeaders,
+        status: HttpStatusCode,
+        request: WebRequest,
+    ): ResponseEntity<Any>? {
+        if (isClientAbort(ex)) {
+            log.debug("client closed the connection before the response was written: {}", ex.mostSpecificCause.message)
+            return null
+        }
+        return super.handleHttpMessageNotWritable(ex, headers, status, request)
+    }
+
+
     /** Spring MVC 기본 예외(400/404/405/415 등)에도 `code`·`correlationId`를 붙인다. */
     override fun handleExceptionInternal(
         ex: Exception,
@@ -144,4 +163,11 @@ class ProblemDetailsHandler(meterRegistry: MeterRegistry) : ResponseEntityExcept
 
     private fun correlationId(request: WebRequest): String? =
         CorrelationIdFilter.current((request as? NativeWebRequest)?.getNativeRequest(HttpServletRequest::class.java))?.toString()
+
+    companion object {
+        /** 클라이언트가 먼저 연결을 끊어 응답을 못 쓴 경우인지 (Tomcat ClientAbortException 또는 Broken pipe). */
+        internal fun isClientAbort(ex: Throwable): Boolean = generateSequence(ex) { it.cause }.any {
+            it.javaClass.simpleName == "ClientAbortException" || (it is java.io.IOException && it.message?.contains("Broken pipe") == true)
+        }
+    }
 }

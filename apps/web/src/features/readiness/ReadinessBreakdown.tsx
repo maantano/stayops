@@ -7,11 +7,11 @@ type ReadinessResult = components["schemas"]["ReadinessResult"];
 
 export function GradeBadge({ grade }: { grade: string }) {
   const g = labelOf(gradeLabels, grade);
-  return <Badge tone={g.tone} label={g.label} prefix="준비 위험" />;
+  return <Badge tone={g.tone} label={g.label} prefix="준비 예측" />;
 }
 
 /**
- * 준비 위험의 계산 근거 (02 §8, H2 "원인 설명"). 예상 시각은 보장이 아니라 입력 기반 계산값임을 함께 밝힌다.
+ * 준비 예측의 계산 근거 (02 §8, H2 "원인 설명"). 예상 시각은 보장이 아니라 입력 기반 계산값임을 함께 밝힌다.
  */
 export function ReadinessBreakdown({ result, timeZone }: { result: ReadinessResult; timeZone: string }) {
   return (

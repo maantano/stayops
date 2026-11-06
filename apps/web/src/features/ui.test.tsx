@@ -184,7 +184,7 @@ describe("DashboardView", () => {
     expect(list.textContent).toContain("202호");
     expect(list.textContent).toContain("26분 늦음");
     expect(list.textContent).toContain("청소 · 검사");
-    expect(list.textContent).toContain("판정 불가");
+    expect(list.textContent).toContain("예측 불가");
     expect(list.textContent).toContain("차단 해제 예상 시각 없음");
   });
 });

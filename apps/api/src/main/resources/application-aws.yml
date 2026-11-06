@@ -1,6 +1,6 @@
 # 클라우드 배포용 (P12, 구성만). 값은 모두 환경 변수/Secrets Manager로 주입한다 — 기본값을 두지 않아 누락 시 시작에 실패한다.
 #
-# 주의 (ADR-005): 인증은 여전히 X-Demo-Staff-Id 데모 헤더다. 이 profile은 "합성 데이터 공개 데모" 배포용이며
+# 주의 (ADR-005): 인증은 여전히 X-Demo-Staff-Id 데모 헤더다. 이 profile은 "데모 데이터 공개 데모" 배포용이며
 # 실제 운영 데이터를 다루는 배포가 아니다. 실제 인증(OIDC 등) 도입 전에는 운영 데이터를 넣지 않는다.
 spring:
   datasource:
@@ -30,7 +30,7 @@ springdoc:
     enabled: ${STAYOPS_API_DOCS_ENABLED:false}
 
 stayops:
-  demo-mode: ${STAYOPS_DEMO_MODE:true} # 합성 데이터 데모. 실제 인증 전까지 true로만 운영한다(위 주의 참고)
+  demo-mode: ${STAYOPS_DEMO_MODE:true} # 데모 데이터. 실제 인증 전까지 true로만 운영한다(위 주의 참고)
   web:
     allowed-origins: ${STAYOPS_WEB_ALLOWED_ORIGINS}
     max-request-size: ${STAYOPS_MAX_REQUEST_SIZE:5MB}

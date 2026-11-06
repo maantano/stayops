@@ -26,6 +26,7 @@ Claude Code는 실제 저장소 조사와 구현을 담당한다. 문서에 적�
 | CI | 완료 — GitHub Actions `ci.yml` 7개 job(API build·Web lint/typecheck/test/build + OpenAPI 타입 동기화·Simulator·E2E(Postgres service)·API 이미지 빌드·Terraform fmt/validate/checkov·gitleaks 전체 이력). action SHA 고정, Dependabot. actionlint(+shellcheck)·스키마 검증, 각 job 명령 로컬 실행으로 확인. 원격 저장소가 없어 GitHub에서 실제 실행은 미확인 |
 | 수동 확인 후속 | 사용자 확인에서 다크 모드 결함 발견 → 팔레트 반전·`color-scheme`, E2E 라이트·다크 axe. 그 과정에서 개발 모드(StrictMode) dialog 미표시 결함 발견·수정. 웹 32 · E2E 8 |
 | 사용성 후속 | 사용자 수동 테스트 피드백: 예약 목록에 객실 업무 단계·판매 상태 추가(API·계약), 체크인 불가 이유를 누르기 전에 안내, 오류 문구 코드별 한국어화(서버 설명은 보조). 사용 설명서(`/guide` + `docs/USER_GUIDE.md`, 단일 원본·동기화 테스트). 백엔드 231 · 웹 39 · E2E 8 |
+| 데모 운영성·QA | 용어 정리(합성 → 데모 데이터, 준비 위험 → 준비 예측과 쉬운 등급 이름), 데모 데이터 매일 새로 만들기(04:00, 시작 시 확인·강제 옵션, advisory lock, 다른 호텔 보존 테스트), 사용 설명서 탭·역할 칩·상태 배지 개편, 테스트 케이스 15개 문서화와 운영 테스트(실행 중 서비스 대상) 15/15 통과·보고서. 발견·수정: 정시 준비율 이중 반올림, 계약 스냅샷 누락, Broken pipe 경고. 백엔드 234 · 웹 43 · E2E 8 · 운영 15 |
 | 남은 일 | 실제 배포·CD(AWS 자격 증명·인증서·Vercel), 실제 인증(ADR-007 단계), GitHub에서 CI 첫 실행 확인, 화면 낭독기 수동 점검, 02 §11 OPEN 항목 |
 
 ## 2. 필수 원칙

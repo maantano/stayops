@@ -55,11 +55,11 @@ export const taskOriginLabels: Record<string, string> = {
 };
 
 export const gradeLabels: LabelMap = {
-  AT_RISK: { label: "위험", tone: "danger" },
-  WARNING: { label: "주의", tone: "warning" },
-  ON_TRACK: { label: "정상", tone: "success" },
+  AT_RISK: { label: "늦을 예정", tone: "danger" },
+  WARNING: { label: "빠듯함", tone: "warning" },
+  ON_TRACK: { label: "여유 있음", tone: "success" },
   READY: { label: "준비 완료", tone: "success" },
-  UNKNOWN: { label: "판정 불가", tone: "info" },
+  UNKNOWN: { label: "예측 불가", tone: "info" },
 };
 
 export const reservationStatusLabels: LabelMap = {

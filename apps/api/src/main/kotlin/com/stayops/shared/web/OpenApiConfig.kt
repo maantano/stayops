@@ -40,7 +40,7 @@ class OpenApiConfig {
                 .title("StayOps API")
                 .version("v1")
                 .description(
-                    "객실 준비·하우스키핑 운영 API (합성 데이터 데모). 인증은 데모 헤더 `X-Demo-Staff-Id`이며 보안 수단이 아니다 (ADR-005). " +
+                    "객실 준비·하우스키핑 운영 API (데모 데이터). 인증은 데모 헤더 `X-Demo-Staff-Id`이며 보안 수단이 아니다 (ADR-005). " +
                         "규칙의 기준 문서: docs/v4.1/02_DOMAIN_AND_API.md",
                 ),
         )

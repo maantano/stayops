@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     // Playwright 산출물
     "playwright-report/**",
     "test-results/**",
+    "ops-results/**",
   ]),
 ]);
 

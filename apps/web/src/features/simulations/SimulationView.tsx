@@ -24,13 +24,16 @@ const POLICIES: { value: SimPolicy; label: string }[] = [
 type Better = "higher" | "lower" | "neutral";
 type Row = { key: string; label: string; better: Better; format: (v: number) => string; value: (m: Metrics) => number | null | undefined };
 
-const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+// 정수 연산으로 한 번만 반올림한다 — toFixed는 81.55 같은 값을 이진 오차로 내림할 수 있다.
+const pct = (v: number) => `${(Math.round(v * 1000) / 10).toFixed(1)}%`;
 const min = (v: number) => `${v.toFixed(1)}분`;
 const count = (v: number) => `${Math.round(v)}`;
 
 /** 비교 표의 행. key는 서버 diffFromBaseline.metrics의 키와 같다. 좋아지는 방향을 함께 정의한다. */
 export const KPI_ROWS: Row[] = [
-  { key: "onTimeReadinessRate", label: "정시 준비율", better: "higher", format: pct, value: (m) => m.onTimeReadinessRate },
+  // 서버 비율은 소수 넷째 자리로 이미 반올림돼 있어(0.81546 → 0.8155) 다시 반올림하면 0.1%p 어긋날 수 있다.
+  // 건수가 있으면 건수로 계산해 한 번만 반올림한다 (운영 테스트에서 문서 81.6% ↔ 실제 81.546% 불일치로 발견).
+  { key: "onTimeReadinessRate", label: "정시 준비율", better: "higher", format: pct, value: (m) => (m.evaluatedArrivals ? m.onTime / m.evaluatedArrivals : m.onTimeReadinessRate) },
   { key: "late", label: "마감 이후 준비 (건)", better: "lower", format: count, value: (m) => m.late },
   { key: "notReadyByHorizonEnd", label: "기간 내 미준비 (건)", better: "lower", format: count, value: (m) => m.notReadyByHorizonEnd },
   { key: "meanLatenessMinutes", label: "평균 지연", better: "lower", format: min, value: (m) => m.meanLatenessMinutes },
@@ -53,7 +56,7 @@ export function describeDiff(row: Row, diff: number | null | undefined): { text:
   return { text: `${sign}${magnitude}`, verdict: improved ? "개선" : "악화" };
 }
 
-/** 시뮬레이션 (03 §3 Simulation): 합성 데이터셋 업로드 → 정책 비교 실행 → 기준 대비 KPI. */
+/** 시뮬레이션 (03 §3 Simulation): 데모 데이터셋 업로드 → 정책 비교 실행 → 기준 대비 KPI. */
 export function SimulationView() {
   const { session } = useDemoSession();
   const isManager = session?.role === "MANAGER";
@@ -67,7 +70,7 @@ export function SimulationView() {
       <Card className="flex flex-wrap items-center gap-3 border-amber-300 bg-amber-50">
         <SyntheticDataBadge />
         <p className="text-sm text-amber-900">
-          Python 생성기로 만든 <strong>합성 데이터</strong>에 운영 정책을 적용한 상대 비교입니다. 실제 운영 성과나 최적화 보장이 아닙니다.
+          Python 생성기로 만든 <strong>데모 데이터</strong>에 운영 정책을 적용한 상대 비교입니다. 실제 운영 성과나 최적화 보장이 아닙니다.
         </p>
       </Card>
 
@@ -136,7 +139,7 @@ function RunPanel({ onRun }: { onRun: (runId: string) => void }) {
     <Card className="space-y-4">
       <h2 className="text-lg font-semibold">정책 비교 실행</h2>
       <Field
-        label="합성 데이터셋 올리기 (gen-v1 JSON)"
+        label="데모 데이터셋 올리기 (gen-v1 JSON)"
         htmlFor="dataset-file"
         hint="tools/simulator에서 `uv run stayops-simulator generate --seed 42 --out output/dataset-42.json`로 만든 파일. 같은 파일은 한 번만 저장됩니다."
         error={fileError ?? undefined}

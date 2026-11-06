@@ -23,7 +23,7 @@ type Resource = "dashboard" | "readiness" | "rooms" | "room" | "timeline" | "tas
 
 /**
  * command 성공 후 무효화할 자원 (03 §6 "관련 query invalidate").
- * 객실 상태·작업·준비 위험은 거의 모든 command에 영향을 받으므로 공통으로 무효화하고, 예약·업무량은 해당 command만.
+ * 객실 상태·작업·준비 예측은 거의 모든 command에 영향을 받으므로 공통으로 무효화하고, 예약·업무량은 해당 command만.
  */
 const COMMON: Resource[] = ["dashboard", "readiness", "rooms", "room", "timeline", "tasks"];
 
@@ -41,7 +41,7 @@ export const invalidationTargets: Record<CommandName, Resource[]> = {
   createStayover: COMMON,
   createRework: [...COMMON, "staff-workloads"],
   changeAvailability: COMMON,
-  // 시뮬레이션은 합성 데이터만 다루므로 운영 화면 query에 영향이 없다.
+  // 시뮬레이션은 데모 데이터만 다루므로 운영 화면 query에 영향이 없다.
   importSimulationDataset: ["simulations"],
   runSimulation: ["simulations"],
 };

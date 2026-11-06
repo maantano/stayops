@@ -29,8 +29,6 @@ import com.stayops.staff.domain.StaffShift
 import com.stayops.staff.infrastructure.StaffRepository
 import com.stayops.staff.infrastructure.StaffShiftRepository
 import org.slf4j.LoggerFactory
-import org.springframework.boot.ApplicationArguments
-import org.springframework.boot.ApplicationRunner
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import java.time.Duration
@@ -40,7 +38,8 @@ import java.time.ZoneId
 import java.util.UUID
 
 /**
- * 화면 확인용 데모 데이터 (P9). `demo` profile로 실행할 때만 동작하고, 데모 호텔이 이미 있으면 아무것도 하지 않는다.
+ * 화면 확인용 데모 데이터 (P9). 언제 만들지는 [DemoDataRefresher]가 정한다(시작 시 + 매일 새로 만들기).
+ * 모든 시각은 seed 시점 기준이라, 오래 두면 도착 시각이 지나 화면이 낡아 보인다 — 그래서 매일 새로 만든다.
  *
  * 기준 데이터(객실·직원·근무·투숙 예약)는 직접 저장하고, 이후 상태는 **실제 command**(체크아웃·배정·시작·차단·완료·검사)로
  * 만들어 이벤트 이력과 불변식이 실제 흐름과 같게 한다. 모든 값은 합성 데이터이며 실제 운영 데이터가 아니다.
@@ -59,15 +58,12 @@ class DemoSeeder(
     private val tasks: TaskCommandService,
     private val roomTasks: RoomTaskCommandService,
     private val availability: RoomAvailabilityService,
-) : ApplicationRunner {
+) {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override fun run(args: ApplicationArguments) {
-        if (properties.findAll().any { it.name == HOTEL_NAME }) {
-            log.info("[demo] '{}' already exists — skipping seed", HOTEL_NAME)
-            return
-        }
+    /** 데모 호텔을 새로 만든다. 같은 이름의 호텔이 없는 상태에서 호출한다([DemoDataRefresher]가 보장). */
+    fun seed() {
         val now = Instant.now()
         fun at(minutes: Long): Instant = now.plus(Duration.ofMinutes(minutes))
 
@@ -109,9 +105,9 @@ class DemoSeeder(
         fun checkout(number: String) = run("checkout-$number", frontDesk, StayCommandResponse::class.java) { stays.checkOut(it, stay.getValue(number).getId()) }.checkoutCleaningTaskId!!
 
         // 102: 준비 완료지만 판매 중단
-        run("oos-102", manager, RoomCommandResponse::class.java) { availability.change(it, r.getValue("102").getId(), RoomAvailabilityStatus.OUT_OF_SERVICE, "에어컨 점검 (합성)") }
+        run("oos-102", manager, RoomCommandResponse::class.java) { availability.change(it, r.getValue("102").getId(), RoomAvailabilityStatus.OUT_OF_SERVICE, "에어컨 점검 (데모)") }
         // 104: 투숙 중 청소 요청
-        run("stayover-104", frontDesk, TaskCommandResponse::class.java) { roomTasks.createStayover(it, r.getValue("104").getId(), null, null, "수건 교체 요청 (합성)") }
+        run("stayover-104", frontDesk, TaskCommandResponse::class.java) { roomTasks.createStayover(it, r.getValue("104").getId(), null, null, "수건 교체 요청 (데모)") }
 
         checkout("202") // 청소 대기 (미배정)
         val c203 = checkout("203") // 청소 중
@@ -138,7 +134,7 @@ class DemoSeeder(
         val i303 = task("complete-303", hk1) { tasks.complete(it, c303) }.createdTaskId!!
         task("assign-i303", manager) { tasks.assign(it, i303, inspector.getId()) }
         task("start-i303", inspector) { tasks.start(it, i303) }
-        task("fail-i303", inspector) { tasks.submitInspectionResult(it, i303, InspectionResult.FAILED, "욕실 바닥 물기 잔존 (합성)", mapOf("bathroom" to false, "bed" to true)) }
+        task("fail-i303", inspector) { tasks.submitInspectionResult(it, i303, InspectionResult.FAILED, "욕실 바닥 물기 잔존 (데모)", mapOf("bathroom" to false, "bed" to true)) }
         val c304 = checkout("304") // 해제 예상 없는 DND 차단 → 판정 불가
         task("block-304", manager) { tasks.addBlocker(it, c304, BlockerType.DND, "방해 금지 표시", null) }
 
@@ -154,6 +150,9 @@ class DemoSeeder(
     }
 
     companion object {
-        const val HOTEL_NAME = "StayOps 데모 호텔 (합성 데이터)"
+        const val HOTEL_NAME = "StayOps 데모 호텔"
+
+        /** 이전 버전에서 쓰던 데모 호텔 이름. 새로 만들 때 함께 정리한다. */
+        val LEGACY_HOTEL_NAMES = listOf("StayOps 데모 호텔 (합성 데이터)")
     }
 }

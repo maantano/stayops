@@ -30,7 +30,7 @@ const EVENT_LABELS: Record<string, string> = {
   INSPECTION_RECORDED: "검사 결과",
 };
 
-/** 객실 상세 (03 §3 Room detail): 상태 두 축 + 업무 단계, 진행 작업, 준비 위험 근거, 이벤트 타임라인. */
+/** 객실 상세 (03 §3 Room detail): 상태 두 축 + 업무 단계, 진행 작업, 준비 예측 근거, 이벤트 타임라인. */
 export function RoomDetailView() {
   const { roomId } = useParams<{ roomId: string }>();
   const { session } = useDemoSession();
@@ -96,7 +96,7 @@ export function RoomDetailView() {
 
       {canSeeReadiness ? (
         <section aria-labelledby="readiness-heading" className="space-y-2">
-          <h2 id="readiness-heading" className="text-lg font-semibold">준비 위험</h2>
+          <h2 id="readiness-heading" className="text-lg font-semibold">준비 예측</h2>
           {readiness.isPending ? <LoadingState /> : null}
           {readiness.isError ? <ErrorNotice error={readiness.error} /> : null}
           {readiness.isSuccess && !readinessRow ? <EmptyState>24시간 안에 도착 예정인 예약이 없어 평가하지 않습니다.</EmptyState> : null}

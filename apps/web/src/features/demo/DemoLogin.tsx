@@ -14,7 +14,7 @@ import { roleLabels } from "@/lib/labels";
 
 const ROLE_HINT: Record<string, string> = {
   MANAGER: "배정·취소·판매 중단·재정비, 전체 현황",
-  FRONT_DESK: "체크인·체크아웃, 투숙 중 청소 요청, 준비 위험 확인",
+  FRONT_DESK: "체크인·체크아웃, 투숙 중 청소 요청, 준비 예측 확인",
   HOUSEKEEPER: "본인 작업 시작·차단·완료",
   INSPECTOR: "본인 검사 시작·결과 입력",
 };
@@ -41,7 +41,7 @@ export function DemoLogin({ baseUrl }: { baseUrl: string }) {
           <SyntheticDataBadge />
         </div>
         <p className="text-sm text-zinc-600">
-          실제 로그인 대신 직원을 골라 그 역할로 화면을 봅니다. 보안 수단이 아닌 합성 데이터 데모용입니다.
+          실제 로그인 대신 직원을 골라 그 역할로 화면을 봅니다. 보안 수단이 아닌 데모용입니다.
         </p>
         <p className="text-sm">
           처음이라면{" "}

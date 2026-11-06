@@ -30,7 +30,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="stayops-simulator", description=describe())
     sub = parser.add_subparsers(dest="command")
 
-    gen = sub.add_parser("generate", help="합성 데이터셋 생성 (같은 seed·설정 → 같은 파일)")
+    gen = sub.add_parser("generate", help="데모 데이터셋 생성 (같은 seed·설정 → 같은 파일)")
     gen.add_argument("--seed", type=int, required=True)
     gen.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     gen.add_argument("--out", type=Path, required=True)

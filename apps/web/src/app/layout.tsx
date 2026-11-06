@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "StayOps",
-  description: "객실 준비 상태와 하우스키핑 운영을 설명 가능하게 보여주는 운영 지원 도구 (합성 데이터 데모)",
+  description: "객실 준비 상태와 하우스키핑 운영을 설명 가능하게 보여주는 운영 지원 도구 (데모 데이터)",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

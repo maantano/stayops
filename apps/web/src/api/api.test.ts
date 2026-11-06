@@ -103,7 +103,7 @@ describe("query keys and invalidation", () => {
     }
     expect(invalidationPrefixes(PROPERTY, "checkIn")).toContainEqual(["stayops", PROPERTY, "reservations"]);
     expect(invalidationPrefixes(PROPERTY, "start")).not.toContainEqual(["stayops", PROPERTY, "reservations"]);
-    // 시뮬레이션(합성 데이터)은 운영 화면을 다시 불러오지 않는다
+    // 시뮬레이션(데모 데이터)은 운영 화면을 다시 불러오지 않는다
     expect(invalidationPrefixes(PROPERTY, "runSimulation")).toEqual([["stayops", PROPERTY, "simulations"]]);
   });
 });

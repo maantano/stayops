@@ -108,7 +108,7 @@ export function BlockDialog({ task, open, onClose }: DialogProps) {
         <Field
           label="예상 해제까지 (분, 선택)"
           htmlFor="block-eta"
-          hint="비워 두면 준비 위험이 '판정 불가'가 됩니다 — 시간을 추정하지 않습니다."
+          hint="비워 두면 준비 예측이 '예측 불가'가 됩니다 — 시간을 짐작해 넣지 않습니다."
           error={form.formState.errors.resolveInMinutes?.message}
         >
           <input id="block-eta" inputMode="numeric" className={inputClass} {...form.register("resolveInMinutes")} />

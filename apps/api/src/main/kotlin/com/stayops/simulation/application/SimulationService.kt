@@ -240,7 +240,7 @@ data class SimulationRunView(
     val definitions: Map<String, String>,
     val assumptions: List<String>,
     val synthetic: Boolean = true,
-    val note: String = "합성 데이터에 대한 정책 간 상대 비교입니다. 실제 운영 성과나 최적화 보장이 아닙니다.",
+    val note: String = "데모 데이터에 대한 정책 간 상대 비교입니다. 실제 운영 성과나 최적화 보장이 아닙니다.",
 )
 
 data class SimulationRunSummary(
