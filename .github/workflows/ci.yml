@@ -1,5 +1,6 @@
 # StayOps CI — 테스트·정적 검사·이미지 빌드까지. 배포(push·apply)는 하지 않는다 (ADR-007, docs/deploy/DEPLOYMENT.md).
 # 서드파티 action은 커밋 SHA로 고정한다(태그 변경 공급망 위험). 갱신은 Dependabot이 PR로 올린다.
+# runner OS도 버전을 고정한다 — ubuntu-latest가 26.04로 바뀌자 Playwright가 지원하지 않아 E2E가 실패했다(첫 GitHub 실행에서 발견).
 name: CI
 
 on:
@@ -25,7 +26,7 @@ env:
 jobs:
   api:
     name: API (build · unit · integration · OpenAPI contract)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
       run:
@@ -51,7 +52,7 @@ jobs:
 
   web:
     name: Web (lint · typecheck · unit · build · API types in sync)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
       run:
@@ -78,7 +79,7 @@ jobs:
 
   simulator:
     name: Simulator (ruff · pytest)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     defaults:
       run:
@@ -97,7 +98,7 @@ jobs:
 
   e2e:
     name: E2E (Playwright · axe)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     services:
       postgres:
@@ -148,7 +149,7 @@ jobs:
 
   image:
     name: API image (build only, no push)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -163,7 +164,7 @@ jobs:
 
   infra:
     name: Terraform (fmt · validate · checkov)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     defaults:
       run:
@@ -183,7 +184,7 @@ jobs:
 
   secrets:
     name: Secret scan (gitleaks)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

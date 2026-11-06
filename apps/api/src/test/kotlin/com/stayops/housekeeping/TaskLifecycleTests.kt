@@ -594,6 +594,30 @@ class TaskLifecycleTests(
             }
         }
 
+        // 위 경쟁 테스트의 두 결과 중 로컬에서는 한쪽만 나오기 쉬워(CI에서 비슷한 테스트의 숨은 분기 오류가 드러남),
+        // "반대 순서"를 고정해 각 분기의 기대값이 실제와 맞는지 매번 확인한다.
+        @Test
+        fun `checkout before a stayover start cancels it, and the late start is refused`() {
+            val (room, reservation) = hotel.stay()
+            val task = hotel.stayoverTask(room, reservation, TaskStatus.ASSIGNED, assigned = true)
+            val checkout = api.post("/api/v1/reservations/${reservation.getId()}/check-out", staffId = hotel.frontDesk.getId(), idempotencyKey = key())
+            assertEquals(200, checkout.status, "body=${checkout.body}")
+
+            assertProblem(start(task), 409, "INVALID_STATE")
+            assertEquals(TaskStatus.CANCELLED, reload(task).status)
+            assertEquals(RoomOperationalStatus.VACANT_DIRTY, reload(room).operationalStatus)
+        }
+
+        @Test
+        fun `a blocker before start makes the start refused with the active blockers`() {
+            val (room, task) = hotel.turnover(status = TaskStatus.ASSIGNED, assignee = hotel.housekeeper)
+            assertEquals(201, block(task, by = hotel.housekeeper).status)
+
+            assertProblem(start(task), 409, "ACTIVE_BLOCKER_EXISTS")
+            assertEquals(TaskStatus.ASSIGNED, reload(task).statusBeforeBlocked)
+            assertEquals(RoomOperationalStatus.VACANT_DIRTY, reload(room).operationalStatus)
+        }
+
         @Test
         fun `start racing a blocker keeps the invariants in either order`() {
             val (room, task) = hotel.turnover(status = TaskStatus.ASSIGNED, assignee = hotel.housekeeper)

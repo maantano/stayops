@@ -232,10 +232,24 @@ class RoomWorkflowTests(
             if (create.status == 201) {
                 assertEquals(TaskStatus.CANCELLED, stayovers.single().status, "created first, then auto-cancelled by checkout")
             } else {
-                assertProblem(create, 409, "INVALID_STATE")
+                // checkout이 먼저면 객실에 체크아웃 청소가 생기므로 "진행 중 작업 있음"이 먼저 판정된다 (02 §4 Stayover create 판정 순서).
+                // 로컬에서는 거의 항상 요청이 먼저 처리돼 이 분기가 실행되지 않았고, CI에서 처음 드러났다 → 아래 순서 고정 테스트로 매번 확인한다.
+                assertProblem(create, 409, "ACTIVE_WORKFLOW_EXISTS")
                 assertTrue(stayovers.isEmpty())
             }
             assertEquals(RoomOperationalStatus.VACANT_DIRTY, reload(room).operationalStatus)
+        }
+
+        @Test
+        fun `a stayover request after checkout is refused because the checkout cleaning is the room's active task`() {
+            val (room, reservation) = hotel.stay()
+            val checkout = api.post("/api/v1/reservations/${reservation.getId()}/check-out", staffId = hotel.frontDesk.getId(), idempotencyKey = key())
+            assertEquals(200, checkout.status, "body=${checkout.body}")
+
+            val late = stayover(room)
+            assertProblem(late, 409, "ACTIVE_WORKFLOW_EXISTS")
+            assertEquals(checkout.body.get("checkoutCleaningTaskId").asString(), late.body.get("existingTaskId").asString())
+            assertTrue(tasks.findByRoomIdOrderByCreatedAtAsc(room.getId()).none { it.type == TaskType.STAYOVER_CLEANING })
         }
     }
 
