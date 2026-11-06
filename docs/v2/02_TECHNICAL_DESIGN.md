@@ -23,7 +23,7 @@
 | Deploy | Vercel, AWS ECS | FE/BE 배포 |
 | IaC | Terraform | 인프라 선언 |
 
-GCP 등은 초기 MVP에서 도입하지 않는다. 채용 공고에 언급된 기술을 모두 억지로 사용하는 것이 목표가 아니다.
+GCP 등은 초기 MVP에서 도입하지 않는다. 유행하는 기술을 모두 억지로 사용하는 것이 목표가 아니다.
 
 ## 2. 아키텍처
 
@@ -55,10 +55,10 @@ GCP 등은 초기 MVP에서 도입하지 않는다. 채용 공고에 언급된 �
 
 ## 3. 저장소 구조
 
-프로젝트 루트는 현재 작업 디렉터리 `handys/`를 후보로 한다. 실제 저장소 여부·기존 파일은 Phase 0에서 확인한다.
+프로젝트 루트는 현재 작업 디렉터리 `workspace/`를 후보로 한다. 실제 저장소 여부·기존 파일은 Phase 0에서 확인한다.
 
 ```text
-handys/
+workspace/
 ├── docs/
 │   ├── 01_PRODUCT_DISCOVERY.md
 │   ├── 02_TECHNICAL_DESIGN.md

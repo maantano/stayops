@@ -16,7 +16,7 @@
 | 4 | 검사 흐름 불명확 | 검사 task와 record는 있으나 시작·객실 상태 전이 없음 | 공통 start command + 결과 제출 command |
 | 5 | 시뮬레이션 실행 위치 충돌 | Simulation API/Run은 서버 실행처럼 보이나 Python 단계와 불일치 | 온라인 Kotlin, 오프라인 Python 권장 |
 | 6 | 투숙 중 청소 상태 누락 | STAYOVER_CLEANING 작업은 있으나 객실 상태 전이 없음 | OCCUPIED → STAYOVER_CLEANING → OCCUPIED |
-| 7 | 문서와 저장소 구조 불일치 | 문서는 `stayops/`, 실제 작업 폴더는 `handys/` | `handys/`를 루트 후보로, Phase 0에서 실사 |
+| 7 | 문서와 저장소 구조 불일치 | 문서는 `stayops/`, 실제 작업 폴더는 `workspace/` | `workspace/`를 루트 후보로, Phase 0에서 실사 |
 
 ---
 
@@ -220,18 +220,18 @@ OCCUPIED
 ## 7. 문서 구조와 실제 폴더 구조 불일치
 
 ### 발견한 문제
-초기 문서는 `stayops/` 루트 구조를 전제했지만 사용자의 작업 디렉터리는 `handys/`이며 당시 `docs/`만 있고 Git 저장소가 아니라고 보고되었다. 실제 구조를 조사하지 않고 `stayops/` scaffold를 만들면 중첩 폴더가 생기거나 문서 위치가 갈라질 수 있다.
+초기 문서는 `stayops/` 루트 구조를 전제했지만 사용자의 작업 디렉터리는 `workspace/`이며 당시 `docs/`만 있고 Git 저장소가 아니라고 보고되었다. 실제 구조를 조사하지 않고 `stayops/` scaffold를 만들면 중첩 폴더가 생기거나 문서 위치가 갈라질 수 있다.
 
 ### 권장 설계 (`PROPOSAL`)
-- `handys/`를 프로젝트 루트 후보로 사용한다.
-- `handys/docs/`에 문서를 둔다.
+- `workspace/`를 프로젝트 루트 후보로 사용한다.
+- `workspace/docs/`에 문서를 둔다.
 - 앱은 `apps/web`, `apps/api`, Python 도구는 `tools/simulator`로 구성한다.
 - Git 저장소 여부는 Claude Code Phase 0에서 확인한다.
 - Git 초기화·파일 이동·기존 구조 변경은 조사 결과를 사용자에게 보고한 뒤 승인받는다.
 
 ### 수용 기준
 - 실제 작업 경로와 문서 경로가 일치한다.
-- `handys/handys/` 같은 중첩 프로젝트 루트가 생기지 않는다.
+- `workspace/workspace/` 같은 중첩 프로젝트 루트가 생기지 않는다.
 - 기존 파일이 무단 이동/삭제되지 않는다.
 - Git 초기화 여부와 이유가 기록된다.
 
@@ -276,7 +276,7 @@ OCCUPIED
 | 검사 실패 | RE_CLEANING 후 새 검사 task | PROPOSAL |
 | 시뮬레이션 | 온라인 Kotlin, 오프라인 Python | PROPOSAL |
 | 투숙 중 청소 | OCCUPIED → STAYOVER_CLEANING → OCCUPIED | PROPOSAL |
-| 프로젝트 루트 | handys/ 후보, Phase 0 실사 | PROPOSAL |
+| 프로젝트 루트 | workspace/ 후보, Phase 0 실사 | PROPOSAL |
 
 ## 11. 변경 이력
 

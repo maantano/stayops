@@ -5,14 +5,14 @@
 - 관련: v4.1 06 §5, v2 04 #7
 
 ## 맥락
-초기 문서는 `stayops/` 루트를 전제했으나 실제 작업 디렉터리는 `handys/`이고, Phase 0 시점에 `docs/`만 있었으며 Git 저장소가 아니었다. 프론트엔드·백엔드·Python 도구가 한 저장소에서 같은 도메인 문서를 기준으로 개발된다.
+초기 문서는 `stayops/` 루트를 전제했으나 실제 작업 디렉터리는 `workspace/`이고, Phase 0 시점에 `docs/`만 있었으며 Git 저장소가 아니었다. 프론트엔드·백엔드·Python 도구가 한 저장소에서 같은 도메인 문서를 기준으로 개발된다.
 
 ## 결정
-- `handys/`를 Git 저장소 루트로 사용한다 (`main` 브랜치).
+- `workspace/`를 Git 저장소 루트로 사용한다 (`main` 브랜치).
 - 단일 저장소(monorepo) 구조, 다만 언어별 빌드 도구를 하나로 통합하지 않는다.
 
 ```text
-handys/
+workspace/
 ├── apps/
 │   ├── web/              # Next.js (pnpm)
 │   └── api/              # Spring Boot Kotlin (Gradle wrapper)
@@ -31,8 +31,8 @@ handys/
 ## 대안
 | 대안 | 기각 이유 |
 |---|---|
-| `handys/stayops/` 하위에 프로젝트 생성 | 문서와 코드 루트가 갈라지고 중첩 구조가 생김 |
-| 앱별 별도 저장소 | 도메인 문서·API 계약 동기화 비용 증가, 과제 제출 단위가 분산됨 |
+| `workspace/stayops/` 하위에 프로젝트 생성 | 문서와 코드 루트가 갈라지고 중첩 구조가 생김 |
+| 앱별 별도 저장소 | 도메인 문서·API 계약 동기화 비용 증가, 결과물 단위가 분산됨 |
 | pnpm workspace / Turborepo | 현재 JS 패키지 1개로 이점 없음 |
 
 ## 영향

@@ -11,7 +11,7 @@
 ### 제품 가설
 객실·예약·작업·작업자·시설 상태를 일관된 도메인 모델로 연결하고, 준비 마감 시각 대비 예상 완료 시각 및 위험 원인을 설명하면 운영자가 위험 객실을 더 일찍 식별하고 작업 우선순위를 조정할 수 있을 것이다.
 
-상기 내용은 `HYPOTHESIS`. 실제 어반스테이 현장에 동일 문제가 존재하거나 효과가 발생한다고 주장하지 않는다.
+상기 내용은 `HYPOTHESIS`. 실제 숙박 운영 현장에 동일 문제가 존재하거나 효과가 발생한다고 주장하지 않는다.
 
 ## 2. 대상 사용자와 Job-to-be-done
 
@@ -122,7 +122,6 @@
 4. Oracle OPERA Cloud: https://www.oracle.com/hospitality/hotel-property-management/
 5. Mews Operations: https://help.mews.com/s/article/Mews-Operations
 6. Mews Room Overview: https://help.mews.com/s/article/mobile-room-overview
-7. 핸디즈 사업: https://handys.co.kr/business
 
 연구 표본·산업·운영 조건이 다르므로 프로젝트 파라미터의 직접 근거로 쓰지 않는다.
 

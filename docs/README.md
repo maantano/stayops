@@ -24,7 +24,7 @@
 내용: `FACT`, `EVIDENCE`, `INTERPRETATION`, `HYPOTHESIS`, `ASSUMPTION`, `DECISION`, `IMPLEMENTED`, `VERIFIED`
 
 ## 구현 문서
-- **과제 제출 문서 `docs/SUBMISSION.md`** (평가자 시작점)
+- **프로젝트 개요 `docs/OVERVIEW.md`** (처음 보는 분의 시작점)
 - 진행 현황: `docs/v4.1/06_CLAUDE_CODE_HARNESS.md` §1.1 (P1~P12 완료)
 - 스키마 `docs/schema/SCHEMA.md` · API 계약 `docs/api/openapi.json` · 합성 데이터 `docs/simulation/DATASET.md`
 - AI 활용 개발 과정 `docs/process/AI_DEVELOPMENT_PROCESS.md`

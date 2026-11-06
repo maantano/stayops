@@ -41,10 +41,10 @@
 
 ## 4. 프로젝트 루트 및 폴더 구조
 
-작업 루트 후보는 사용자의 `handys/` 디렉터리다. Claude Code는 실제 경로와 Git 상태를 확인한다.
+작업 루트 후보는 사용자의 `workspace/` 디렉터리다. Claude Code는 실제 경로와 Git 상태를 확인한다.
 
 ```text
-handys/
+workspace/
 ├── docs/
 │   ├── 01_PRODUCT_DISCOVERY.md
 │   ├── 02_TECHNICAL_DESIGN.md

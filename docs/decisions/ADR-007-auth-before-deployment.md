@@ -5,7 +5,7 @@
 - 관련: ADR-005(데모 인증), 02 §11 OPEN "실제 auth 방식", `docs/deploy/DEPLOYMENT.md`, `docs/deploy/SECURITY_REVIEW.md`
 
 ## 맥락
-P12는 배포 구성(Dockerfile·Terraform·배포 문서)을 만들지만 **실제 배포는 하지 않는다**(과제 제출용 MVP). ADR-005의 `X-Demo-Staff-Id` 헤더는 보안 수단이 아니므로, 배포 구성을 만드는 시점에 인증을 어떻게 다룰지 정해야 한다.
+P12는 배포 구성(Dockerfile·Terraform·배포 문서)을 만들지만 **실제 배포는 하지 않는다**(데모용 MVP). ADR-005의 `X-Demo-Staff-Id` 헤더는 보안 수단이 아니므로, 배포 구성을 만드는 시점에 인증을 어떻게 다룰지 정해야 한다.
 
 ## 결정
 1. **MVP의 인증은 ADR-005 데모 헤더를 그대로 쓴다.** 코드 변경 없음.
@@ -23,7 +23,7 @@ P12는 배포 구성(Dockerfile·Terraform·배포 문서)을 만들지만 **실
 | 4 | Idempotency 범위(actor + endpoint + key), 이벤트 actor, property 범위 검증은 그대로 | 없음 |
 
 ## 이유
-- 과제 범위에서 IdP·계정 관리를 만드는 비용이 크고, 평가 대상(운영 흐름·동시성·readiness·시뮬레이션)과 무관하다.
+- MVP 범위에서 IdP·계정 관리를 만드는 비용이 크고, 이 프로젝트의 핵심(운영 흐름·동시성·readiness·시뮬레이션)과 무관하다.
 - ADR-005에서 헤더 해석을 `Actor` 경계 뒤로 숨겨 두었으므로 교체 비용이 작고 범위가 명확하다.
 - "보안 수단이 아님"을 숨기지 않고 배포 profile·문서·화면에 명시하는 편이 반쯤 만든 인증보다 정직하다.
 
