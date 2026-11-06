@@ -56,12 +56,23 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
               ))}
             </nav>
             <div className="ml-auto flex items-center gap-3 text-sm">
-              <Link href="/guide" className="text-zinc-700 underline-offset-2 hover:underline">
-                사용법
+              <Link
+                href="/guide"
+                className="inline-flex items-center gap-1.5 rounded-md border border-sky-300 bg-sky-50 px-3 py-1.5 font-medium text-sky-900 hover:bg-sky-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+              >
+                <span aria-hidden="true" className="flex size-4 items-center justify-center rounded-full border border-current text-[10px] leading-none">
+                  ?
+                </span>
+                사용 설명서
               </Link>
-              <span className="text-zinc-600">
-                {session.propertyName} · <strong className="text-zinc-900">{session.displayName}</strong> ({roleLabels[session.role] ?? session.role}) ·{" "}
-                <span title="시각은 호텔 시간대로 표시합니다">{session.timezone}</span>
+              {/* 좁은 화면에서는 호텔 이름·시간대를 숨겨 한 줄을 유지한다(마우스를 올리면 전체 정보) */}
+              <span className="text-zinc-600" title={`${session.propertyName} · ${session.displayName} · ${session.timezone}`}>
+                <span className="hidden 2xl:inline">{session.propertyName} · </span>
+                <strong className="text-zinc-900">{session.displayName}</strong> ({roleLabels[session.role] ?? session.role})
+                <span className="hidden xl:inline">
+                  {" "}
+                  · <span title="시각은 호텔 시간대로 표시합니다">{session.timezone}</span>
+                </span>
               </span>
               <Button variant="ghost" onClick={() => setSession(null)}>
                 사용자 변경

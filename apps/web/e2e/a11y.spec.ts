@@ -13,7 +13,7 @@ test("main screens have no serious or critical axe violations", async ({ page })
   await expectNoSeriousA11yViolations(page);
 
   // 사용 설명서: 로그인 없이 열리고, 목차로 이동할 수 있다
-  await page.getByRole("link", { name: "사용 설명서" }).click();
+  await page.getByRole("link", { name: "사용 설명서 보기" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "StayOps 사용 설명서" })).toBeVisible();
   for (const tab of await page.getByRole("tab").all()) {
     await tab.click();

@@ -24,7 +24,8 @@ test("TC-A01 데모 사용자 선택 화면: 직원 6명, 데모 데이터 표�
   await expect(page.getByText(/합성/)).toHaveCount(0);
   for (const name of Object.values(STAFF)) await expect(page.getByRole("button", { name: new RegExp(`^${name}`) })).toBeVisible();
   await expect(page.getByRole("button", { name: /^HK-03/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: "사용 설명서" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "사용 설명서 보기" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "사용 설명서 바로 가기" }).getByRole("link")).toHaveText(["빠른 시작", "역할별 할 일", "막혔을 때"]);
   await shot(page, "TC-A01-login");
 });
 

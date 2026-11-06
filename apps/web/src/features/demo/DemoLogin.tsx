@@ -12,6 +12,13 @@ import { SyntheticDataBadge } from "@/components/SyntheticDataBadge";
 import { Card, EmptyState, LoadingState } from "@/components/ui";
 import { roleLabels } from "@/lib/labels";
 
+/** 첫 화면에서 사용 설명서의 자주 찾는 탭으로 바로 간다. */
+const GUIDE_SHORTCUTS = [
+  { hash: "start", label: "빠른 시작" },
+  { hash: "roles", label: "역할별 할 일" },
+  { hash: "help", label: "막혔을 때" },
+];
+
 const ROLE_HINT: Record<string, string> = {
   MANAGER: "배정·취소·판매 중단·재정비, 전체 현황",
   FRONT_DESK: "체크인·체크아웃, 투숙 중 청소 요청, 준비 예측 확인",
@@ -43,14 +50,29 @@ export function DemoLogin({ baseUrl }: { baseUrl: string }) {
         <p className="text-sm text-zinc-600">
           실제 로그인 대신 직원을 골라 그 역할로 화면을 봅니다. 보안 수단이 아닌 데모용입니다.
         </p>
-        <p className="text-sm">
-          처음이라면{" "}
-          <Link href="/guide" className="font-medium underline underline-offset-2">
-            사용 설명서
-          </Link>
-          에서 역할별로 할 수 있는 일과 객실·작업 상태별 사용법을 먼저 보세요.
-        </p>
       </header>
+
+      <section aria-labelledby="guide-cta-title" className="flex flex-wrap items-center gap-4 rounded-lg border border-sky-300 bg-sky-50 p-5">
+        <div className="min-w-60 flex-1 space-y-2">
+          <h2 id="guide-cta-title" className="text-lg font-semibold text-sky-900">
+            처음 사용하시나요?
+          </h2>
+          <p className="text-sm text-sky-900">역할별로 할 일, 화면에 보이는 상태의 뜻, 막혔을 때 해결 방법을 사용 설명서에 정리했습니다.</p>
+          <nav aria-label="사용 설명서 바로 가기" className="flex flex-wrap gap-2 text-sm">
+            {GUIDE_SHORTCUTS.map((s) => (
+              <Link key={s.hash} href={`/guide#${s.hash}`} className="rounded-full border border-sky-300 bg-white px-3 py-1 text-sky-900 hover:bg-sky-100">
+                {s.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+        <Link
+          href="/guide"
+          className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-5 py-2.5 font-semibold text-white hover:bg-zinc-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+        >
+          사용 설명서 보기 <span aria-hidden="true">→</span>
+        </Link>
+      </section>
 
       {actors.isPending ? <LoadingState /> : null}
       {actors.isError ? <ErrorNotice error={actors.error} /> : null}
