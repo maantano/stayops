@@ -90,7 +90,7 @@ cd apps/web && STAYOPS_OPS_WEB=http://localhost:3100 STAYOPS_OPS_API=http://loca
 - **함께 확인:** E2E `exceptions.spec.ts`, API `StayCommandTests`(8가지 상태 조합)
 
 ### TC-T02 작업 취소 후 재청소 만들기
-- **절차:** MGR-01 → 303호 재청소 [작업 취소](사유 입력) → 303호 상세 → [재청소 작업 만들기](사유 입력)
+- **절차:** MGR-01 → 303호 재청소 [작업 취소] 버튼(사유 입력) → 303호 상세 → [재청소 작업 만들기] 버튼(사유 입력)
 - **기대 결과:** 취소 후 업무 단계 '청소 필요', 진행 중인 작업 없음 → 만들기 후 진행 중인 작업에 재청소
 - **함께 확인:** API `RoomWorkflowTests`(재정비)
 
